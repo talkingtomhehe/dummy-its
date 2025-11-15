@@ -1,0 +1,18 @@
+# Redirect all requests to the public directory
+RewriteEngine On
+
+# Set base directory
+RewriteBase /its/
+
+# Redirect to public directory if not accessing public assets
+RewriteCond %{REQUEST_URI} !^/its/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Security: Deny access to sensitive files
+<FilesMatch "\.(sql|md|json|lock|env|gitignore)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes

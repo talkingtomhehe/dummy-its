@@ -1,0 +1,160 @@
+<?php
+namespace App\Controllers;
+
+use App\Core\Session;
+use App\Core\View;
+use App\Models\Services\UserService;
+use App\Models\Repositories\UserRepository;
+
+/**
+ * AuthController
+ * Handles authentication requests
+ * 
+ * SOLID: Single Responsibility Principle (SRP)
+ * Only handles HTTP requests for authentication, delegates business logic to UserService
+ */
+class AuthController {
+    private UserService $userService;
+
+    public function __construct() {
+        // Manual dependency injection
+        // In production, use a DI container
+        $this->userService = new UserService(new UserRepository());
+    }
+
+    /**
+     * Show role selection page (step 1 of login)
+     */
+    public function showSelectRole(): void {
+        if (Session::isAuthenticated()) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        View::render('user/select_role');
+    }
+
+    /**
+     * Handle role selection POST request (step 1 of login)
+     */
+    public function selectRole(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            View::redirect('/select-role');
+            return;
+        }
+
+        $role = $_POST['role'] ?? '';
+        
+        if (!in_array($role, ['student', 'instructor'])) {
+            View::redirect('/select-role');
+            return;
+        }
+
+        // Store selected role in session temporarily
+        Session::set('login_role', $role);
+        
+        // Return success (view will redirect to login form)
+        http_response_code(200);
+        exit;
+    }
+
+    /**
+     * Show login page (step 2 of login)
+     */
+    public function showLogin(): void {
+        if (Session::isAuthenticated()) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        // Check if role was selected
+        $selectedRole = Session::get('login_role');
+        if (!$selectedRole) {
+            View::redirect('/select-role');
+            return;
+        }
+
+        $data = [
+            'error' => Session::getFlash('error'),
+            'roleLabel' => ucfirst($selectedRole)
+        ];
+
+        View::render('user/login', $data);
+    }
+
+    /**
+     * Handle login POST request (step 2 of login)
+     */
+    public function login(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            View::redirect('/login');
+            return;
+        }
+
+        // Get role from session (selected in step 1)
+        $selectedRole = Session::get('login_role');
+        if (!$selectedRole) {
+            View::redirect('/select-role');
+            return;
+        }
+
+        // Controller validates basic input
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            Session::flash('error', 'Username and password are required');
+            View::redirect('/login');
+            return;
+        }
+
+        try {
+            // Service handles business logic
+            $user = $this->userService->authenticate($username, $password);
+
+            if (!$user) {
+                Session::flash('error', 'Invalid username or password');
+                View::redirect('/login');
+                return;
+            }
+
+            // Verify role matches selected role
+            if ($user->getRole() !== $selectedRole) {
+                Session::flash('error', 'Invalid credentials for selected role');
+                View::redirect('/login');
+                return;
+            }
+
+            // Clear temporary login role
+            Session::remove('login_role');
+
+            // Set session
+            Session::setAuth($user->getUserId(), $user->getRole());
+            Session::set('full_name', $user->getFullName());
+
+            View::redirect('/dashboard');
+        } catch (\Exception $e) {
+            Session::flash('error', 'Login failed: ' . $e->getMessage());
+            View::redirect('/login');
+        }
+    }
+
+    /**
+     * Handle logout
+     */
+    public function logout(): void {
+        Session::destroy();
+        View::redirect('/');
+    }
+
+    /**
+     * Check authentication middleware
+     */
+    public static function checkAuth(): bool {
+        if (!Session::isAuthenticated()) {
+            View::redirect('/');
+            return false;
+        }
+        return true;
+    }
+}

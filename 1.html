@@ -1,0 +1,3687 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Tutoring System</title>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- THÊM MỚI: Thư viện Chart.js để vẽ biểu đồ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #0D8FA3;
+            --primary-dark: #0a6a7a;
+            --primary-light: #e8f4f8;
+            --accent-color: #0D5B7A;
+            --text-color: #333;
+            --border-color: #ddd;
+            --bg-color: #f5f5f5;
+            --bg-light: #ffffff;
+            --danger-color: #d9534f;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --sidebar-width-open: 240px;
+            --sidebar-width-closed: 50px;
+        }
+
+        /* --- RESET & DEFAULTS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow: hidden; 
+        }
+
+        /* --- PAGE CONTAINER LOGIC --- */
+        .page { 
+            display: none; 
+            width: 100%;
+            height: 100vh; 
+            overflow-y: auto; 
+        }
+        .page.active { 
+            display: block; 
+        }
+
+        #page-student-course,
+        #page-instructor-course,
+        #page-dashboard {
+            height: 100vh; 
+            display: none; 
+            flex-direction: column; 
+        }
+        #page-student-course.active,
+        #page-instructor-course.active,
+        #page-dashboard.active {
+            display: flex; 
+        }
+
+
+        /* --- ICON STYLES --- */
+        i.feather {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+            vertical-align: middle;
+        }
+        .button i.feather {
+            width: 16px;
+            height: 16px;
+        }
+        .item-controls .button-icon i.feather {
+            width: 16px; 
+            height: 16px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--primary-color);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky; 
+            top: 0;
+            z-index: 200; 
+            flex-shrink: 0; 
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+            font-size: 20px;
+        }
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+        nav a {
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 8px 0;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        nav a:hover, nav a.active {
+            border-bottom: 2px solid white;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            padding: 4px; 
+        }
+        .icon-button:hover {
+            opacity: 0.8;
+        }
+
+        /* --- AVATAR DROPDOWN --- */
+         .avatar-container {
+            position: relative;
+        }
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        .avatar-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px; 
+            right: 0;
+            background-color: var(--bg-light);
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+            animation: slide-down 0.2s ease-out;
+        }
+        .avatar-dropdown.active {
+            display: block;
+        }
+        .avatar-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            font-size: 14px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+         .avatar-dropdown-item i.feather {
+            width: 16px;
+            height: 16px;
+            color: #555;
+         }
+        .avatar-dropdown-item:hover {
+            background-color: var(--bg-color);
+        }
+        .avatar-dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 5px 0;
+        }
+
+
+        /* CSS cho Toggle Switch (Editing) */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--success-color); 
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        .editing-label {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            display: flex;
+            flex: 1; 
+            overflow: hidden; 
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width-open); 
+            background-color: var(--bg-light); 
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            flex-shrink: 0; 
+            height: 100%; 
+        }
+        .sidebar-header {
+            padding: 10px;
+            display: flex;
+            justify-content: flex-end; 
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .toggle-button {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-light);
+            border: none;
+            border-radius: 6px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .toggle-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto; 
+            padding: 10px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap; 
+        }
+        .sidebar-nav-item:hover {
+            background-color: var(--bg-color);
+        }
+        .sidebar-nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .sidebar-nav-item i.feather {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-color);
+            flex-shrink: 0;
+        }
+        .sidebar-nav-item.category {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-top: 10px;
+        }
+        .sidebar-nav-item.sub-item {
+            padding-left: 36px; 
+            font-weight: 400;
+        }
+
+
+        .main {
+            flex: 1;
+            padding: 40px 50px;
+            overflow-y: auto; 
+            transition: margin-left 0.3s ease;
+            height: 100%; 
+        }
+        
+        /* Trạng thái thu gọn (collapsed) */
+        .container.sidebar-collapsed .sidebar {
+            width: var(--sidebar-width-closed);
+        }
+        .container.sidebar-collapsed .sidebar-content {
+            display: none; 
+        }
+        .container.sidebar-collapsed .sidebar-header {
+            justify-content: center; 
+        }
+
+        /* Layout tập trung (không có sidebar) */
+        .page.container-focused {
+            display: none; 
+            flex-direction: column; 
+        }
+        .page.container-focused.active {
+            display: flex; 
+        }
+        .page.container-focused .container {
+             
+        }
+        .page.container-focused .main {
+            margin-left: 0;
+        }
+
+        .course-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+        }
+        
+        .breadcrumbs {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .breadcrumbs a {
+            color: var(--primary-color);
+        }
+        .breadcrumbs span {
+            margin: 0 5px;
+        }
+
+
+        /* --- TABS --- */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .tab {
+            padding: 12px 24px;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .tab:hover {
+            background-color: var(--primary-light);
+        }
+
+        /* --- PAGE CONTROLS (INSTRUCTOR) --- */
+        .page-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* --- SECTIONS --- */
+        .section {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .section-header:hover {
+            background-color: #f9f9f9;
+        }
+        .section-header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        .arrow {
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+        .section.expanded .arrow {
+            transform: rotate(90deg);
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .collapse-link {
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+        .section-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-content {
+            display: none;
+            padding: 0 20px 20px 20px;
+            border-top: 1px solid #eee;
+        }
+        .section.expanded .section-content {
+            display: block;
+        }
+
+        /* --- ITEMS --- */
+        .item {
+            padding: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .item-icon {
+            width: 28px;
+            height: 28px;
+            background-color: transparent;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .item-icon i.feather {
+             width: 20px; height: 20px;
+        }
+        .item-text {
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+            cursor: pointer; 
+        }
+        .item-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .instructor-controls {
+            display: none;
+        }
+        .item.content-hidden {
+            opacity: 0.5;
+            background-color: #f9f9f9;
+        }
+        .item.content-hidden .item-text {
+            text-decoration: line-through;
+        }
+        .button-icon-hidden i.feather {
+             color: var(--danger-color); 
+        }
+
+        /* --- BUTTONS --- */
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex; 
+            align-items: center;
+            gap: 6px; 
+        }
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .button-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .button-secondary:hover {
+            background-color: var(--bg-color);
+        }
+        .button-danger {
+            color: var(--danger-color);
+        }
+        .button-link {
+            background: none;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .button-icon {
+            background: none;
+            padding: 4px;
+            font-size: 0; 
+        }
+        .button-icon i.feather {
+            width: 18px;
+            height: 18px;
+        }
+        .button-icon.button-danger:hover {
+            color: white;
+            background-color: var(--danger-color);
+        }
+        .button.button-large {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+
+        /* --- HELP BUTTON --- */
+        .help-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(13, 143, 163, 0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        .help-button i.feather {
+            width: 24px; height: 24px;
+        }
+        .help-button:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* --- MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .modal-content {
+            background-color: var(--bg-light);
+            margin: 10% auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: slide-down 0.3s ease-out;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            color: var(--accent-color);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @keyframes slide-down {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ========================================
+        === CSS CHO MODULE ASSESSMENT ===
+        ========================================
+        */
+
+        .quiz-container {
+            display: flex;
+            gap: 30px;
+        }
+        .quiz-main {
+            flex: 3;
+        }
+        .quiz-sidebar {
+            flex: 1;
+            position: sticky;
+            top: 40px; 
+        }
+        .quiz-nav-box {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .quiz-nav-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .quiz-nav-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        .quiz-nav-body {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 10px;
+        }
+        .quiz-nav-q {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            background-color: var(--bg-light);
+            transition: background-color 0.3s;
+        }
+        .quiz-nav-q:hover {
+            background-color: var(--bg-color);
+        }
+        .quiz-nav-q.active {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+        .quiz-nav-q.answered {
+            background-color: #eee;
+        }
+        .quiz-nav-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        .question-box {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .question-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #f9f9f9;
+        }
+        .question-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        .question-body {
+            padding: 20px;
+        }
+        .question-text {
+            margin-bottom: 20px;
+        }
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .option input {
+            width: 16px;
+            height: 16px;
+        }
+        .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .quiz-question {
+            display: none;
+        }
+        .quiz-question.active {
+            display: block;
+        }
+        .quiz-summary-table {
+            width: 100%;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .quiz-summary-table th,
+        .quiz-summary-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .quiz-summary-table th {
+            width: 30%;
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
+        .quiz-summary-table tr:last-child th,
+        .quiz-summary-table tr:last-child td {
+            border-bottom: none;
+        }
+        .quiz-summary-table .grade {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+        .question-manage-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .question-manage-icon {
+            color: var(--accent-color);
+        }
+        .question-manage-icon i.feather {
+            width: 20px; height: 20px;
+        }
+        .question-manage-text {
+            flex: 1;
+            font-weight: 500;
+        }
+        .question-manage-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        /* ========================================
+        === CSS MỚI CHO CÁC TRANG ĐƯỢC THÊM ===
+        ========================================
+        */
+
+        .content-container {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 30px;
+        }
+        .content-container h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+        .content-container .content-body {
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .content-container .content-body p {
+            margin-bottom: 15px;
+        }
+        .content-container .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; 
+            height: 0;
+            overflow: hidden;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .content-container .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .edit-question-form {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 30px;
+        }
+        .edit-question-form .form-group textarea {
+            min-height: 120px;
+        }
+        .edit-question-form .option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .edit-question-form .option-group input[type="text"] {
+            flex: 1;
+        }
+        .edit-question-form .option-group input[type="radio"],
+        .edit-question-form .option-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        .edit-question-form .option-group .button-icon {
+            flex-shrink: 0;
+        }
+        .edit-question-form .form-actions-full {
+             display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* ========================================
+        === CSS MỚI CHO TRANG LOGIN/LANDING ===
+        ========================================
+        */
+        .page.login-flow {
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+            height: 100vh;
+        }
+        .page.login-flow.active {
+            display: flex; 
+        }
+
+        /* Trang Landing */
+        .landing-page {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: url('https://placehold.co/1600x900/0D8FA3/FFFFFF?text=Welcome+to+ITS') no-repeat center center;
+            background-size: cover;
+            color: white;
+        }
+        .landing-header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%);
+        }
+        .landing-logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .landing-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2); 
+        }
+        .landing-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .landing-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 500px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .landing-content .button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: white;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .landing-content .button:hover {
+            background-color: #f0f0f0;
+        }
+
+
+        /* Trang chọn Role và Form Login */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+        }
+        .login-card {
+            background-color: var(--bg-light);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .login-card .logo {
+            margin: 0 auto 20px auto;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .login-card h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+        .login-card p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        /* Nút chọn Role */
+        .role-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .role-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            background-color: var(--bg-light);
+            width: 100%;
+        }
+        .role-button:hover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+        .role-button i.feather {
+            width: 24px;
+            height: 24px;
+            color: var(--primary-color);
+        }
+        .role-button span {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* Form Login */
+        .login-form {
+            text-align: left;
+        }
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        .login-form .button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            justify-content: center; 
+        }
+        .login-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+
+        /* ========================================
+        === CSS MỚI CHO TRANG DASHBOARD (LỊCH) ===
+        ========================================
+        */
+        .calendar-container {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .calendar-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .calendar-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        .calendar-header .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            /* border-top: 1px solid var(--border-color); */ /* <-- SỬA LỖI LỊCH */
+        }
+        .calendar-day, .calendar-weekday {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            min-height: 120px; 
+            position: relative;
+        }
+        .calendar-day:nth-child(7n), .calendar-weekday:nth-child(7) {
+            border-right: none;
+        }
+        .calendar-weekday {
+            min-height: auto;
+            text-align: center;
+            font-weight: 600;
+            background-color: #f9f9f9;
+        }
+        .calendar-day .day-number {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .calendar-day.other-month .day-number {
+            color: #aaa;
+        }
+        .calendar-day .day-events {
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .day-event {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .day-event.quiz-open {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .day-event.quiz-close {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .day-event:hover {
+            opacity: 0.8;
+        }
+
+        /* === THÊM MỚI: CSS CHO ASSIGNMENT (TRANG 13, 14) === */
+        .submission-info-box {
+            background-color: #f9f9f9;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .submission-status-table {
+            width: 100%;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .submission-status-table th,
+        .submission-status-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .submission-status-table th {
+            width: 30%;
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
+        .submission-status-table tr:last-child th,
+        .submission-status-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .submission-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .drop-zone-container {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 30px;
+        }
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 6px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .drop-zone.drag-over {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+        }
+        .drop-zone-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+        }
+        .drop-zone-text {
+            font-size: 16px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .drop-zone-text small {
+            display: block;
+            font-size: 13px;
+            color: #777;
+            margin-top: 5px;
+        }
+        #file-input {
+            display: none;
+        }
+        #file-preview-list {
+            margin-top: 20px;
+        }
+        .file-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .file-preview-item i.feather {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-color);
+        }
+        .file-preview-item .file-name {
+            flex: 1;
+        }
+        /* ========================================================== */
+
+        /* === THÊM MỚI: CSS CHO CÁC TRANG GRADES (15, 16, 17) === */
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 6px;
+        }
+        
+        .grade-item-list .item-text {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .grading-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .grading-table th,
+        .grading-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .grading-table th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
+        .grading-table tr:last-child td {
+            border-bottom: none;
+        }
+        .grading-table .grade-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+        .grading-table .status-submitted,
+        .grading-table .status-completed { /* THÊM MỚI */
+            color: var(--success-color);
+            font-weight: 500;
+        }
+         .grading-table .status-not-submitted,
+         .grading-table .status-not-completed { /* THÊM MỚI */
+            color: #777; /* Đổi màu "chưa nộp" sang màu xám */
+            font-weight: 500;
+        }
+        /* ======================================================= */
+
+    </style>
+</head>
+<body>
+
+    <!-- 
+    ========================================
+    === TRANG 1: HỌC VIÊN XEM KHÓA HỌC ===
+    ========================================
+    -->
+    <div id="page-student-course" class="page">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-dashboard">Dashboard</a>
+                    <a class="nav-link active" data-page="page-student-course">My courses</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <button class="toggle-button"><i data-feather="x"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <nav class="sidebar-nav">
+                        <a class="sidebar-nav-item active nav-link" data-page="page-student-course">
+                            <i data-feather="book-open"></i> <span>Software Testing</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-general">
+                            <i data-feather="layers"></i> <span>General</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-topic-1">
+                            <i data-feather="book"></i> <span>Topic 1: Introduction...</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-project">
+                             <i data-feather="briefcase"></i> <span>Project</span>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+
+            <main class="main">
+                <h1 class="course-title">Software Testing (CO3015)_BỘ HOÀI THẮNG (CLC_HK251) [CC01]</h1>
+
+                <div class="tabs">
+                    <button class="tab active">Course</button>
+                    <button class="tab">Participants</button>
+                    <!-- CẬP NHẬT: Tab "Grades" cho sinh viên -->
+                    <button class="tab nav-link" data-page="page-student-grades">Grades</button>
+                    <button class="tab">Competencies</button>
+                </div>
+
+                <div id="section-general" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                        <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">General</h3>
+                        </div>
+                        <a href="#" class="collapse-link js-collapse-all">Collapse all</a>
+                    </div>
+                    <div class="section-content">
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="bell"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Announcements</a>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="message-square"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Course Q&A Forum</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-topic-1" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                        <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">Topic 1: Introduction to Software Testing</h3>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="file-text"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">1.1 Slides: Introduction to Software Testing</a>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="video"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="video">1.2 Video: What is Testing?</a>
+                        </div>
+                         <div class="item">
+                            <div class="item-icon"><i data-feather="link"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="link" data-url="https://www.guru99.com/software-testing-introduction-importance.html">1.2.1 External Link: Introduction to Testing</a>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="check-square"></i></div>
+                            <a class="item-text nav-link" data-page="page-quiz-start">1.3 Quiz: Introduction Concepts</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-project" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                        <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">Project</h3>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                         <div class="item">
+                            <div class="item-icon"><i data-feather="file-text"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Assignment Specification</a>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="upload-cloud"></i></div>
+                            <a class="item-text nav-link" data-page="page-assignment-status">Nộp bài Assignment</a>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 2: GIẢNG VIÊN QUẢN LÝ KHÓA HỌC ===
+    ========================================
+    -->
+    <div id="page-instructor-course" class="page">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-dashboard">Dashboard</a>
+                    <a class="nav-link active" data-page="page-instructor-course">My courses</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div style="display: flex; align-items: center;">
+                    <span class="editing-label">Editing</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="editing-toggle-instructor" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <button class="toggle-button"><i data-feather="x"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <nav class="sidebar-nav">
+                        <a class="sidebar-nav-item active nav-link" data-page="page-instructor-course">
+                            <i data-feather="book-open"></i> <span>Software Testing</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-general-inst">
+                            <i data-feather="layers"></i> <span>General</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-topic-1-inst">
+                            <i data-feather="book"></i> <span>Topic 1: Introduction...</span>
+                        </a>
+                        <a class="sidebar-nav-item js-scroll-to-section" data-anchor="section-project-inst">
+                             <i data-feather="briefcase"></i> <span>Project</span>
+                        </a>
+                    </nav>
+                </div>
+            </aside>
+            
+            <main class="main">
+                <h1 class="course-title">Software Testing (CO3015)_BỘ HOÀI THẮNG (CLC_HK251) [CC01]</h1>
+
+                <div class="tabs">
+                    <button class="tab active">Course</button>
+                    <button class="tab">Participants</button>
+                    <!-- CẬP NHẬT: Tab "Grades" cho giảng viên -->
+                    <button class="tab nav-link" data-page="page-instructor-grades">Grades</button>
+                    <button class="tab">Competencies</button>
+                </div>
+                
+                <div class="page-controls">
+                    <button class="button button-secondary js-open-modal" data-modal-id="add-topic-modal"><i data-feather="plus"></i> Add New Topic</button>
+                </div>
+
+                <div id="section-general-inst" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                        <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">General</h3>
+                        </div>
+                        <div class="section-controls">
+                            <a href="#" class="collapse-link js-collapse-all">Collapse all</a>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="bell"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Announcements</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="message-square"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Course Q&A Forum</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <button class="button button-link js-open-modal instructor-controls" data-modal-id="add-item-modal" style="display: flex;"><i data-feather="plus"></i> Add an activity or resource</button>
+                    </div>
+                </div>
+
+                <div id="section-topic-1-inst" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                         <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">Topic 1: Introduction to Software Testing</h3>
+                        </div>
+                        <div class="section-controls">
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="file-text"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">1.1 Slides: Introduction to Software Testing</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="video"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="video">1.2 Video: What is Testing?</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="link"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="link" data-url="https.www.guru99.com/software-testing-introduction-importance.html">1.2.1 External Link: Introduction to Testing</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="check-square"></i></div>
+                            <a class="item-text nav-link" data-page="page-quiz-start">1.3 Quiz: Introduction Concepts</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon nav-link" data-page="page-manage-quiz" title="Edit Questions"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                         <button class="button button-link js-open-modal instructor-controls" data-modal-id="add-item-modal" style="display: flex;"><i data-feather="plus"></i> Add an activity or resource</button>
+                    </div>
+                </div>
+
+                <div id="section-project-inst" class="section expanded">
+                    <div class="section-header js-toggle-section">
+                        <div class="section-header-content">
+                            <span class="arrow"><i data-feather="chevron-right"></i></span>
+                            <h3 class="section-title">Project</h3>
+                        </div>
+                         <div class="section-controls">
+                        </div>
+                    </div>
+                     <div class="section-content">
+                         <div class="item">
+                            <div class="item-icon"><i data-feather="file-text"></i></div>
+                            <a class="item-text js-nav-content" data-page="page-view-content" data-type="page">Assignment Specification</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <button class="button button-icon js-toggle-visibility" title="Hide"><i data-feather="eye"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="upload-cloud"></i></div>
+                            <a class="item-text nav-link" data-page="page-assignment-status">Nộp bài Assignment</a>
+                            <div class="item-controls instructor-controls" style="display: flex;">
+                                <!-- CẬP NHẬT: Nút "View Submissions" trỏ đến trang chấm điểm -->
+                                <button class="button button-icon nav-link" data-page="page-grade-item" title="View Submissions"><i data-feather="users"></i></button>
+                                <button class="button button-icon" title="Edit"><i data-feather="edit-2"></i></button>
+                                <button class="button button-icon button-danger" title="Delete"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        <button class="button button-link js-open-modal instructor-controls" data-modal-id="add-item-modal" style="display: flex;"><i data-feather="plus"></i> Add an activity or resource</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 3: HỌC VIÊN LÀM BÀI KIỂM TRA ===
+    ========================================
+    -->
+    <div id="page-take-quiz" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">1.3 Quiz: Introduction Concepts</h1>
+                <div class="quiz-container">
+                    <div class="quiz-main">
+                        <!-- Câu hỏi 1 -->
+                        <div id="quiz-q-1" class="quiz-question active">
+                            <div class="question-box">
+                                <div class="question-header">
+                                    <h3 class="question-title">Câu hỏi 1</h3>
+                                </div>
+                                <div class="question-body">
+                                    <div class="question-text">
+                                        <p>"Testing" là gì?</p>
+                                    </div>
+                                    <div class="question-options">
+                                        <label class="option">
+                                            <input type="radio" name="q1" value="a">
+                                            <span>A. Một quy trình tìm lỗi trong phần mềm.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="radio" name="q1" value="b">
+                                            <span>B. Một quy trình xác minh rằng phần mềm hoạt động đúng như mong đợi.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="radio" name="q1" value="c">
+                                            <span>C. Cả A và B.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="radio" name="q1" value="d">
+                                            <span>D. Một quy trình viết mã.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quiz-controls">
+                                <span></span> 
+                                <button class="button button-primary js-quiz-next">Trang sau</button>
+                            </div>
+                        </div>
+                        <!-- Câu hỏi 2 -->
+                        <div id="quiz-q-2" class="quiz-question">
+                            <div class="question-box">
+                                <div class="question-header">
+                                    <h3 class="question-title">Câu hỏi 2</h3>
+                                </div>
+                                <div class="question-body">
+                                    <div class="question-text">
+                                        <p>Kiểm thử Black-box KHÔNG quan tâm đến:</p>
+                                    </div>
+                                    <div class="question-options">
+                                        <label class="option">
+                                            <input type="radio" name="q2" value="a">
+                                            <span>A. Chức năng đầu vào.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="radio" name="q2" value="b">
+                                            <span>B. Chức năng đầu ra.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="radio" name="q2" value="c">
+                                            <span>C. Cấu trúc mã nguồn bên trong.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quiz-controls">
+                                <button class="button button-secondary js-quiz-prev">Trang trước</button>
+                                <button class="button button-primary js-quiz-next">Trang sau</button>
+                            </div>
+                        </div>
+                        <!-- Câu hỏi 3 -->
+                        <div id="quiz-q-3" class="quiz-question">
+                             <div class="question-box">
+                                <div class="question-header">
+                                    <h3 class="question-title">Câu hỏi 3</h3>
+                                </div>
+                                <div class="question-body">
+                                    <div class="question-text">
+                                        <p>Kiểm thử White-box còn được gọi là gì?</p>
+                                    </div>
+                                    <div class="question-options">
+                                        <label class="option">
+                                            <input type="checkbox" name="q3" value="a">
+                                            <span>A. Kiểm thử cấu trúc.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="checkbox" name="q3" value="b">
+                                            <span>B. Kiểm thử hộp kính.</span>
+                                        </label>
+                                        <label class="option">
+                                            <input type="checkbox" name="q3" value="c">
+                                            <span>C. Kiểm thử dựa trên thông số kỹ thuật.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quiz-controls">
+                                <button class="button button-secondary js-quiz-prev">Trang trước</button>
+                                <button class="button button-primary nav-link" data-page="page-quiz-results">Nộp bài</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Sidebar điều hướng Quiz -->
+                    <div class="quiz-sidebar">
+                        <div class="quiz-nav-box">
+                            <div class="quiz-nav-header">
+                                <h3>Điều hướng Quiz</h3>
+                            </div>
+                            <div class="quiz-nav-body">
+                                <div class="quiz-nav-q active" data-q="1">1</div>
+                                <div class="quiz-nav-q" data-q="2">2</div>
+                                <div class="quiz-nav-q" data-q="3">3</div>
+                            </div>
+                            <div class="quiz-nav-footer">
+                                <button class="button button-primary nav-link" style="width: 100%;" data-page="page-quiz-results">Nộp bài</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 4: HỌC VIÊN XEM KẾT QUẢ QUIZ ===
+    ========================================
+    -->
+    <div id="page-quiz-results" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Kết quả: 1.3 Quiz: Introduction Concepts</h1>
+                <table class="quiz-summary-table">
+                    <tbody>
+                        <tr>
+                            <th>Bắt đầu lúc</th>
+                            <td>Thứ Bảy, 15 Tháng 11 2025, 1:00 AM</td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>Đã hoàn thành</td>
+                        </tr>
+                        <tr>
+                            <th>Hoàn thành lúc</th>
+                            <td>Thứ Bảy, 15 Tháng 11 2025, 1:02 AM</td>
+                        </tr>
+                        <tr>
+                            <th>Thời gian làm bài</th>
+                            <td>2 phút 10 giây</td>
+                        </tr>
+                        <tr>
+                            <th>Số câu đúng</th>
+                            <td>2 / 3</td>
+                        </tr>
+                        <tr>
+                            <th>Điểm</th>
+                            <td class="grade">6.67 / 10.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="page-controls" style="justify-content: center;">
+                    <button class="button button-primary nav-link js-back-to-course">Quay về khóa học</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 5: GIẢNG VIÊN QUẢN LÝ QUIZ ===
+    ========================================
+    -->
+    <div id="page-manage-quiz" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Quản lý Quiz: 1.3 Introduction Concepts</h1>
+
+                <div class="page-controls">
+                    <span>Tổng số: 3 câu hỏi</span>
+                    <button class="button button-primary nav-link" data-page="page-edit-question"><i data-feather="plus"></i> Thêm câu hỏi mới</button>
+                </div>
+
+                <div class="question-manage-item">
+                    <span class="question-manage-icon"><i data-feather="check-square"></i></span>
+                    <span class="question-manage-text">Câu 1: "Testing" là gì?</span>
+                    <div class="question-manage-controls">
+                        <button class="button button-icon nav-link" data-page="page-edit-question" title="Sửa"><i data-feather="edit-2"></i></button>
+                        <button class="button button-icon button-danger" title="Xóa"><i data-feather="trash-2"></i></button>
+                    </div>
+                </div>
+
+                <div class="question-manage-item">
+                    <span class="question-manage-icon"><i data-feather="check-square"></i></span>
+                    <span class="question-manage-text">Câu 2: Kiểm thử Black-box KHÔNG quan tâm đến:</span>
+                    <div class="question-manage-controls">
+                        <button class="button button-icon nav-link" data-page="page-edit-question" title="Sửa"><i data-feather="edit-2"></i></button>
+                        <button class="button button-icon button-danger" title="Xóa"><i data-feather="trash-2"></i></button>
+                    </div>
+                </div>
+
+                <div class="question-manage-item">
+                    <span class="question-manage-icon"><i data-feather="check-square"></i></span>
+                    <span class="question-manage-text">Câu 3: Kiểm thử White-box còn được gọi là gì?</span>
+                    <div class="question-manage-controls">
+                        <button class="button button-icon nav-link" data-page="page-edit-question" title="Sửa"><i data-feather="edit-2"></i></button>
+                        <button class="button button-icon button-danger" title="Xóa"><i data-feather="trash-2"></i></button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- 
+    ========================================
+    === TRANG 6: XEM NỘI DUNG BÀI HỌC ===
+    ========================================
+    -->
+    <div id="page-view-content" class="page container-focused">
+         <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <main class="main">
+                
+                <div class="breadcrumbs">
+                    <a href="#" class="nav-link js-back-to-course">Software Testing</a>
+                    <span>&gt;</span>
+                    <a href="#">Topic 1: Introduction...</a>
+                    <span>&gt;</span>
+                    <span>1.1 Slides: Introduction to Software Testing</span>
+                </div>
+
+                <div class="content-container" id="content-container-body">
+                    <!-- Nội dung sẽ được JS chèn vào đây -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 7: SỬA CÂU HỎI QUIZ ===
+    ========================================
+    -->
+    <div id="page-edit-question" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-manage-quiz">Về trang Quản lý Quiz</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Chỉnh sửa câu hỏi</h1>
+
+                <form class="edit-question-form" id="edit-question-form">
+                    <div class="form-group">
+                        <label for="question-type">Loại câu hỏi</label>
+                        <select id="question-type" name="question-type">
+                            <option value="mc-single">Trắc nghiệm (Một đáp án)</option>
+                            <option value="mc-multi">Trắc nghiệm (Nhiều đáp án)</option>
+                            <option value="tf">Đúng/Sai</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="question-text-area">Nội dung câu hỏi</label>
+                        <textarea id="question-text-area" name="question-text-area" placeholder="Nhập nội dung câu hỏi..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Các lựa chọn</label>
+                        <div id="options-container-mc">
+                            <div class="option-group">
+                                <input type="radio" name="correct-answer" value="0">
+                                <input type="text" placeholder="Lựa chọn 1" value="A. Một quy trình tìm lỗi trong phần mềm.">
+                                <button type="button" class="button button-icon button-danger"><i data-feather="trash-2"></i></button>
+                            </div>
+                             <div class="option-group">
+                                <input type="radio" name="correct-answer" value="1">
+                                <input type="text" placeholder="Lựa chọn 2" value="B. Một quy trình xác minh rằng phần mềm hoạt động đúng như mong đợi.">
+                                <button type="button" class="button button-icon button-danger"><i data-feather="trash-2"></i></button>
+                            </div>
+                             <div class="option-group">
+                                <input type="radio" name="correct-answer" value="2" checked>
+                                <input type="text" placeholder="Lựa chọn 3" value="C. Cả A và B.">
+                                <button type="button" class="button button-icon button-danger"><i data-feather="trash-2"></i></button>
+                            </div>
+                             <div class="option-group">
+                                <input type="radio" name="correct-answer" value="3">
+                                <input type="text" placeholder="Lựa chọn 4" value="D. Một quy trình viết mã.">
+                                <button type="button" class="button button-icon button-danger"><i data-feather="trash-2"></i></button>
+                            </div>
+                        </div>
+                        
+                         <div id="options-container-tf" style="display: none;">
+                            <div class="option-group">
+                                <input type="radio" name="correct-answer-tf" value="true">
+                                <span>Đúng</span>
+                            </div>
+                             <div class="option-group">
+                                <input type="radio" name="correct-answer-tf" value="false">
+                                <span>Sai</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="button button-link" id="add-option-btn"><i data-feather="plus"></i> Thêm lựa chọn</button>
+                    </div>
+
+                    <div class="form-actions-full">
+                        <button type="button" class="button button-danger">Xóa câu hỏi</button>
+                        <div>
+                            <button type="button" class="button button-secondary nav-link" data-page="page-manage-quiz">Hủy</button>
+                            <button type="submit" class="button button-primary">Lưu thay đổi</button>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 
+    ========================================
+    === TRANG 8: TRANG BẮT ĐẦU QUIZ ===
+    ========================================
+    -->
+    <div id="page-quiz-start" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">1.3 Quiz: Introduction Concepts</h1>
+                <table class="quiz-summary-table">
+                    <tbody>
+                        <tr>
+                            <th>Trạng thái</th>
+                            <td>Chưa làm bài</td>
+                        </tr>
+                        <tr>
+                            <th>Thời gian cho phép</th>
+                            <td>30 phút</td>
+                        </tr>
+                        <tr>
+                            <th>Thời gian mở</th>
+                            <td>Thứ Sáu, 14 Tháng 11 2025, 8:00 AM</td>
+                        </tr>
+                        <tr>
+                            <th>Thời gian đóng</th>
+                            <td>Thứ Hai, 17 Tháng 11 2025, 11:59 PM</td>
+                        </tr>
+                        <tr>
+                            <th>Phương thức tính điểm</th>
+                            <td>Điểm cao nhất</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="page-controls" style="justify-content: center;">
+                    <button class="button button-primary nav-link" data-page="page-take-quiz" style="padding: 12px 24px; font-size: 16px;">
+                        Bắt đầu làm bài
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 9: TRANG LANDING ===
+    ========================================
+    -->
+    <div id="page-landing" class="page login-flow active">
+        <div class="landing-page">
+            <header class="landing-header">
+                <div class="landing-logo">
+                    <i data-feather="book-open"></i>
+                    <span>ITS Portal</span>
+                </div>
+                <button class="button button-secondary nav-link" data-page="page-select-role">Login</button>
+            </header>
+            <div class="landing-content">
+                <h1>Welcome to the Intelligent Tutoring System</h1>
+                <p>Your personalized learning journey starts here. Access your courses, track your progress, and collaborate.</p>
+                <button class="button button-primary nav-link" data-page="page-select-role" style="font-size: 18px; padding: 15px 30px;">
+                    Get Started
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 10: CHỌN VAI TRÒ ===
+    ========================================
+    -->
+    <div id="page-select-role" class="page login-flow">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <h2>Chọn vai trò của bạn</h2>
+                <p>Vui lòng chọn vai trò để tiếp tục.</p>
+                <div class="role-selection">
+                    <button class="role-button nav-link js-select-role" data-page="page-login-form" data-role="Student">
+                        <i data-feather="user"></i>
+                        <span>Tôi là Học viên (Student)</span>
+                    </button>
+                    <button class="role-button nav-link js-select-role" data-page="page-login-form" data-role="Instructor">
+                        <i data-feather="briefcase"></i>
+                        <span>Tôi là Giảng viên (Instructor)</span>
+                    </button>
+                </div>
+                 <div class="login-links">
+                    <a href="#" class="nav-link" data-page="page-landing">Quay về trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 
+    ========================================
+    === TRANG 11: FORM ĐĂNG NHẬP ===
+    ========================================
+    -->
+    <div id="page-login-form" class="page login-flow">
+        <div class="login-container">
+             <div class="login-card">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <h2 id="login-title">Đăng nhập</h2>
+                <p>Vui lòng nhập thông tin tài khoản.</p>
+                
+                <form class="login-form" id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="button button-primary">Login</button>
+                </form>
+
+                <div class="login-links">
+                    <a href="#" class="nav-link" data-page="page-select-role">Quay lại</a>
+                    <a href="#">Quên mật khẩu?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 
+    ========================================
+    === TRANG 12: (MỚI) DASHBOARD (LỊCH) ===
+    ========================================
+    -->
+    <div id="page-dashboard" class="page">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <!-- CẬP NHẬT: Nav cho Dashboard -->
+                    <a class="nav-link active" data-page="page-dashboard">Dashboard</a>
+                    <a class="nav-link js-my-courses">My courses</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Cấu trúc .container và .main cho trang dashboard -->
+        <div class="container" style="background-color: var(--bg-color); flex: 1;">
+            <main class="main" style="margin-left: 0; width: 100%; max-width: 1200px; margin: 0 auto;">
+                <h1 class="course-title">Dashboard</h1>
+                
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="nav-buttons">
+                            <button class="button button-secondary" id="calendar-prev"><i data-feather="chevron-left"></i></button>
+                            <button class="button button-secondary" id="calendar-next"><i data-feather="chevron-right"></i></button>
+                        </div>
+                        <h2 id="calendar-month-year">Tháng 11 2025</h2>
+                        <button class="button button-secondary" id="calendar-today">Hôm nay</button>
+                    </div>
+                    <div class="calendar-grid" id="calendar-weekdays">
+                        <!-- Các ngày trong tuần sẽ được JS chèn vào đây -->
+                    </div>
+                    <div class="calendar-grid" id="calendar-days">
+                        <!-- Lịch sẽ được JS chèn vào đây -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- === THÊM MỚI: TRANG 13: TRẠNG THÁI NỘP BÀI === -->
+    <div id="page-assignment-status" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title" style="color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
+                    <i data-feather="upload-cloud" style="width: 28px; height: 28px;"></i>
+                    <span>Assignment (submission deadline (extended): 26/11/2025)</span>
+                </h1>
+                
+                <div class="submission-info-box">
+                    <strong>Opened:</strong> Saturday, 15 November 2025, 12:00 AM<br>
+                    <strong>Due:</strong> Wednesday, 26 November 2025, 11:00 PM
+                </div>
+
+                <div class="submission-controls">
+                     <button class="button button-primary button-large nav-link" data-page="page-add-submission">Add submission</button>
+                </div>
+                
+                <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-top: 30px; margin-bottom: 20px;">Submission status</h2>
+                
+                <table class="submission-status-table">
+                    <tbody>
+                        <tr>
+                            <th>Submission status</th>
+                            <td>No submissions have been made yet</td>
+                        </tr>
+                        <tr>
+                            <th>Grading status</th>
+                            <td>Not graded</td>
+                        </tr>
+                        <tr>
+                            <th>Time remaining</th>
+                            <td>11 days 19 hours remaining</td>
+                        </tr>
+                        <tr>
+                            <th>Last modified</th>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <th>Submission comments</th>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
+
+    <!-- === THÊM MỚI: TRANG 14: TRANG NỘP BÀI === -->
+    <div id="page-add-submission" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-assignment-status">Quay lại trang thái nộp bài</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Nộp bài: Assignment</h1>
+                
+                <div class="drop-zone-container">
+                    <input type="file" id="file-input" multiple>
+                    
+                    <div class="drop-zone" id="drop-zone-box">
+                        <div class="drop-zone-icon"><i data-feather="upload-cloud" style="width: 48px; height: 48px;"></i></div>
+                        <div class="drop-zone-text">
+                            Kéo và thả file của bạn vào đây
+                            <small>Hoặc nhấp để chọn file</small>
+                        </div>
+                    </div>
+                    
+                    <div id="file-preview-list">
+                        <!-- Các file đã tải lên sẽ xuất hiện ở đây -->
+                    </div>
+                </div>
+
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="button button-secondary nav-link" data-page="page-assignment-status">Hủy</button>
+                    <button type="button" class="button button-primary nav-link" data-page="page-assignment-status">Lưu thay đổi</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- ===================================== -->
+    
+    <!-- === THÊM MỚI: TRANG 15: STUDENT GRADES === -->
+    <div id="page-student-grades" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Grades: Software Testing</h1>
+                
+                <table class="submission-status-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Tên mục</th>
+                            <th>Loại</th>
+                            <th>Điểm</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.3 Quiz: Introduction Concepts</td>
+                            <td>Quiz</td>
+                            <td class="grade">6.67 / 10.00</td>
+                            <td>Xem lại bài làm</td>
+                        </tr>
+                        <tr>
+                            <td>Nộp bài Assignment</td>
+                            <td>Assignment</td>
+                            <td>Chưa chấm điểm</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
+    
+    <!-- === THÊM MỚI: TRANG 16: INSTRUCTOR GRADES (COURSE OVERVIEW) === -->
+    <div id="page-instructor-grades" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link js-back-to-course">Về khóa học: Software Testing</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Grades: Software Testing</h1>
+                
+                <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-bottom: 20px;">Thống kê chung</h2>
+                <div class="chart-container">
+                    <canvas id="grade-chart"></canvas>
+                </div>
+                
+                <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-bottom: 20px;">Chấm điểm các mục</h2>
+                <div class="section grade-item-list">
+                    <div class="section-content" style="display: block; padding: 0 20px;">
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="check-square"></i></div>
+                            <!-- CẬP NHẬT: Link này sẽ trỏ đến trang báo cáo quiz (Trang 18) -->
+                            <a class="item-text nav-link" data-page="page-quiz-grade-report">1.3 Quiz: Introduction Concepts</a>
+                        </div>
+                        <div class="item">
+                            <div class="item-icon"><i data-feather="upload-cloud"></i></div>
+                            <!-- Link này sẽ trỏ đến trang chấm điểm chi tiết (Trang 17) -->
+                            <a class="item-text nav-link" data-page="page-grade-item">Nộp bài Assignment</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- === THÊM MỚI: TRANG 17: INSTRUCTOR GRADE ITEM (MANUAL GRADING - ASSIGNMENT) === -->
+    <div id="page-grade-item" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-instructor-grades">Về trang Grades</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Chấm điểm: Nộp bài Assignment</h1>
+                
+                <div class="chart-container">
+                    <canvas id="item-grade-chart"></canvas>
+                </div>
+                
+                <table class="grading-table">
+                    <thead>
+                        <tr>
+                            <th>Tên sinh viên</th>
+                            <th>Trạng thái nộp bài</th>
+                            <th>File đã nộp</th>
+                            <th>Điểm (trên 10)</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Phan Khánh Nhân</td>
+                            <td class="status-submitted">Đã nộp</td>
+                            <td><a href="#">BaoCao_Nhan.pdf</a></td>
+                            <td><input type="number" class="grade-input" min="0" max="10" step="0.5" value="8.5"></td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Võ Huỳnh Khánh Vy</td>
+                            <td class="status-submitted">Đã nộp</td>
+                            <td><a href="#">BaoCao_Vy.docx</a></td>
+                            <td><input type="number" class="grade-input" min="0" max="10" step="0.5"></td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Nguyễn Văn A</td>
+                            <td class="status-not-submitted">Chưa nộp</td>
+                            <td>-</td>
+                            <td><input type="number" class="grade-input" min="0" max="10" step="0.5"></td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form-actions">
+                    <button class="button button-primary button-large">Lưu tất cả điểm</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- ====================================================== -->
+    
+    <!-- === THÊM MỚI: TRANG 18: INSTRUCTOR QUIZ GRADE REPORT === -->
+    <div id="page-quiz-grade-report" class="page container-focused">
+        <header>
+            <div class="header-left">
+                <div class="logo"><i data-feather="book-open"></i></div>
+                <nav>
+                    <a class="nav-link" data-page="page-instructor-grades">Về trang Grades</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="icon-button"><i data-feather="bell"></i></button>
+                <button class="icon-button"><i data-feather="message-square"></i></button>
+                <div class="avatar-container">
+                    <div class="avatar js-avatar-toggle"></div>
+                    <div class="avatar-dropdown">
+                        <a class="avatar-dropdown-item nav-link" data-page="page-landing">
+                            <i data-feather="log-out"></i>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="container">
+            <main class="main">
+                <h1 class="course-title">Báo cáo điểm: 1.3 Quiz: Introduction Concepts</h1>
+                
+                <div class="chart-container">
+                    <canvas id="quiz-grade-chart"></canvas>
+                </div>
+                
+                <table class="grading-table">
+                    <thead>
+                        <tr>
+                            <th>Tên sinh viên</th>
+                            <th>Trạng thái</th>
+                            <th>Thời gian làm bài</th>
+                            <th>Điểm (trên 10)</th>
+                            <th>Feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Phan Khánh Nhân</td>
+                            <td class="status-completed">Đã làm bài</td>
+                            <td>2 phút 10 giây</td>
+                            <td class="grade">6.67</td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Võ Huỳnh Khánh Vy</td>
+                            <td class="status-completed">Đã làm bài</td>
+                            <td>5 phút 32 giây</td>
+                            <td class="grade">10.00</td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>Nguyễn Văn A</td>
+                            <td class="status-not-completed">Chưa làm bài</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><button class="button button-secondary button-icon js-open-modal" data-modal-id="feedback-modal"><i data-feather="message-square"></i></button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form-actions">
+                    <button class="button button-primary button-large nav-link" data-page="page-manage-quiz">Quản lý câu hỏi Quiz</button>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- ====================================================== -->
+
+
+    <!-- 
+    ========================================
+    === CÁC MODALS ===
+    ========================================
+    -->
+    <div id="add-item-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add an activity or resource</h2>
+                <button class="modal-close js-close-modal"><i data-feather="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-item-form">
+                    <div class="form-group">
+                        <label for="item-type">Item Type:</label>
+                        <select id="item-type" name="item-type">
+                            <option value="page" data-target="form-group-content">Page (Lesson)</option>
+                            <option value="video" data-target="form-group-video">Video</option>
+                            <option value="link" data-target="form-group-link">Link</option>
+                            <option value="quiz" data-target="form-group-quiz">Quiz (Assessment)</option>
+                            <option value="assignment" data-target="form-group-assignment">Assignment</option>
+                            <option value="forum" data-target="form-group-none">Forum</option>
+                            <option value="file" data-target="form-group-file">File (PDF, etc)</option>
+                        </select>
+                    </div>
+                     <div class="form-group">
+                        <label for="item-title">Title:</label>
+                        <input type="text" id="item-title" name="item-title" placeholder="e.g., 2.3 Boundary Value Analysis">
+                    </div>
+                    
+                    <div id="form-group-content" class="dynamic-form-group">
+                        <div class="form-group">
+                            <label for="item-content">Content:</label>
+                            <textarea name="item-content" rows="4" placeholder="Enter text content..."></textarea>
+                        </div>
+                    </div>
+                    <div id="form-group-video" class="dynamic-form-group" style="display: none;">
+                        <div class="form-group">
+                            <label for="item-url">Video URL:</label>
+                            <input type="text" name="item-url" placeholder="e.g., https://youtube.com/watch?v=...">
+                        </div>
+                        <div class="form-group">
+                            <label for="item-video-file">Hoặc tải lên video:</label>
+                            <input type="file" name="item-video-file" accept="video/*">
+                        </div>
+                    </div>
+                    <div id="form-group-link" class="dynamic-form-group" style="display: none;">
+                        <div class="form-group">
+                            <label for="item-link-url">Link URL:</label>
+                            <input type="text" name="item-link-url" placeholder="e.g., https://www.example.com">
+                        </div>
+                    </div>
+                    <div id="form-group-quiz" class="dynamic-form-group" style="display: none;">
+                        <div class="form-group">
+                            <label for="quiz-time-limit">Time Limit (minutes):</label>
+                            <input type="number" name="quiz-time-limit" value="0">
+                            <small>0 = no time limit</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="quiz-open-time">Thời gian mở:</label>
+                            <input type="datetime-local" name="quiz-open-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="quiz-close-time">Thời gian đóng:</label>
+                            <input type="datetime-local" name="quiz-close-time">
+                        </div>
+                    </div>
+                    <div id="form-group-assignment" class="dynamic-form-group" style="display: none;">
+                         <div class="form-group">
+                            <label for="assignment-open-time">Thời gian mở:</label>
+                            <input type="datetime-local" name="assignment-open-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="assignment-close-time">Thời gian đóng (Due date):</label>
+                            <input type="datetime-local" name="assignment-close-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="assignment-cutoff-time">Thời gian đóng cuối (Cut-off date):</label>
+                            <input type="datetime-local" name="assignment-cutoff-time">
+                            <small>Sau thời gian này, không thể nộp bài.</small>
+                        </div>
+                    </div>
+                    <div id="form-group-file" class="dynamic-form-group" style="display: none;">
+                        <div class="form-group">
+                            <label for="item-file">Upload File:</label>
+                            <input type="file" name="item-file">
+                        </div>
+                    </div>
+                    <div id="form-group-none" class="dynamic-form-group" style="display: none;">
+                         <!-- No extra fields for Forum -->
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="button button-secondary js-close-modal">Cancel</button>
+                        <button type="submit" class="button button-primary">Save and Return</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="add-topic-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add New Topic</h2>
+                    <button class="modal-close js-close-modal"><i data-feather="x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-topic-form">
+                        <div class="form-group">
+                            <label for="topic-title">Topic Title:</label>
+                            <input type="text" id="topic-title" name="topic-title" placeholder="e.g., Topic 3: White-Box Testing">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="button button-secondary js-close-modal">Cancel</button>
+                            <button type="submit" class="button button-primary">Save Topic</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-info-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="quiz-modal-title">Thông tin Quiz</h2>
+                <button class="modal-close js-close-modal"><i data-feather="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <table class="quiz-summary-table" style="margin-bottom: 0;">
+                    <tbody id="quiz-modal-table-body">
+                        <!-- Thông tin quiz sẽ được JS chèn vào đây -->
+                    </tbody>
+                </table>
+                <div class="form-actions">
+                    <button type="button" class="button button-secondary js-close-modal">Đóng</button>
+                    <button type="button" class="button button-primary" id="quiz-modal-start-btn">Làm bài</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === THÊM MỚI: MODAL 4: FEEDBACK MODAL === -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Feedback cho sinh viên</h2>
+                <button class="modal-close js-close-modal"><i data-feather="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedback-form">
+                    <div class="form-group">
+                        <label for="feedback-text">Nội dung feedback</label>
+                        <textarea id="feedback-text" name="feedback-text" rows="5" placeholder="Nhập feedback..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="button button-secondary js-close-modal">Hủy</button>
+                        <button type="submit" class="button button-primary">Lưu Feedback</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- ===================================== -->
+
+
+    <!-- Nút trợ giúp chung -->
+    <button class="help-button"><i data-feather="help-circle"></i></button>
+
+    <!-- 
+    ========================================
+    === JAVASCRIPT (ĐÃ CẬP NHẬT) ===
+    ========================================
+    -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const pages = document.querySelectorAll('.page');
+        let navLinks = document.querySelectorAll('.nav-link'); // Sẽ cập nhật
+        let lastCoursePage = 'page-student-course'; 
+        let selectedRole = 'Student'; 
+        let currentMonth = new Date(2025, 10, 1).getMonth(); // Tháng 11
+        let currentYear = 2025;
+        
+        // Biến lưu trữ biểu đồ
+        let courseGradeChart = null;
+        let itemGradeChart = null;
+        let quizGradeChart = null; // THÊM MỚI
+
+
+        function showPage(pageId) {
+            console.log("Navigating to:", pageId);
+            if (!pageId) return;
+            
+            if (pageId === 'page-landing' || pageId === 'page-select-role' || pageId === 'page-login-form') {
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                document.body.style.overflow = 'auto'; 
+            }
+
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            const activePage = document.getElementById(pageId);
+            if (activePage) {
+                activePage.classList.add('active');
+                window.scrollTo(0, 0); 
+                
+                if (pageId === 'page-student-course' || pageId === 'page-instructor-course') {
+                    lastCoursePage = pageId;
+                }
+                
+                // === CẬP NHẬT: Khởi tạo biểu đồ khi trang được hiển thị ===
+                if (pageId === 'page-instructor-grades') {
+                    initCourseGradeChart();
+                }
+                if (pageId === 'page-grade-item') {
+                    initItemGradeChart();
+                }
+                // THÊM MỚI: Khởi tạo biểu đồ cho trang báo cáo quiz
+                if (pageId === 'page-quiz-grade-report') {
+                    initQuizGradeChart();
+                }
+                // =======================================================
+
+            } else {
+                console.error("Page not found:", pageId);
+                document.getElementById('page-landing').classList.add('active'); 
+            }
+        }
+        
+        // Cập nhật lại danh sách navLinks (vì ta đã thêm link ở tab)
+        function updateNavLinks() {
+            navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                // Xóa listener cũ để tránh bị đúp
+                link.removeEventListener('click', handleNavLinkClick); 
+                // Thêm listener mới
+                link.addEventListener('click', handleNavLinkClick);
+            });
+        }
+        
+        function handleNavLinkClick(e) {
+            e.preventDefault();
+            const pageId = this.dataset.page;
+            showPage(pageId);
+        }
+        
+        updateNavLinks(); // Gọi lần đầu
+
+        // --- Logic Luồng Đăng nhập ---
+        document.querySelectorAll('.js-select-role').forEach(button => {
+            button.addEventListener('click', function() {
+                selectedRole = this.dataset.role;
+                const loginTitle = document.getElementById('login-title');
+                loginTitle.innerText = `Đăng nhập (Vai trò: ${selectedRole})`;
+                
+                if (selectedRole === 'Student') {
+                    lastCoursePage = 'page-student-course';
+                } else {
+                    lastCoursePage = 'page-instructor-course';
+                }
+            });
+        });
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log(`Logging in as ${selectedRole}`);
+            showPage('page-dashboard');
+        });
+
+        document.querySelectorAll('.js-my-courses').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage(lastCoursePage); 
+            });
+        });
+
+        // --- Logic Avatar Dropdown ---
+        document.querySelectorAll('.js-avatar-toggle').forEach(avatar => {
+            avatar.addEventListener('click', function(e) {
+                e.stopPropagation(); 
+                const dropdown = this.nextElementSibling;
+                document.querySelectorAll('.avatar-dropdown.active').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+        });
+
+        window.addEventListener('click', function() {
+            document.querySelectorAll('.avatar-dropdown.active').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+
+
+        // --- Logic Nút "Về khóa học" ---
+        document.querySelectorAll('.js-back-to-course').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage(lastCoursePage); 
+            });
+        });
+
+        // --- Logic Điều hướng xem nội dung (Learning Content) ---
+        document.querySelectorAll('.js-nav-content').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.dataset.page;
+                const contentType = link.dataset.type || 'page'; 
+                const contentTitle = link.innerText;
+                const contentUrl = link.dataset.url; 
+                
+                const breadcrumbs = document.querySelector('#page-view-content .breadcrumbs');
+                if (breadcrumbs) {
+                    breadcrumbs.innerHTML = `
+                        <a href="#" class="nav-link js-back-to-course">${lastCoursePage === 'page-student-course' ? 'Software Testing' : 'Software Testing (Instructor)'}</a>
+                        <span>&gt;</span>
+                        <span>${contentTitle}</span>
+                    `;
+                     breadcrumbs.querySelector('.js-back-to-course').addEventListener('click', (e) => {
+                         e.preventDefault();
+                         showPage(lastCoursePage);
+                     });
+                     updateNavLinks(); // Cập nhật lại navLinks
+                }
+
+                const contentBody = document.getElementById('content-container-body');
+                
+                if (contentType === 'video') {
+                    contentBody.innerHTML = `
+                        <h2>${contentTitle}</h2>
+                        <div class="video-wrapper">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/example" 
+                                title="YouTube video player" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen></iframe>
+                        </div>
+                        <div class="content-body">
+                            <p>Mô tả cho video...</p>
+                        </div>
+                    `;
+                } else if (contentType === 'link') {
+                     contentBody.innerHTML = `
+                        <h2>${contentTitle}</h2>
+                        <div class="content-body">
+                            <p>Bạn đang chuẩn bị truy cập một liên kết bên ngoài.</p>
+                            <p><strong>URL:</strong> ${contentUrl}</p>
+                            <br>
+                            <a href="${contentUrl}" target="_blank" class="button button-primary">
+                                <i data-feather="external-link"></i> Mở liên kết trong tab mới
+                            </a>
+                        </div>
+                    `;
+                     feather.replace(); 
+                } else { // 'page'
+                    contentBody.innerHTML = `
+                        <h2>${contentTitle}</h2>
+                        <div class="content-body">
+                            <p>Đây là nội dung cho bài học <strong>${contentTitle}</strong>.</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue.</p>
+                            <p>Aliquam in bibendum AT. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam posuere. Aliquam erat volutpat.</p>
+                        </div>
+                    `;
+                }
+
+                showPage(pageId);
+            });
+        });
+        
+        // --- Logic cuộn sidebar (scroll-to-section) ---
+        document.querySelectorAll('.js-scroll-to-section').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = (lastCoursePage || 'page-student-course'); 
+                const anchorId = link.dataset.anchor;
+                
+                showPage(pageId);
+                
+                setTimeout(() => {
+                    const targetSection = document.getElementById(anchorId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        if (!targetSection.classList.contains('expanded')) {
+                            targetSection.classList.add('expanded');
+                        }
+
+                        document.querySelectorAll('.js-scroll-to-section').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                }, 100); 
+            });
+        });
+
+        
+        // --- Logic Sửa câu hỏi (Assessment) ---
+        const questionTypeSelect = document.getElementById('question-type');
+        const optionsMC = document.getElementById('options-container-mc');
+        const optionsTF = document.getElementById('options-container-tf');
+        const addOptionBtn = document.getElementById('add-option-btn');
+
+        if (questionTypeSelect) {
+            questionTypeSelect.addEventListener('change', function() {
+                const type = this.value;
+                if (type === 'tf') {
+                    optionsMC.style.display = 'none';
+                    optionsTF.style.display = 'block';
+                    addOptionBtn.style.display = 'none';
+                } else { 
+                    optionsMC.style.display = 'block';
+                    optionsTF.style.display = 'none';
+                    addOptionBtn.style.display = 'inline-flex';
+                    
+                    const inputType = (type === 'mc-multi') ? 'checkbox' : 'radio';
+                    const inputName = (type === 'mc-multi') ? 'correct-answer-multi' : 'correct-answer';
+                    
+                    optionsMC.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                        input.type = inputType;
+                        input.name = inputName;
+                    });
+                }
+            });
+        }
+        
+        if (addOptionBtn) {
+            addOptionBtn.addEventListener('click', function() {
+                const newOption = document.createElement('div');
+                newOption.className = 'option-group';
+                
+                const type = document.getElementById('question-type').value;
+                const inputType = (type === 'mc-multi') ? 'checkbox' : 'radio';
+                const inputName = (type === 'mc-multi') ? 'correct-answer-multi' : 'correct-answer';
+
+                newOption.innerHTML = `
+                    <input type="${inputType}" name="${inputName}">
+                    <input type="text" placeholder="Lựa chọn mới">
+                    <button type="button" class="button button-icon button-danger"><i data-feather="trash-2"></i></button>
+                `;
+                
+                newOption.querySelector('.button-danger').addEventListener('click', function() {
+                    newOption.remove();
+                });
+                
+                optionsMC.appendChild(newOption);
+                feather.replace(); 
+            });
+        }
+        
+        document.querySelectorAll('#options-container-mc .button-danger').forEach(btn => {
+             btn.addEventListener('click', function() {
+                 btn.closest('.option-group').remove();
+            });
+        });
+
+         document.getElementById('edit-question-form').addEventListener('submit', function(e) {
+             e.preventDefault();
+             console.log("Lưu câu hỏi");
+             showPage('page-manage-quiz'); 
+         });
+
+
+        // --- Logic Đóng/Mở Sidebar ---
+        document.querySelectorAll('.toggle-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const container = btn.closest('.container');
+                if (container) {
+                    container.classList.toggle('sidebar-collapsed');
+                    
+                    const icon = btn.querySelector('i');
+                    if (container.classList.contains('sidebar-collapsed')) {
+                        icon.setAttribute('data-feather', 'menu');
+                    } else {
+                        icon.setAttribute('data-feather', 'x');
+                    }
+                    feather.replace(); 
+                }
+            });
+        });
+
+
+        // --- Logic Bật/Tắt Chỉnh sửa (Chỉ cho Giảng viên) ---
+        function setupEditingToggle(toggleId) {
+             const editingToggle = document.getElementById(toggleId);
+             if (editingToggle) {
+                
+                 const isEditing = editingToggle.checked;
+                 const controls = document.getElementById('page-instructor-course').querySelectorAll('.instructor-controls');
+                 controls.forEach(c => c.style.display = isEditing ? 'flex' : 'none');
+
+                 editingToggle.addEventListener('change', function() {
+                     const isEditing = this.checked;
+                     const controls = document.getElementById('page-instructor-course').querySelectorAll('.instructor-controls');
+                     controls.forEach(c => c.style.display = isEditing ? 'flex' : 'none');
+                 });
+            }
+        }
+        setupEditingToggle('editing-toggle-instructor'); 
+
+
+        // --- Logic Nút Ẩn/Hiện (Giảng viên) ---
+        document.querySelectorAll('.js-toggle-visibility').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const item = this.closest('.item');
+                const icon = this.querySelector('i');
+                if (item.classList.toggle('content-hidden')) {
+                    this.title = "Show";
+                    icon.setAttribute('data-feather', 'eye-off');
+                    this.classList.add('button-icon-hidden');
+                } else {
+                    this.title = "Hide";
+                    icon.setAttribute('data-feather', 'eye');
+                    this.classList.remove('button-icon-hidden');
+                }
+                feather.replace(); 
+            });
+        });
+
+        // --- Logic Section Collapse/Expand ---
+        document.querySelectorAll('.js-toggle-section').forEach(header => {
+            header.addEventListener('click', function() {
+                const section = this.closest('.section');
+                section.classList.toggle('expanded');
+            });
+        });
+
+        // --- Logic Collapse All ---
+        document.querySelectorAll('.js-collapse-all').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation(); 
+                document.querySelectorAll('.section.expanded').forEach(section => {
+                    section.classList.remove('expanded');
+                });
+            });
+        });
+        
+        // --- Logic Modal (Chung) ---
+        const modals = document.querySelectorAll('.modal');
+        const openModalButtons = document.querySelectorAll('.js-open-modal');
+        const closeModalButtons = document.querySelectorAll('.js-close-modal');
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeModal(modal) {
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // Gán sự kiện cho các nút mở modal (loại trừ các nút quiz trên lịch)
+        openModalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.dataset.modalId;
+                openModal(modalId);
+            });
+        });
+
+        // Gán sự kiện cho các nút đóng modal
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                closeModal(modal);
+            });
+        });
+
+        // Đóng modal khi click ra ngoài
+        window.addEventListener('click', function(e) {
+            modals.forEach(modal => {
+                if (e.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        // Gán sự kiện submit cho form trong modal
+        document.querySelectorAll('.modal form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Form submitted');
+                closeModal(this.closest('.modal'));
+            });
+        });
+
+
+        // --- Logic Dynamic Modal (Add activity) ---
+        const itemTypeSelect = document.getElementById('item-type');
+        if (itemTypeSelect) {
+            itemTypeSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const targetId = selectedOption.dataset.target;
+
+                document.querySelectorAll('.dynamic-form-group').forEach(group => {
+                    group.style.display = 'none';
+                });
+
+                if (targetId) {
+                    const targetGroup = document.getElementById(targetId);
+                    if (targetGroup) {
+                        targetGroup.style.display = 'block';
+                    }
+                }
+            });
+            itemTypeSelect.dispatchEvent(new Event('change'));
+        }
+
+
+        // --- Logic Làm bài Quiz (Trang 3) ---
+        const quizContainer = document.getElementById('page-take-quiz');
+        if (quizContainer) {
+            const questions = quizContainer.querySelectorAll('.quiz-question');
+            const navButtons = quizContainer.querySelectorAll('.quiz-nav-q');
+            let currentQ = 0; 
+
+            function showQuizQuestion(index) {
+                questions.forEach((q, i) => {
+                    q.classList.remove('active');
+                    if(navButtons[i]) navButtons[i].classList.remove('active');
+                });
+                if (questions[index]) {
+                    questions[index].classList.add('active');
+                }
+                if (navButtons[index]) {
+                    navButtons[index].classList.add('active');
+                }
+                currentQ = index;
+            }
+
+            quizContainer.querySelectorAll('.js-quiz-next').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentQ < questions.length - 1) {
+                        showQuizQuestion(currentQ + 1);
+                    }
+                });
+            });
+
+            quizContainer.querySelectorAll('.js-quiz-prev').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (currentQ > 0) {
+                        showQuizQuestion(currentQ - 1);
+                    }
+                });
+            });
+
+            navButtons.forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    showQuizQuestion(index);
+                });
+            });
+
+            showQuizQuestion(0);
+
+            quizContainer.querySelectorAll('.option input').forEach(input => {
+                input.addEventListener('change', () => {
+                    if (navButtons[currentQ]) {
+                        navButtons[currentQ].classList.add('answered');
+                    }
+                });
+            });
+        }
+        
+        // --- LOGIC LỊCH (DASHBOARD) ---
+        
+        const quizEvents = [
+            { date: "2025-11-14", title: "Mở: Quiz 1.3", type: "quiz-open", quizId: "quiz-1.3" },
+            { date: "2025-11-17", title: "Đóng: Quiz 1.3", type: "quiz-close", quizId: "quiz-1.3" }
+        ];
+
+        const calendarDaysContainer = document.getElementById('calendar-days');
+        const calendarWeekdaysContainer = document.getElementById('calendar-weekdays');
+        const calendarMonthYear = document.getElementById('calendar-month-year');
+
+        function generateCalendar(year, month) {
+            if (!calendarDaysContainer) return; 
+
+            calendarDaysContainer.innerHTML = '';
+            calendarWeekdaysContainer.innerHTML = '';
+            
+            const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
+            const dayNames = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+            
+            calendarMonthYear.innerText = `${monthNames[month]} ${year}`;
+            
+            dayNames.forEach(day => {
+                calendarWeekdaysContainer.innerHTML += `<div class="calendar-weekday">${day}</div>`;
+            });
+
+            const firstDay = new Date(year, month, 1).getDay(); 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            for (let i = 0; i < firstDay; i++) {
+                calendarDaysContainer.innerHTML += `<div class="calendar-day other-month"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                let cellHtml = `<div class="calendar-day" data-date="${dateStr}">`;
+                
+                let dayNumClass = "day-number";
+                if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                    dayNumClass += " today"; 
+                }
+                
+                cellHtml += `<div class="${dayNumClass}">${day}</div>`;
+                
+                let eventsHtml = '<div class="day-events">';
+                quizEvents.forEach(event => {
+                    if (event.date === dateStr) {
+                        eventsHtml += `<div class="day-event ${event.type} js-quiz-event" data-quiz-id="${event.quizId}">
+                            ${event.title}
+                        </div>`;
+                    }
+                });
+                eventsHtml += '</div>';
+                
+                cellHtml += eventsHtml + '</div>';
+                calendarDaysContainer.innerHTML += cellHtml;
+            }
+            
+            attachCalendarEventListeners();
+        }
+
+        function attachCalendarEventListeners() {
+            document.querySelectorAll('.js-quiz-event').forEach(eventEl => {
+                eventEl.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const quizId = this.dataset.quizId;
+                    
+                    const quizInfo = {
+                        "quiz-1.3": {
+                            title: "1.3 Quiz: Introduction Concepts",
+                            status: "Chưa làm bài",
+                            timeLimit: "30 phút",
+                            open: "Thứ Sáu, 14 Tháng 11 2025, 8:00 AM",
+                            close: "Thứ Hai, 17 Tháng 11 2025, 11:59 PM",
+                            grading: "Điểm cao nhất"
+                        }
+                    };
+                    
+                    const info = quizInfo[quizId];
+                    if (info) {
+                        document.getElementById('quiz-modal-title').innerText = info.title;
+                        document.getElementById('quiz-modal-table-body').innerHTML = `
+                            <tr><th>Trạng thái</th><td>${info.status}</td></tr>
+                            <tr><th>Thời gian cho phép</th><td>${info.timeLimit}</td></tr>
+                            <tr><th>Thời gian mở</th><td>${info.open}</td></tr>
+                            <tr><th>Thời gian đóng</th><td>${info.close}</td></tr>
+                            <tr><th>Phương thức tính điểm</th><td>${info.grading}</td></tr>
+                        `;
+                        
+                        const startBtn = document.getElementById('quiz-modal-start-btn');
+                        startBtn.dataset.page = "page-quiz-start"; 
+                        
+                        startBtn.replaceWith(startBtn.cloneNode(true)); 
+                        document.getElementById('quiz-modal-start-btn').addEventListener('click', function() {
+                            closeModal(document.getElementById('quiz-info-modal'));
+                            showPage('page-quiz-start');
+                        });
+
+                        openModal('quiz-info-modal');
+                    }
+                });
+            });
+        }
+        
+        if (document.getElementById('page-dashboard')) {
+            document.getElementById('calendar-next').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentYear, currentMonth);
+            });
+            
+             document.getElementById('calendar-prev').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentYear, currentMonth);
+            });
+            
+            document.getElementById('calendar-today').addEventListener('click', () => {
+                const today = new Date();
+                currentYear = today.getFullYear();
+                currentMonth = today.getMonth();
+                generateCalendar(currentYear, currentMonth);
+            });
+            
+            generateCalendar(currentYear, currentMonth);
+        }
+
+        // --- Logic Drag-and-Drop (TRANG 14) ---
+        const dropZone = document.getElementById('drop-zone-box');
+        const fileInput = document.getElementById('file-input');
+        const filePreviewList = document.getElementById('file-preview-list');
+
+        if (dropZone) {
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                handleFiles(e.dataTransfer.files);
+            }, false);
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                for (const file of files) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'file-preview-item';
+                    previewItem.innerHTML = `
+                        <i data-feather="file"></i>
+                        <span class="file-name">${file.name}</span>
+                        <button class="button button-icon button-danger js-remove-file"><i data-feather="trash-2"></i></button>
+                    `;
+                    previewItem.querySelector('.js-remove-file').addEventListener('click', () => {
+                        previewItem.remove();
+                    });
+                    filePreviewList.appendChild(previewItem);
+                }
+                feather.replace(); 
+            }
+        }
+        // ===============================================
+        
+        // === LOGIC BIỂU ĐỒ (TRANG 16, 17, 18) ===
+        function initCourseGradeChart() {
+            const ctx = document.getElementById('grade-chart');
+            if (!ctx) return;
+            if (courseGradeChart) {
+                courseGradeChart.destroy(); // Hủy biểu đồ cũ nếu tồn tại
+            }
+            courseGradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+                    datasets: [{
+                        label: 'Số lượng sinh viên',
+                        data: [2, 5, 12, 10, 3], // Dữ liệu giả
+                        backgroundColor: 'rgba(13, 143, 163, 0.7)',
+                        borderColor: 'rgba(13, 143, 163, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng sinh viên'
+                            }
+                        },
+                        x: {
+                             title: {
+                                display: true,
+                                text: 'Khoảng điểm'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Phân bố điểm tổng thể của khóa học',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initItemGradeChart() {
+            const ctx = document.getElementById('item-grade-chart');
+            if (!ctx) return;
+            if (itemGradeChart) {
+                itemGradeChart.destroy(); // Hủy biểu đồ cũ
+            }
+            itemGradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+                    datasets: [{
+                        label: 'Số lượng sinh viên',
+                        data: [1, 2, 3, 8, 18], // Dữ liệu giả
+                        backgroundColor: 'rgba(13, 91, 122, 0.7)',
+                        borderColor: 'rgba(13, 91, 122, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                     scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng sinh viên'
+                            }
+                        },
+                        x: {
+                             title: {
+                                display: true,
+                                text: 'Khoảng điểm'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Phân bố điểm cho Assignment',
+                            font: { size: 16 }
+                        },
+                         legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // THÊM MỚI: Hàm vẽ biểu đồ cho trang báo cáo quiz
+        function initQuizGradeChart() {
+            const ctx = document.getElementById('quiz-grade-chart');
+            if (!ctx) return;
+            if (quizGradeChart) {
+                quizGradeChart.destroy(); // Hủy biểu đồ cũ
+            }
+            quizGradeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
+                    datasets: [{
+                        label: 'Số lượng sinh viên',
+                        data: [0, 1, 0, 1, 1], // Dữ liệu giả cho quiz
+                        backgroundColor: 'rgba(13, 143, 163, 0.7)',
+                        borderColor: 'rgba(13, 143, 163, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                     scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng sinh viên'
+                            }
+                        },
+                        x: {
+                             title: {
+                                display: true,
+                                text: 'Khoảng điểm'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Phân bố điểm cho Quiz 1.3',
+                            font: { size: 16 }
+                        },
+                         legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        // ===============================================
+
+
+        // --- Kích hoạt Feather Icons ---
+        feather.replace();
+        
+        // --- Hiển thị trang ban đầu ---
+        showPage('page-landing'); 
+        
+        // --- Cập nhật lại NavLinks (quan trọng) ---
+        updateNavLinks();
+
+    });
+    </script>
+
+</body>
+</html>
