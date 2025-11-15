@@ -2,173 +2,122 @@
 
 namespace App\Controllers;
 
-use App\Core\Database;
 use App\Core\Session;
+use App\Core\View;
+use App\Models\Repositories\AssignmentRepository;
+use App\Models\Repositories\ResultRepository;
+use App\Models\Services\AssignmentService;
+use App\Models\Services\ProjectAssessment;
 
 class AssignmentController
 {
-    private $db;
+    private AssignmentService $assignmentService;
 
-    public function __construct()
+    public function __construct(?AssignmentService $assignmentService = null)
     {
-        $this->db = Database::getConnection();
+        $this->assignmentService = $assignmentService ?? new AssignmentService(
+            new AssignmentRepository(),
+            new ResultRepository(),
+            new ProjectAssessment()
+        );
     }
 
-    /**
-     * Show assignment status page
-     */
-    public function showStatus($params)
+    public function showStatus($params): void
     {
-        $assignmentId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
+        $assignmentId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)(Session::getUserId() ?? 0);
 
-        if (!$assignmentId) {
-            redirect_to('/dashboard');
+        if ($assignmentId <= 0 || $studentId <= 0) {
+            View::redirect('/dashboard');
             return;
         }
 
-        // Get assignment details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title, ci.content_id
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'assignment'
-        ");
-        $stmt->execute([$assignmentId]);
-        $assignment = $stmt->fetch();
+        try {
+            $status = $this->assignmentService->getAssignmentForSubmission($assignmentId, $studentId);
 
-        if ($assignment) {
-            $assignment['id'] = $assignment['assessment_id'];
+            View::render('assignment/assignment_status', [
+                'assignment' => $status['assignment'],
+                'submission' => $status['submission'],
+                'canSubmit' => $status['can_submit'],
+                'successMessage' => Session::getFlash('success'),
+                'errorMessage' => Session::getFlash('error'),
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/dashboard');
         }
-
-        if (!$assignment) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Get student submission
-        $stmt = $this->db->prepare("
-            SELECT * FROM assessment_results
-            WHERE assessment_id = ? AND student_id = ?
-            ORDER BY submitted_at DESC
-            LIMIT 1
-        ");
-        $stmt->execute([$assignmentId, $studentId]);
-        $submission = $stmt->fetch();
-
-        include_once __DIR__ . '/../Views/assignment/assignment_status.php';
     }
 
-    /**
-     * Show submission form
-     */
-    public function showSubmit($params)
+    public function showSubmit($params): void
     {
-        $assignmentId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
+        $assignmentId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)(Session::getUserId() ?? 0);
 
-        if (!$assignmentId) {
-            redirect_to('/dashboard');
+        if ($assignmentId <= 0 || $studentId <= 0) {
+            View::redirect('/dashboard');
             return;
         }
 
-        // Get assignment details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'assignment'
-        ");
-        $stmt->execute([$assignmentId]);
-        $assignment = $stmt->fetch();
+        try {
+            $payload = $this->assignmentService->getAssignmentForSubmission($assignmentId, $studentId);
 
-        if ($assignment) {
-            $assignment['id'] = $assignment['assessment_id'];
-        }
-
-        if (!$assignment) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Get existing submission
-        $stmt = $this->db->prepare("
-            SELECT * FROM assessment_results
-            WHERE assessment_id = ? AND student_id = ?
-        ");
-        $stmt->execute([$assignmentId, $studentId]);
-        $submission = $stmt->fetch();
-
-        include_once __DIR__ . '/../Views/assignment/add_submission.php';
-    }
-
-    /**
-     * Upload assignment submission
-     */
-    public function uploadSubmission($params)
-    {
-        $assignmentId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
-
-        if (!$assignmentId || !isset($_FILES['submission_file'])) {
-            redirect_to('/assignment/' . $assignmentId . '/status');
-            return;
-        }
-
-        $file = $_FILES['submission_file'];
-        
-        // Validate file
-        $allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/x-rar-compressed'];
-        
-        if (!in_array($file['type'], $allowedTypes)) {
-            Session::set('error', 'Invalid file type. Only PDF, DOC, DOCX, ZIP, RAR are allowed.');
-            redirect_to('/assignment/' . $assignmentId . '/submit');
-            return;
-        }
-
-        // Create upload directory if not exists
-        $uploadDir = __DIR__ . '/../../public/uploads/assignments/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        // Generate unique filename
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $filename = 'assignment_' . $assignmentId . '_student_' . $studentId . '_' . time() . '.' . $extension;
-        $filepath = $uploadDir . $filename;
-
-        // Move uploaded file
-        if (move_uploaded_file($file['tmp_name'], $filepath)) {
-            // Check if submission exists
-            $stmt = $this->db->prepare("
-                SELECT * FROM assessment_results
-                WHERE assessment_id = ? AND student_id = ?
-            ");
-            $stmt->execute([$assignmentId, $studentId]);
-            $existing = $stmt->fetch();
-
-            if ($existing) {
-                // Update existing submission
-                $stmt = $this->db->prepare("
-                    UPDATE assessment_results
-                    SET file_path = ?, submitted_at = NOW()
-                    WHERE assessment_id = ? AND student_id = ?
-                ");
-                $stmt->execute([$filename, $assignmentId, $studentId]);
-            } else {
-                // Insert new submission
-                $stmt = $this->db->prepare("
-                    INSERT INTO assessment_results (assessment_id, student_id, file_path, submitted_at, status)
-                    VALUES (?, ?, ?, NOW(), 'submitted')
-                ");
-                $stmt->execute([$assignmentId, $studentId, $filename]);
+            if (!$payload['can_submit']) {
+                Session::flash('error', 'This assignment is not currently accepting submissions.');
+                View::redirect('/assignment/' . $assignmentId . '/status');
+                return;
             }
 
-            Session::set('success', 'Assignment submitted successfully!');
-        } else {
-            Session::set('error', 'Failed to upload file. Please try again.');
+            View::render('assignment/add_submission', [
+                'assignment' => $payload['assignment'],
+                'submission' => $payload['submission'],
+                'errorMessage' => Session::getFlash('error'),
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/assignment/' . $assignmentId . '/status');
+        }
+    }
+
+    public function uploadSubmission($params): void
+    {
+        $assignmentId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)(Session::getUserId() ?? 0);
+
+        if ($assignmentId <= 0 || $studentId <= 0) {
+            View::redirect('/dashboard');
+            return;
         }
 
-        redirect_to('/assignment/' . $assignmentId . '/status');
+        if (!isset($_FILES['submission_file'])) {
+            Session::flash('error', 'Please choose a file before submitting.');
+            View::redirect('/assignment/' . $assignmentId . '/submit');
+            return;
+        }
+
+        try {
+            $payload = $this->assignmentService->getAssignmentForSubmission($assignmentId, $studentId);
+
+            if (!$payload['can_submit']) {
+                Session::flash('error', 'This assignment is not currently accepting submissions.');
+                View::redirect('/assignment/' . $assignmentId . '/status');
+                return;
+            }
+
+            $existingFile = $payload['submission']['submission_file'] ?? null;
+            $storedFile = $this->assignmentService->processSubmissionUpload(
+                $_FILES['submission_file'],
+                $assignmentId,
+                $studentId,
+                $existingFile
+            );
+
+            $this->assignmentService->recordSubmission($assignmentId, $studentId, $storedFile);
+
+            Session::flash('success', 'Assignment submitted successfully.');
+            View::redirect('/assignment/' . $assignmentId . '/status');
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/assignment/' . $assignmentId . '/submit');
+        }
     }
 }

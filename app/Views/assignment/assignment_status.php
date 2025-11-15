@@ -4,21 +4,41 @@
     <main class="main">
         <h1 class="course-title" style="color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
             <i data-feather="upload-cloud" style="width: 28px; height: 28px;"></i>
-            <span><?= htmlspecialchars($assignment['title']) ?></span>
+            <span><?= htmlspecialchars($assignment['title'] ?? 'Assignment') ?></span>
         </h1>
         
+        <?php if (!empty($successMessage)): ?>
+            <div class="alert alert-success" style="margin-top: 15px;">
+                <?= htmlspecialchars($successMessage) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($errorMessage)): ?>
+            <div class="alert alert-danger" style="margin-top: 15px;">
+                <?= htmlspecialchars($errorMessage) ?>
+            </div>
+        <?php endif; ?>
+
         <?php
         $openTime = $assignment['open_time'] ?? null;
         $dueTime = $assignment['due_time'] ?? null;
+        $submission = $submission ?? null;
         ?>
         <div class="submission-info-box">
             <strong>Opened:</strong> <?= $openTime ? date('l, d F Y, g:i A', strtotime($openTime)) : 'Not set' ?><br>
             <strong>Due:</strong> <?= $dueTime ? date('l, d F Y, g:i A', strtotime($dueTime)) : 'Not set' ?>
         </div>
 
+        <?php
+        $canSubmit = isset($canSubmit) ? (bool)$canSubmit : true;
+        $submitLabel = $submission ? 'Edit submission' : 'Add submission';
+        if (!$canSubmit) {
+            $submitLabel = 'Submission closed';
+        }
+        ?>
         <div class="submission-controls">
-            <button class="button button-primary button-large" onclick="window.location.href='<?= base_url('/assignment/' . $assignment['id'] . '/submit') ?>'">
-                <?= $submission ? 'Edit submission' : 'Add submission' ?>
+            <button class="button button-primary button-large" <?= $canSubmit ? "onclick=\"window.location.href='" . base_url('/assignment/' . $assignment['id'] . '/submit') . "'\"" : 'disabled' ?>>
+                <?= $submitLabel ?>
             </button>
         </div>
         
@@ -62,9 +82,9 @@
                 <tr>
                     <th>File submissions</th>
                     <td>
-                        <?php if ($submission && $submission['file_path']): ?>
-                            <a href="<?= base_url('/uploads/assignments/' . $submission['file_path']) ?>" target="_blank">
-                                <i data-feather="file"></i> <?= htmlspecialchars($submission['file_path']) ?>
+                        <?php if ($submission && !empty($submission['submission_file'])): ?>
+                            <a href="<?= base_url('/uploads/assignments/' . $submission['submission_file']) ?>" target="_blank">
+                                <i data-feather="file"></i> <?= htmlspecialchars($submission['submission_file']) ?>
                             </a>
                         <?php else: ?>
                             -

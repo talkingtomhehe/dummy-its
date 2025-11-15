@@ -2,405 +2,380 @@
 
 namespace App\Controllers;
 
-use App\Core\Database;
 use App\Core\Session;
+use App\Core\View;
+use App\Models\Repositories\QuizRepository;
+use App\Models\Repositories\ResultRepository;
+use App\Models\Services\QuizAssessment;
+use App\Models\Services\QuizService;
 
 class QuizController
 {
-    private $db;
+    private QuizService $quizService;
 
-    public function __construct()
+    public function __construct(?QuizService $quizService = null)
     {
-        $this->db = Database::getConnection();
+        $this->quizService = $quizService ?? new QuizService(
+            new QuizRepository(),
+            new ResultRepository(),
+            new QuizAssessment()
+        );
     }
 
-    /**
-     * Show quiz start page
-     */
-    public function show($params)
+    public function show($params): void
     {
-        $quizId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)Session::get('user_id');
 
-        if (!$quizId) {
-            redirect_to('/dashboard');
+        if ($quizId <= 0 || !$studentId) {
+            View::redirect('/dashboard');
             return;
         }
 
-        // Get quiz details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title, ci.subject_id
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'quiz'
-        ");
-        $stmt->execute([$quizId]);
-        $quiz = $stmt->fetch();
+        try {
+            $overview = $this->quizService->getQuizOverview($quizId, $studentId);
+            $quiz = $this->formatQuizForView($overview['quiz'] ?? []);
 
-        if ($quiz) {
-            $quiz['id'] = $quiz['assessment_id'];
+            View::render('quiz/quiz_start', [
+                'quiz' => $quiz,
+                'hasAttempt' => !empty($overview['latest_result']),
+                'canTake' => (bool)($overview['can_attempt'] ?? false),
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/dashboard');
         }
-
-        if (!$quiz) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Check if student has attempt
-        $stmt = $this->db->prepare("
-            SELECT * FROM assessment_results
-            WHERE assessment_id = ? AND student_id = ?
-        ");
-        $stmt->execute([$quizId, $studentId]);
-        $hasAttempt = $stmt->fetch() ? true : false;
-
-        // Check if quiz is available
-        $now = time();
-        $openTime = strtotime($quiz['open_time']);
-        $closeTime = strtotime($quiz['close_time']);
-        $canTake = ($now >= $openTime && $now <= $closeTime);
-
-        include_once __DIR__ . '/../Views/quiz/quiz_start.php';
     }
 
-    /**
-     * Take quiz page
-     */
-    public function take($params)
+    public function take($params): void
     {
-        $quizId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)Session::get('user_id');
 
-        if (!$quizId) {
-            redirect_to('/dashboard');
+        if ($quizId <= 0 || !$studentId) {
+            View::redirect('/dashboard');
             return;
         }
 
-        // Get quiz details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title, ci.subject_id
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'quiz'
-        ");
-        $stmt->execute([$quizId]);
-        $quiz = $stmt->fetch();
+        try {
+            $payload = $this->quizService->getQuizForTaking($quizId, $studentId);
+            $quiz = $this->formatQuizForView($payload['quiz'] ?? []);
+            $questions = $this->formatQuestionsForView($quiz['questions'] ?? []);
 
-        if ($quiz) {
-            $quiz['id'] = $quiz['assessment_id'];
+            View::render('quiz/take_quiz', [
+                'quiz' => $quiz,
+                'questions' => $questions,
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/quiz/' . $quizId);
         }
+    }
 
-        if (!$quiz) {
-            redirect_to('/dashboard');
+    public function submitAnswers($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)Session::get('user_id');
+
+        if ($quizId <= 0 || !$studentId) {
+            View::redirect('/dashboard');
             return;
         }
 
-        // Get questions with options
-        $questionStmt = $this->db->prepare("
-            SELECT * FROM quiz_questions
-            WHERE assessment_id = ?
-            ORDER BY question_order
-        ");
-        $questionStmt->execute([$quizId]);
-        $questions = $questionStmt->fetchAll();
+        $answers = $this->extractAnswersFromRequest($_POST ?? []);
 
-        // Get options for each question
-        $optionStmt = $this->db->prepare("
-            SELECT * FROM quiz_options
-            WHERE question_id = ?
-            ORDER BY option_order
-        ");
+        try {
+            $result = $this->quizService->submitQuiz($quizId, $studentId, $answers, $_POST['time_taken'] ?? null);
+            $resultId = $result['result_id'] ?? null;
+            $redirectUrl = '/quiz/' . $quizId . '/results' . ($resultId ? '?result_id=' . $resultId : '');
+            View::redirect($redirectUrl);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/quiz/' . $quizId . '/take');
+        }
+    }
 
+    public function results($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)Session::get('user_id');
+        $requestedResultId = isset($_GET['result_id']) ? (int)$_GET['result_id'] : null;
+
+        if ($quizId <= 0 || !$studentId) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        try {
+            $payload = $this->quizService->getQuizResult($quizId, $studentId, $requestedResultId);
+            $quiz = $this->formatQuizForView($payload['quiz'] ?? []);
+            $questions = $this->formatQuestionsForView($payload['questions'] ?? []);
+            $result = $payload['result'] ?? [];
+
+            $stats = $this->calculateResultStatistics(
+                $questions,
+                $payload['answers'] ?? [],
+                (float)($result['score'] ?? 0),
+                (float)($payload['max_score'] ?? 10)
+            );
+
+            View::render('quiz/results', [
+                'quiz' => $quiz,
+                'result' => $result,
+                'totalQuestions' => $stats['total_questions'],
+                'correctAnswers' => $stats['correct_answers'],
+                'courseId' => $quiz['subject_id'] ?? null,
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/quiz/' . $quizId);
+        }
+    }
+
+    public function manage($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+
+        if ($quizId <= 0) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        try {
+            $payload = $this->quizService->getQuizManagementData($quizId);
+            $quiz = $this->formatQuizForView($payload['quiz'] ?? []);
+            $questions = $this->formatQuestionsForView($payload['questions'] ?? []);
+
+            View::render('quiz/manage_quiz', [
+                'quiz' => $quiz,
+                'questions' => $questions,
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/dashboard');
+        }
+    }
+
+    public function editQuestion($params): void
+    {
+        $questionId = $params['id'] ?? 'new';
+        $quizId = isset($_GET['quiz_id']) ? (int)$_GET['quiz_id'] : null;
+        $question = null;
+
+        if ($questionId !== 'new') {
+            try {
+                $questionData = $this->quizService->getQuestionForEdit((int)$questionId);
+
+                if (!$questionData) {
+                    Session::flash('error', 'Question not found.');
+                    View::redirect('/quiz/' . ($quizId ?? '') . '/manage');
+                    return;
+                }
+
+                $quizId = $questionData['assessment_id'];
+                $question = $this->formatQuestionForEdit($questionData);
+            } catch (\Throwable $exception) {
+                Session::flash('error', $exception->getMessage());
+                View::redirect('/quiz/' . ($quizId ?? '') . '/manage');
+                return;
+            }
+        }
+
+        View::render('quiz/edit_question', [
+            'question' => $question,
+            'quizId' => $quizId,
+        ]);
+    }
+
+    public function saveQuestion($params): void
+    {
+        $questionId = $params['id'] ?? 'new';
+        $quizId = isset($_POST['quiz_id']) ? (int)$_POST['quiz_id'] : 0;
+
+        if ($quizId <= 0) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        $questionData = [
+            'question_text' => trim($_POST['question_text'] ?? ''),
+            'question_type' => $this->mapQuestionTypeForStorage($_POST['question_type'] ?? ''),
+            'points' => isset($_POST['points']) ? (float)$_POST['points'] : 1,
+        ];
+
+        $options = $this->buildOptionsFromRequest($_POST ?? []);
+
+        try {
+            if ($questionId === 'new') {
+                $this->quizService->createQuestion($quizId, $questionData, $options);
+            } else {
+                $this->quizService->updateQuestionWithOptions((int)$questionId, $questionData, $options);
+            }
+
+            View::redirect('/quiz/' . $quizId . '/manage');
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/quiz/' . $quizId . '/manage');
+        }
+    }
+
+    public function deleteQuestion($params): void
+    {
+        $questionId = isset($params['id']) ? (int)$params['id'] : 0;
+
+        if ($questionId <= 0) {
+            View::json(['success' => false, 'message' => 'Invalid question id'], 400);
+        }
+
+        try {
+            $this->quizService->deleteQuestion($questionId);
+            View::json(['success' => true]);
+        } catch (\Throwable $exception) {
+            View::json(['success' => false, 'message' => $exception->getMessage()], 500);
+        }
+    }
+
+    private function formatQuizForView(array $quiz): array
+    {
+        if (!empty($quiz)) {
+            $quiz['id'] = $quiz['assessment_id'] ?? $quiz['id'] ?? null;
+        }
+
+        return $quiz;
+    }
+
+    private function formatQuestionsForView(array $questions): array
+    {
         foreach ($questions as &$question) {
-            $question['id'] = $question['question_id'];
-            $optionStmt->execute([$question['question_id']]);
-            $options = $optionStmt->fetchAll();
-            foreach ($options as &$option) {
-                $option['id'] = $option['option_id'];
+            $question['id'] = $question['question_id'] ?? $question['id'] ?? null;
+            $question['question_type'] = $this->mapQuestionTypeForView($question['question_type'] ?? '');
+
+            if (!empty($question['options'])) {
+                foreach ($question['options'] as &$option) {
+                    $option['id'] = $option['option_id'] ?? $option['id'] ?? null;
+                }
             }
-            $question['options'] = $options;
         }
 
-        // Start attempt
-        $stmt = $this->db->prepare("
-            INSERT INTO assessment_results (assessment_id, student_id, started_at, status)
-            VALUES (?, ?, NOW(), 'in_progress')
-            ON DUPLICATE KEY UPDATE started_at = NOW(), status = 'in_progress'
-        ");
-        $stmt->execute([$quizId, $studentId]);
-
-        include_once __DIR__ . '/../Views/quiz/take_quiz.php';
+        return $questions;
     }
 
-    /**
-     * Submit quiz answers
-     */
-    public function submitAnswers($params)
+    private function formatQuestionForEdit(array $question): array
     {
-        $quizId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
+        $question['id'] = $question['question_id'] ?? null;
+        $question['question_type'] = $this->mapQuestionTypeForView($question['question_type'] ?? '');
 
-        if (!$quizId) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Get submitted answers
-        $answers = [];
-        foreach ($_POST as $key => $value) {
-            if (strpos($key, 'answer_') === 0) {
-                $questionId = str_replace('answer_', '', $key);
-                $answers[$questionId] = is_array($value) ? $value : [$value];
+        if (!empty($question['options'])) {
+            foreach ($question['options'] as &$option) {
+                $option['id'] = $option['option_id'] ?? null;
             }
         }
 
-        // Calculate score
-        $stmt = $this->db->prepare("SELECT * FROM quiz_questions WHERE assessment_id = ?");
-        $stmt->execute([$quizId]);
-        $questions = $stmt->fetchAll();
+        return $question;
+    }
 
+    private function extractAnswersFromRequest(array $post): array
+    {
+        $answers = [];
+
+        foreach ($post as $key => $value) {
+            if (strpos($key, 'answer_') !== 0) {
+                continue;
+            }
+
+            $questionId = (int)str_replace('answer_', '', $key);
+
+            if (is_array($value)) {
+                $answers[$questionId] = array_values($value);
+            } else {
+                $answers[$questionId] = $value;
+            }
+        }
+
+        return $answers;
+    }
+
+    private function calculateResultStatistics(array $questions, array $answers, float $score, float $maxScore): array
+    {
         $totalQuestions = count($questions);
-        $correctCount = 0;
+        $correctAnswers = 0;
 
         foreach ($questions as $question) {
-            $questionId = $question['question_id'];
-            $studentAnswers = $answers[$questionId] ?? [];
+            $questionId = $question['id'];
+            $expected = [];
 
-            // Get correct options
-            $stmt = $this->db->prepare("
-                SELECT option_id FROM quiz_options
-                WHERE question_id = ? AND is_correct = 1
-            ");
-            $stmt->execute([$questionId]);
-            $correctOptions = array_column($stmt->fetchAll(), 'option_id');
+            foreach ($question['options'] as $option) {
+                if (!empty($option['is_correct'])) {
+                    $expected[] = (string)$option['id'];
+                }
+            }
 
-            // Check if answers match
-            sort($studentAnswers);
-            sort($correctOptions);
-            
-            if ($studentAnswers == array_map('strval', $correctOptions)) {
-                $correctCount++;
+            $submitted = $answers[$questionId] ?? [];
+            $submittedValues = is_array($submitted) ? array_map('strval', $submitted) : [(string)$submitted];
+
+            sort($expected);
+            sort($submittedValues);
+
+            if ($expected === $submittedValues && !empty($expected)) {
+                $correctAnswers++;
             }
         }
 
-        $score = ($totalQuestions > 0) ? ($correctCount / $totalQuestions) * 10 : 0;
+        if ($totalQuestions && $maxScore > 0 && $correctAnswers === 0 && $score > 0) {
+            $ratio = $score / $maxScore;
+            $correctAnswers = (int)round($ratio * $totalQuestions);
+        }
 
-        // Update result
-        $stmt = $this->db->prepare("
-            UPDATE assessment_results
-            SET score = ?, completed_at = NOW(), status = 'completed'
-            WHERE assessment_id = ? AND student_id = ?
-        ");
-        $stmt->execute([$score, $quizId, $studentId]);
-
-        redirect_to('/quiz/' . $quizId . '/results');
+        return [
+            'total_questions' => $totalQuestions,
+            'correct_answers' => $correctAnswers,
+        ];
     }
 
-    /**
-     * Show quiz results
-     */
-    public function results($params)
+    private function mapQuestionTypeForView(string $type): string
     {
-        $quizId = $params['id'] ?? null;
-        $studentId = Session::get('user_id');
-
-        if (!$quizId) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Get quiz details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title, ci.subject_id
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'quiz'
-        ");
-        $stmt->execute([$quizId]);
-        $quiz = $stmt->fetch();
-
-        if ($quiz) {
-            $quiz['id'] = $quiz['assessment_id'];
-        }
-
-        // Get result
-        $stmt = $this->db->prepare("
-            SELECT * FROM assessment_results
-            WHERE assessment_id = ? AND student_id = ?
-        ");
-        $stmt->execute([$quizId, $studentId]);
-        $result = $stmt->fetch();
-
-        if (!$result) {
-            Session::set('error', 'Chưa có kết quả cho lần làm bài này.');
-            redirect_to('/quiz/' . $quizId);
-            return;
-        }
-
-        // Calculate stats
-        $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM quiz_questions WHERE assessment_id = ?");
-        $stmt->execute([$quizId]);
-        $totalQuestions = $stmt->fetch()['total'];
-        
-        $correctAnswers = round(($result['score'] / 10) * $totalQuestions);
-        $courseId = $quiz['subject_id'];
-
-        include_once __DIR__ . '/../Views/quiz/results.php';
+        return match ($type) {
+            'mc-multi' => 'multiple_answer',
+            'tf' => 'true_false',
+            default => 'multiple_choice',
+        };
     }
 
-    /**
-     * Manage quiz (instructor)
-     */
-    public function manage($params)
+    private function mapQuestionTypeForStorage(string $type): string
     {
-        $quizId = $params['id'] ?? null;
-
-        if (!$quizId) {
-            redirect_to('/dashboard');
-            return;
-        }
-
-        // Get quiz details
-        $stmt = $this->db->prepare("
-            SELECT a.*, ci.title
-            FROM assessments a
-            JOIN content_items ci ON a.content_id = ci.content_id
-            WHERE a.assessment_id = ? AND a.assessment_type = 'quiz'
-        ");
-        $stmt->execute([$quizId]);
-        $quiz = $stmt->fetch();
-
-        if ($quiz) {
-            $quiz['id'] = $quiz['assessment_id'];
-        }
-
-        // Get questions
-        $stmt = $this->db->prepare("
-            SELECT * FROM quiz_questions
-            WHERE assessment_id = ?
-            ORDER BY question_order
-        ");
-        $stmt->execute([$quizId]);
-        $questions = $stmt->fetchAll();
-
-        foreach ($questions as &$question) {
-            $question['id'] = $question['question_id'];
-        }
-
-        include_once __DIR__ . '/../Views/quiz/manage_quiz.php';
+        return match ($type) {
+            'multiple_answer' => 'mc-multi',
+            'true_false' => 'tf',
+            default => 'mc-single',
+        };
     }
 
-    /**
-     * Edit question page
-     */
-    public function editQuestion($params)
+    private function buildOptionsFromRequest(array $post): array
     {
-        $questionId = $params['id'] ?? 'new';
-        $quizId = $_GET['quiz_id'] ?? null;
+        $texts = $post['options'] ?? [];
+        $correct = $post['correct_answer'] ?? [];
 
-        $question = null;
-        if ($questionId !== 'new') {
-            $stmt = $this->db->prepare("SELECT * FROM quiz_questions WHERE question_id = ?");
-            $stmt->execute([$questionId]);
-            $question = $stmt->fetch();
+        if (!is_array($correct)) {
+            $correct = [$correct];
+        }
 
-            if ($question) {
-                $question['id'] = $question['question_id'];
-                // Get options
-                $stmt = $this->db->prepare("
-                    SELECT * FROM quiz_options
-                    WHERE question_id = ?
-                    ORDER BY option_order
-                ");
-                $stmt->execute([$questionId]);
-                $question['options'] = $stmt->fetchAll();
-                $quizId = $question['assessment_id'];
+        $correct = array_map('strval', $correct);
+        $options = [];
+
+        foreach ($texts as $index => $text) {
+            $text = trim($text);
+
+            if ($text === '') {
+                continue;
             }
+
+            $options[] = [
+                'option_text' => $text,
+                'is_correct' => in_array((string)$index, $correct, true),
+                'display_order' => $index,
+            ];
         }
 
-        include_once __DIR__ . '/../Views/quiz/edit_question.php';
-    }
-
-    /**
-     * Save question
-     */
-    public function saveQuestion($params)
-    {
-        $questionId = $params['id'] ?? 'new';
-        $quizId = $_POST['quiz_id'] ?? null;
-        $questionText = $_POST['question_text'] ?? '';
-        $questionType = $_POST['question_type'] ?? 'multiple_choice';
-        $options = $_POST['options'] ?? [];
-        $correctAnswers = $_POST['correct_answer'] ?? [];
-
-        if (!is_array($correctAnswers)) {
-            $correctAnswers = [$correctAnswers];
-        }
-
-        if ($questionId === 'new') {
-            // Insert new question
-            $stmt = $this->db->prepare("
-                INSERT INTO quiz_questions (assessment_id, question_text, question_type, question_order)
-                VALUES (?, ?, ?, (SELECT COALESCE(MAX(question_order), 0) + 1 FROM quiz_questions WHERE assessment_id = ?))
-            ");
-            $stmt->execute([$quizId, $questionText, $questionType, $quizId]);
-            $questionId = $this->db->lastInsertId();
-        } else {
-            // Update existing question
-            $stmt = $this->db->prepare("
-                UPDATE quiz_questions
-                SET question_text = ?, question_type = ?
-                WHERE question_id = ?
-            ");
-            $stmt->execute([$questionText, $questionType, $questionId]);
-
-            // Delete old options
-            $stmt = $this->db->prepare("DELETE FROM quiz_options WHERE question_id = ?");
-            $stmt->execute([$questionId]);
-        }
-
-        // Insert options
-        foreach ($options as $index => $optionText) {
-            if (empty($optionText)) continue;
-
-            $isCorrect = in_array((string)$index, $correctAnswers) ? 1 : 0;
-            
-            $stmt = $this->db->prepare("
-                INSERT INTO quiz_options (question_id, option_text, is_correct, option_order)
-                VALUES (?, ?, ?, ?)
-            ");
-            $stmt->execute([$questionId, $optionText, $isCorrect, $index]);
-        }
-
-        redirect_to('/quiz/' . $quizId . '/manage');
-    }
-
-    /**
-     * Delete question
-     */
-    public function deleteQuestion($params)
-    {
-        $questionId = $params['id'] ?? null;
-
-        if ($questionId) {
-            // Get quiz ID first
-            $stmt = $this->db->prepare("SELECT assessment_id FROM quiz_questions WHERE question_id = ?");
-            $stmt->execute([$questionId]);
-            $quiz = $stmt->fetch();
-
-            // Delete options
-            $stmt = $this->db->prepare("DELETE FROM quiz_options WHERE question_id = ?");
-            $stmt->execute([$questionId]);
-
-            // Delete question
-            $stmt = $this->db->prepare("DELETE FROM quiz_questions WHERE question_id = ?");
-            $stmt->execute([$questionId]);
-
-            if ($quiz) {
-                redirect_to('/quiz/' . $quiz['assessment_id'] . '/manage');
-            } else {
-                redirect_to('/dashboard');
-            }
-        }
+        return $options;
     }
 }

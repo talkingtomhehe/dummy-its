@@ -1,50 +1,32 @@
 <?php
+
 namespace App\Models\Interfaces;
 
-/**
- * IResultRepository Interface
- * 
- * SOLID: Dependency Inversion Principle (DIP)
- * Services depend on this abstraction for result/grading operations
- */
-interface IResultRepository {
-    /**
-     * Submit a quiz result
-     */
+interface IResultRepository
+{
+    public function getStudentGrades(int $courseId, int $studentId): array;
+
+    public function getInstructorGrades(int $courseId): array;
+
+    public function getAssignmentSubmissions(int $assessmentId): array;
+
+    public function getQuizResults(int $assessmentId): array;
+
+    public function saveAssignmentGrades(int $assessmentId, array $grades, array $feedback): void;
+
     public function submitQuizResult(array $data): int;
 
-    /**
-     * Get result by ID
-     */
-    public function getResultById(int $resultId): ?array;
-
-    /**
-     * Get results for a student
-     */
-    public function getResultsByStudent(int $userId, int $assessmentId = null): array;
-
-    /**
-     * Get all results for an assessment
-     */
-    public function getResultsByAssessment(int $assessmentId): array;
-
-    /**
-     * Update result score and feedback
-     */
-    public function updateResult(int $resultId, array $data): bool;
-
-    /**
-     * Submit assignment file
-     */
     public function submitAssignment(array $data): int;
 
-    /**
-     * Get grade statistics for an assessment
-     */
+    public function getResultById(int $resultId): ?array;
+
+    public function getResultsByStudent(int $userId, ?int $assessmentId = null): array;
+
+    public function getResultsByAssessment(int $assessmentId): array;
+
+    public function updateResult(int $resultId, array $data): bool;
+
     public function getGradeStatistics(int $assessmentId): array;
 
-    /**
-     * Get all grades for a subject
-     */
-    public function getGradesBySubject(int $subjectId, int $userId = null): array;
+    public function getGradesBySubject(int $subjectId, ?int $userId = null): array;
 }

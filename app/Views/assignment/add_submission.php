@@ -2,11 +2,17 @@
 
 <div class="container">
     <main class="main">
-        <h1 class="course-title">Nộp bài: <?= htmlspecialchars($assignment['title']) ?></h1>
+        <h1 class="course-title">Nộp bài: <?= htmlspecialchars($assignment['title'] ?? 'Assignment') ?></h1>
         
+        <?php if (!empty($errorMessage)): ?>
+            <div class="alert alert-danger" style="margin-bottom: 15px;">
+                <?= htmlspecialchars($errorMessage) ?>
+            </div>
+        <?php endif; ?>
+
         <form id="submission-form" method="POST" action="<?= base_url('/assignment/' . $assignment['id'] . '/upload') ?>" enctype="multipart/form-data">
             <div class="drop-zone-container">
-                <input type="file" id="file-input" name="submission_file" multiple accept=".pdf,.doc,.docx,.zip,.rar">
+                <input type="file" id="file-input" name="submission_file" accept=".pdf,.doc,.docx,.zip,.rar">
                 
                 <div class="drop-zone" id="drop-zone-box">
                     <div class="drop-zone-icon"><i data-feather="upload-cloud" style="width: 48px; height: 48px;"></i></div>
@@ -17,10 +23,10 @@
                 </div>
                 
                 <div id="file-preview-list">
-                    <?php if (isset($submission) && $submission['file_path']): ?>
+                    <?php if (isset($submission) && !empty($submission['submission_file'])): ?>
                     <div class="file-preview-item">
                         <i data-feather="file"></i>
-                        <span><?= htmlspecialchars($submission['file_path']) ?></span>
+                        <span><?= htmlspecialchars($submission['submission_file']) ?></span>
                         <button type="button" class="button button-icon button-danger" onclick="removeFile()">
                             <i data-feather="x"></i>
                         </button>

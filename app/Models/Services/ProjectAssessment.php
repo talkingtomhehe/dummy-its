@@ -19,10 +19,22 @@ class ProjectAssessment implements IAssessment {
     }
 
     public function validateSubmission(array $submission): bool {
-        // Validate that file was uploaded
-        return isset($submission['assessment_id']) 
-            && isset($submission['user_id']) 
-            && (isset($submission['submission_file']) || isset($submission['answers']));
+        if (!isset($submission['assessment_id'], $submission['user_id'])) {
+            return false;
+        }
+
+        if (isset($submission['submission_file'])) {
+            $file = $submission['submission_file'];
+            if (is_string($file) && trim($file) !== '') {
+                return true;
+            }
+        }
+
+        if (isset($submission['answers']) && !empty($submission['answers'])) {
+            return true;
+        }
+
+        return false;
     }
 
     public function getAssessmentType(): string {
