@@ -1,10 +1,10 @@
 <?php
 namespace App\Models\Services;
 
-use App\Models\Repositories\UserRepository;
-use App\Models\Entities\User;
-use App\Models\Entities\Student;
 use App\Models\Entities\Instructor;
+use App\Models\Entities\Student;
+use App\Models\Entities\User;
+use App\Models\Interfaces\IUserRepository;
 
 /**
  * UserService
@@ -14,11 +14,11 @@ use App\Models\Entities\Instructor;
  * Only handles user-related business logic
  */
 class UserService {
-    private UserRepository $userRepo;
+    private IUserRepository $userRepo;
 
-    public function __construct(UserRepository $userRepo) {
+    public function __construct(IUserRepository $userRepo) {
         // SOLID: Dependency Inversion Principle (DIP)
-        // Depends on concrete UserRepository (could be abstracted further)
+        // High-level service now depends on an abstraction instead of a concrete repository
         $this->userRepo = $userRepo;
     }
 
@@ -27,19 +27,16 @@ class UserService {
      */
     public function authenticate(string $username, string $password): ?User {
         $userData = $this->userRepo->findByUsername($username);
-        
+
         if (!$userData) {
             return null;
         }
 
-        // Create User entity
-        $user = new User($userData);
-        
-        if (!$user->verifyPassword($password)) {
+        if (!password_verify($password, $userData['password_hash'] ?? '')) {
             return null;
         }
 
-        return $user;
+        return $this->mapToEntity($userData);
     }
 
     /**
@@ -47,20 +44,12 @@ class UserService {
      */
     public function getUserById(int $userId): ?User {
         $userData = $this->userRepo->findById($userId);
-        
+
         if (!$userData) {
             return null;
         }
 
-        // SOLID: Liskov Substitution Principle (LSP)
-        // Return appropriate subclass based on role
-        if ($userData['role'] === 'student') {
-            return new Student($userData);
-        } elseif ($userData['role'] === 'instructor') {
-            return new Instructor($userData);
-        }
-        
-        return new User($userData);
+        return $this->mapToEntity($userData);
     }
 
     /**
@@ -85,5 +74,19 @@ class UserService {
      */
     public function getAllStudents(): array {
         return $this->userRepo->getAllStudents();
+    }
+
+    /**
+     * Map raw database row to the appropriate user entity.
+     *
+     * @param array $userData
+     */
+    private function mapToEntity(array $userData): User {
+        // SOLID: LSP - callers receive a User subtype that honours the same contract
+        return match ($userData['role'] ?? '') {
+            'student' => new Student($userData),
+            'instructor' => new Instructor($userData),
+            default => new User($userData),
+        };
     }
 }

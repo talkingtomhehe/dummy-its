@@ -46,25 +46,28 @@
         feather.replace();
         
         function selectRole(role) {
-            // Send role selection to server
+            const params = new URLSearchParams({ role });
+
             fetch('<?= BASE_URL ?>/select-role', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: 'role=' + role
+                body: params.toString()
             })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to login form
-                    window.location.href = '<?= BASE_URL ?>/login';
-                } else {
-                    alert('An error occurred. Please try again.');
+            .then(async response => {
+                const payload = await response.json().catch(() => ({}));
+
+                if (response.ok && payload.success) {
+                    window.location.href = payload.redirect || '<?= BASE_URL ?>/login';
+                    return;
                 }
+
+                throw new Error(payload.message || 'Role selection failed.');
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                alert(error.message || 'An error occurred. Please try again.');
             });
         }
     </script>

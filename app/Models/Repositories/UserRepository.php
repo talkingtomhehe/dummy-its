@@ -2,6 +2,7 @@
 namespace App\Models\Repositories;
 
 use App\Core\Database;
+use App\Models\Interfaces\IUserRepository;
 use PDO;
 
 /**
@@ -11,7 +12,7 @@ use PDO;
  * SOLID: Single Responsibility Principle (SRP)
  * Only responsible for user data persistence
  */
-class UserRepository {
+class UserRepository implements IUserRepository {
     private PDO $db;
 
     public function __construct() {

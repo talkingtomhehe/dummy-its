@@ -1,5 +1,3 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
-
 <?php
 $contentTitle = $content['title'] ?? 'Course Content';
 $contentType = strtolower($content['type'] ?? $content['content_type'] ?? 'text');
@@ -7,6 +5,12 @@ $contentData = $content['data'] ?? $content['content_data'] ?? '';
 $filePath = $content['file_path'] ?? null;
 $contentId = $content['id'] ?? $content['content_id'] ?? null;
 $assessmentId = $content['assessment_id'] ?? null;
+
+$showHeader = true;
+$activePage = 'courses';
+$title = $contentTitle . ' - ITS';
+
+require_once __DIR__ . '/../layouts/header.php';
 ?>
 
 <div class="container">

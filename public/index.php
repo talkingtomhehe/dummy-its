@@ -65,6 +65,13 @@ $router->get('/dashboard', function() {
     (new \App\Controllers\DashboardController())->index();
 });
 
+$router->get('/dashboard/events', function() {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['error' => 'Unauthorized'], 401);
+    }
+    (new \App\Controllers\DashboardController())->events();
+});
+
 // Course/Content routes
 $router->get('/course', function() {
     if (!Session::isAuthenticated()) {

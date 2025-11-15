@@ -7,9 +7,9 @@
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+-- SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+-- START TRANSACTION;
+
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -30,6 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `assessments` (
   `assessment_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
+  `content_id` int(11) DEFAULT NULL,
   `title` varchar(200) NOT NULL,
   `assessment_type` enum('quiz','project','assignment') NOT NULL,
   `description` text DEFAULT NULL,
@@ -47,9 +48,9 @@ CREATE TABLE `assessments` (
 -- Đang đổ dữ liệu cho bảng `assessments`
 --
 
-INSERT INTO `assessments` (`assessment_id`, `topic_id`, `title`, `assessment_type`, `description`, `time_limit`, `open_time`, `close_time`, `max_score`, `is_visible`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 2, '1.3 Quiz: Introduction Concepts', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(2, 3, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `assessment_type`, `description`, `time_limit`, `open_time`, `close_time`, `max_score`, `is_visible`, `display_order`, `created_at`, `updated_at`) VALUES
+(1, 2, 7, '1.3 Quiz: Introduction Concepts', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
+(2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
 
 -- --------------------------------------------------------
 
@@ -61,22 +62,22 @@ CREATE TABLE `assessment_results` (
   `result_id` int(11) NOT NULL,
   `assessment_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `student_id` int(11) DEFAULT NULL,
   `score` decimal(5,2) DEFAULT NULL,
   `answers` text DEFAULT NULL COMMENT 'JSON encoded answers',
   `feedback` text DEFAULT NULL,
   `submission_file` varchar(500) DEFAULT NULL,
+  `status` enum('pending','in_progress','submitted','graded','completed') DEFAULT 'submitted',
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `started_at` datetime DEFAULT NULL,
+  `completed_at` datetime DEFAULT NULL,
   `graded_at` timestamp NULL DEFAULT NULL,
   `time_taken` int(11) DEFAULT NULL COMMENT 'Time taken in seconds'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Đang đổ dữ liệu cho bảng `assessment_results`
---
-
-INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `score`, `answers`, `feedback`, `submission_file`, `submitted_at`, `graded_at`, `time_taken`) VALUES
-(1, 1, 1, 6.67, '{\"1\":\"c\",\"2\":\"a\",\"3\":[\"a\",\"b\"]}', NULL, NULL, '2025-11-14 18:02:00', NULL, 130),
-(2, 1, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, '2025-11-14 19:15:00', NULL, 332);
+INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `status`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
+(1, 1, 1, 1, 6.67, '{"1":"c","2":"a","3":["a","b"]}', NULL, NULL, 'completed', '2025-11-14 18:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
+(2, 1, 2, 2, 10.00, '{"1":"c","2":"c","3":["a","b"]}', NULL, NULL, 'completed', '2025-11-14 19:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332);
 
 -- --------------------------------------------------------
 
@@ -88,7 +89,7 @@ CREATE TABLE `content_items` (
   `content_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `content_type` enum('text','video','link','page','file') NOT NULL,
+  `content_type` enum('text','video','link','page','file','quiz','assignment') NOT NULL,
   `content_data` text DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
   `is_visible` tinyint(1) DEFAULT 1,
@@ -107,7 +108,9 @@ INSERT INTO `content_items` (`content_id`, `topic_id`, `title`, `content_type`, 
 (3, 2, '1.1 Slides: Introduction to Software Testing', 'page', '<h2>Introduction to Software Testing</h2><p>Software testing is a critical phase in software development...</p><p>Key concepts include: Verification, Validation, Quality Assurance.</p>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
 (4, 2, '1.2 Video: What is Testing?', 'video', 'https://www.youtube.com/embed/example', NULL, 1, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
 (5, 2, '1.2.1 External Link: Introduction to Testing', 'link', 'https://www.guru99.com/software-testing-introduction-importance.html', NULL, 1, 3, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(6, 3, 'Assignment Specification', 'page', '<h2>Final Project Assignment</h2><p>Develop a comprehensive test plan for a given software system.</p><p><strong>Requirements:</strong></p><ul><li>Test case design</li><li>Test execution plan</li><li>Bug report documentation</li></ul>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(6, 3, 'Assignment Specification', 'page', '<h2>Final Project Assignment</h2><p>Develop a comprehensive test plan for a given software system.</p><p><strong>Requirements:</strong></p><ul><li>Test case design</li><li>Test execution plan</li><li>Bug report documentation</li></ul>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
+(7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', NULL, NULL, 1, 4, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
+(8, 3, 'Final Project Submission', 'assignment', '<p>Upload your completed project deliverables.</p>', NULL, 1, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
 
 -- --------------------------------------------------------
 
@@ -249,6 +252,7 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `full_name`, `email
 ALTER TABLE `assessments`
   ADD PRIMARY KEY (`assessment_id`),
   ADD KEY `idx_topic` (`topic_id`),
+  ADD KEY `idx_content` (`content_id`),
   ADD KEY `idx_type` (`assessment_type`),
   ADD KEY `idx_visible` (`is_visible`),
   ADD KEY `idx_assessment_topic_type` (`topic_id`,`assessment_type`);
@@ -260,8 +264,11 @@ ALTER TABLE `assessment_results`
   ADD PRIMARY KEY (`result_id`),
   ADD KEY `idx_assessment` (`assessment_id`),
   ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_student` (`student_id`),
   ADD KEY `idx_submitted` (`submitted_at`),
-  ADD KEY `idx_results_user_assessment` (`user_id`,`assessment_id`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_results_user_assessment` (`user_id`,`assessment_id`),
+  ADD KEY `idx_results_student_assessment` (`student_id`,`assessment_id`);
 
 --
 -- Chỉ mục cho bảng `content_items`
@@ -336,7 +343,7 @@ ALTER TABLE `assessment_results`
 -- AUTO_INCREMENT cho bảng `content_items`
 --
 ALTER TABLE `content_items`
-  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_options`
@@ -376,14 +383,16 @@ ALTER TABLE `users`
 -- Các ràng buộc cho bảng `assessments`
 --
 ALTER TABLE `assessments`
-  ADD CONSTRAINT `assessments_ibfk_1` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`topic_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `assessments_ibfk_1` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`topic_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `assessments_ibfk_2` FOREIGN KEY (`content_id`) REFERENCES `content_items` (`content_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `assessment_results`
 --
 ALTER TABLE `assessment_results`
   ADD CONSTRAINT `assessment_results_ibfk_1` FOREIGN KEY (`assessment_id`) REFERENCES `assessments` (`assessment_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `assessment_results_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `assessment_results_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `assessment_results_ibfk_3` FOREIGN KEY (`student_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `content_items`

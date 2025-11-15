@@ -13,50 +13,58 @@ use App\Models\Interfaces\IAssessment;
 class QuizAssessment implements IAssessment {
     
     public function calculateGrade(array $answers, array $correctAnswers): float {
-        $totalPoints = 0;
-        $earnedPoints = 0;
+        $earnedPoints = 0.0;
 
         foreach ($correctAnswers as $questionId => $questionData) {
-            $totalPoints += $questionData['points'];
-            
-            if (!isset($answers[$questionId])) {
-                continue; // No answer provided
+            if (!array_key_exists($questionId, $answers)) {
+                continue;
             }
 
-            $studentAnswer = $answers[$questionId];
             $questionType = $questionData['type'];
-            
-            if ($questionType === 'mc-single' || $questionType === 'tf') {
-                // Single choice or True/False
-                if ($studentAnswer === $questionData['correct']) {
-                    $earnedPoints += $questionData['points'];
-                }
-            } elseif ($questionType === 'mc-multi') {
-                // Multiple choice - must select ALL correct answers
-                $correctOptions = $questionData['correct'];
-                $studentOptions = is_array($studentAnswer) ? $studentAnswer : [$studentAnswer];
-                
-                sort($correctOptions);
+            $points = (float)($questionData['points'] ?? 0);
+            $expected = $questionData['correct'];
+            $response = $answers[$questionId];
+
+            if ($questionType === 'mc-multi') {
+                $studentOptions = is_array($response) ? array_map('strval', $response) : [];
+                $correctOptions = array_map('strval', (array)$expected);
                 sort($studentOptions);
-                
-                if ($correctOptions === $studentOptions) {
-                    $earnedPoints += $questionData['points'];
+                sort($correctOptions);
+
+                if ($studentOptions === $correctOptions) {
+                    $earnedPoints += $points;
                 }
+
+                continue;
+            }
+
+            $studentChoice = is_array($response) ? reset($response) : $response;
+            $correctChoice = is_array($expected) ? reset($expected) : $expected;
+
+            if ((string)$studentChoice === (string)$correctChoice) {
+                $earnedPoints += $points;
             }
         }
 
-        // Calculate percentage and scale to maxScore (typically 10)
-        $percentage = $totalPoints > 0 ? ($earnedPoints / $totalPoints) : 0;
-        $maxScore = 10.0;
-        
-        return round($percentage * $maxScore, 2);
+        return round($earnedPoints, 2);
     }
 
     public function validateSubmission(array $submission): bool {
-        // Validate that all required fields are present
-        return isset($submission['assessment_id']) 
-            && isset($submission['user_id']) 
-            && isset($submission['answers']);
+        if (empty($submission)) {
+            return false;
+        }
+
+        foreach ($submission as $value) {
+            if (is_array($value) && !empty($value)) {
+                return true;
+            }
+
+            if (!is_array($value) && $value !== '' && $value !== null) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getAssessmentType(): string {

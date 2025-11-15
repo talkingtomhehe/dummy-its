@@ -57,6 +57,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    initDashboardPage();
 });
 
 /**
@@ -136,3 +138,244 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+/**
+ * Initialize dashboard calendar and interactions
+ */
+function initDashboardPage() {
+    const dashboardPage = document.getElementById('page-dashboard');
+    if (!dashboardPage) {
+        return;
+    }
+
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthTitle = document.getElementById('calendar-month-year');
+    if (!calendarGrid || !monthTitle) {
+        return;
+    }
+
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    const todayBtn = document.getElementById('today-btn');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const container = dashboardPage.querySelector('.container');
+
+    if (sidebarToggle && container) {
+        sidebarToggle.addEventListener('click', function() {
+            container.classList.toggle('sidebar-collapsed');
+        });
+    }
+
+    const state = {
+        currentDate: new Date(),
+        events: [],
+    };
+
+    const defaultEvents = safeParseJson(dashboardPage.dataset.defaultEvents) || [];
+    if (Array.isArray(defaultEvents)) {
+        state.events = normalizeEvents(defaultEvents);
+    }
+
+    const eventsUrl = dashboardPage.dataset.eventsUrl || '';
+
+    const changeMonth = (offset) => {
+        state.currentDate.setMonth(state.currentDate.getMonth() + offset);
+        renderCalendar(monthTitle, calendarGrid, state.currentDate, state.events);
+    };
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => changeMonth(-1));
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => changeMonth(1));
+    }
+
+    if (todayBtn) {
+        todayBtn.addEventListener('click', () => {
+            state.currentDate = new Date();
+            renderCalendar(monthTitle, calendarGrid, state.currentDate, state.events);
+        });
+    }
+
+    const fetchEvents = () => {
+        if (!eventsUrl) {
+            return Promise.resolve(state.events);
+        }
+
+        return fetch(eventsUrl, {
+            headers: {
+                'Accept': 'application/json',
+            },
+            credentials: 'same-origin',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load events: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((payload) => {
+                if (Array.isArray(payload)) {
+                    return payload;
+                }
+                if (payload && Array.isArray(payload.data)) {
+                    return payload.data;
+                }
+                return [];
+            })
+            .catch((error) => {
+                console.warn(error);
+                return state.events;
+            });
+    };
+
+    renderCalendar(monthTitle, calendarGrid, state.currentDate, state.events);
+
+    fetchEvents().then((events) => {
+        state.events = normalizeEvents(events);
+        renderCalendar(monthTitle, calendarGrid, state.currentDate, state.events);
+    });
+}
+
+/**
+ * Render the calendar into the DOM
+ */
+function renderCalendar(monthTitle, calendarGrid, currentDate, events) {
+    if (!monthTitle || !calendarGrid) {
+        return;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    monthTitle.textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const today = new Date();
+    const eventMap = buildEventLookup(events);
+
+    let html = '';
+
+    weekdays.forEach((day) => {
+        html += `<div class="calendar-weekday">${day}</div>`;
+    });
+
+    for (let i = firstDay - 1; i >= 0; i -= 1) {
+        const day = daysInPrevMonth - i;
+        html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayEvents = eventMap.get(dateStr) || [];
+
+        let cellClass = 'calendar-day';
+        if (
+            day === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear()
+        ) {
+            cellClass += ' today';
+        }
+
+        let eventsHtml = '';
+        if (dayEvents.length > 0) {
+            eventsHtml = '<div class="day-events">';
+            dayEvents.forEach((event) => {
+                const title = escapeHtml(event.title || 'Event');
+                const type = escapeHtml(event.type || 'quiz-open');
+                eventsHtml += `<div class="day-event ${type}" title="${title}">${title}</div>`;
+            });
+            eventsHtml += '</div>';
+        }
+
+        html += `<div class="${cellClass}">
+            <div class="day-number">${day}</div>
+            ${eventsHtml}
+        </div>`;
+    }
+
+    const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+    const remainingCells = totalCells - (firstDay + daysInMonth);
+    for (let day = 1; day <= remainingCells; day += 1) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+    }
+
+    calendarGrid.innerHTML = html;
+
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+}
+
+/**
+ * Create a quick lookup for events per day
+ */
+function buildEventLookup(events) {
+    const map = new Map();
+    events.forEach((event) => {
+        if (!event || !event.date) {
+            return;
+        }
+        const key = event.date;
+        if (!map.has(key)) {
+            map.set(key, []);
+        }
+        map.get(key).push(event);
+    });
+    return map;
+}
+
+/**
+ * Normalize event objects to expected keys
+ */
+function normalizeEvents(events) {
+    if (!Array.isArray(events)) {
+        return [];
+    }
+    return events.map((event) => ({
+        date: event.date,
+        title: event.title,
+        type: event.type || 'quiz-open',
+    })).filter((event) => Boolean(event.date && event.title));
+}
+
+/**
+ * Safely parse JSON without throwing
+ */
+function safeParseJson(jsonString) {
+    if (!jsonString) {
+        return null;
+    }
+    try {
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.warn('Failed to parse JSON payload', error);
+        return null;
+    }
+}
+
+/**
+ * Basic HTML escaping helper
+ */
+function escapeHtml(value) {
+    if (typeof value !== 'string') {
+        return '';
+    }
+    return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}

@@ -3,8 +3,8 @@ namespace App\Controllers;
 
 use App\Core\Session;
 use App\Core\View;
-use App\Models\Services\UserService;
 use App\Models\Repositories\UserRepository;
+use App\Models\Services\UserService;
 
 /**
  * AuthController
@@ -16,10 +16,9 @@ use App\Models\Repositories\UserRepository;
 class AuthController {
     private UserService $userService;
 
-    public function __construct() {
-        // Manual dependency injection
-        // In production, use a DI container
-        $this->userService = new UserService(new UserRepository());
+    public function __construct(?UserService $userService = null) {
+        // Manual dependency injection; fall back to default wiring when not provided
+        $this->userService = $userService ?? new UserService(new UserRepository());
     }
 
     /**
@@ -29,6 +28,11 @@ class AuthController {
         if (Session::isAuthenticated()) {
             View::redirect('/dashboard');
             return;
+        }
+
+        // Reset any previous role selection so the flow always starts fresh
+        if (Session::has('login_role')) {
+            Session::remove('login_role');
         }
 
         View::render('user/select_role');
@@ -44,18 +48,15 @@ class AuthController {
         }
 
         $role = $_POST['role'] ?? '';
-        
-        if (!in_array($role, ['student', 'instructor'])) {
-            View::redirect('/select-role');
-            return;
+
+        if (!in_array($role, ['student', 'instructor'], true)) {
+            View::json(['success' => false, 'message' => 'Invalid role selection.'], 400);
         }
 
         // Store selected role in session temporarily
         Session::set('login_role', $role);
-        
-        // Return success (view will redirect to login form)
-        http_response_code(200);
-        exit;
+
+        View::json(['success' => true, 'redirect' => base_url('login')]);
     }
 
     /**

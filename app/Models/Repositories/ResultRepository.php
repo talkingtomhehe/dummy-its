@@ -22,17 +22,19 @@ class ResultRepository implements IResultRepository {
     public function submitQuizResult(array $data): int {
         $stmt = $this->db->prepare("
             INSERT INTO assessment_results 
-            (assessment_id, user_id, score, answers, time_taken, submitted_at)
+            (assessment_id, user_id, student_id, score, answers, time_taken, status, submitted_at, completed_at)
             VALUES 
-            (:assessment_id, :user_id, :score, :answers, :time_taken, NOW())
+            (:assessment_id, :user_id, :student_id, :score, :answers, :time_taken, :status, NOW(), NOW())
         ");
         
         $stmt->execute([
             'assessment_id' => $data['assessment_id'],
             'user_id' => $data['user_id'],
+            'student_id' => $data['user_id'],
             'score' => $data['score'],
             'answers' => json_encode($data['answers']),
             'time_taken' => $data['time_taken'] ?? null,
+            'status' => $data['status'] ?? 'completed',
         ]);
         
         return (int) $this->db->lastInsertId();
@@ -41,15 +43,17 @@ class ResultRepository implements IResultRepository {
     public function submitAssignment(array $data): int {
         $stmt = $this->db->prepare("
             INSERT INTO assessment_results 
-            (assessment_id, user_id, submission_file, submitted_at)
+            (assessment_id, user_id, student_id, submission_file, status, submitted_at)
             VALUES 
-            (:assessment_id, :user_id, :submission_file, NOW())
+            (:assessment_id, :user_id, :student_id, :submission_file, :status, NOW())
         ");
         
         $stmt->execute([
             'assessment_id' => $data['assessment_id'],
             'user_id' => $data['user_id'],
+            'student_id' => $data['user_id'],
             'submission_file' => $data['submission_file'] ?? null,
+            'status' => $data['status'] ?? 'submitted',
         ]);
         
         return (int) $this->db->lastInsertId();

@@ -7,10 +7,16 @@
 $showHeader = true;
 $activePage = 'dashboard';
 $title = 'Dashboard - ITS';
+$defaultEventsPayload = htmlspecialchars(json_encode($quizEvents ?? []), ENT_QUOTES, 'UTF-8');
 require_once __DIR__ . '/../layouts/header.php';
 ?>
 
-<div id="page-dashboard" class="page active">
+<div
+    id="page-dashboard"
+    class="page active"
+    data-events-url="<?= htmlspecialchars($calendarEventsUrl ?? '', ENT_QUOTES, 'UTF-8') ?>"
+    data-default-events='<?= $defaultEventsPayload ?>'
+>
     <div class="container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -91,99 +97,5 @@ require_once __DIR__ . '/../layouts/header.php';
         </main>
     </div>
 </div>
-
-<script>
-    // Calendar data from PHP
-    const quizEvents = <?= json_encode($quizEvents ?? []) ?>;
-    
-    let currentDate = new Date();
-    
-    function generateCalendar(year, month) {
-        const monthNames = ["January", "February", "March", "April", "May", "June",
-                           "July", "August", "September", "October", "November", "December"];
-        const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        
-        document.getElementById('calendar-month-year').textContent = `${monthNames[month]} ${year}`;
-        
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const daysInPrevMonth = new Date(year, month, 0).getDate();
-        
-        let html = '';
-        
-        // Weekday headers
-        weekdays.forEach(day => {
-            html += `<div class="calendar-weekday">${day}</div>`;
-        });
-        
-        // Previous month's days
-        for (let i = firstDay - 1; i >= 0; i--) {
-            const day = daysInPrevMonth - i;
-            html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
-        }
-        
-        // Current month's days
-        const today = new Date();
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayEvents = quizEvents.filter(e => e.date === dateStr);
-            
-            // Check if this day is today
-            let cellClass = 'calendar-day';
-            if (day === today.getDate() && 
-                month === today.getMonth() && 
-                year === today.getFullYear()) {
-                cellClass += ' today';
-            }
-            
-            let eventsHtml = '';
-            if (dayEvents.length > 0) {
-                eventsHtml = '<div class="day-events">';
-                dayEvents.forEach(event => {
-                    eventsHtml += `<div class="day-event ${event.type}" title="${event.title}">${event.title}</div>`;
-                });
-                eventsHtml += '</div>';
-            }
-            
-            html += `<div class="${cellClass}">
-                        <div class="day-number">${day}</div>
-                        ${eventsHtml}
-                     </div>`;
-        }
-        
-        // Next month's days
-        const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
-        const remainingCells = totalCells - (firstDay + daysInMonth);
-        for (let day = 1; day <= remainingCells; day++) {
-            html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
-        }
-        
-        document.getElementById('calendar-grid').innerHTML = html;
-        feather.replace();
-    }
-    
-    document.getElementById('prev-month').addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    });
-    
-    document.getElementById('next-month').addEventListener('click', () => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    });
-    
-    document.getElementById('today-btn').addEventListener('click', () => {
-        currentDate = new Date();
-        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-    });
-    
-    // Sidebar toggle
-    document.getElementById('sidebar-toggle').addEventListener('click', function() {
-        document.querySelector('.container').classList.toggle('sidebar-collapsed');
-    });
-    
-    // Initialize calendar
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

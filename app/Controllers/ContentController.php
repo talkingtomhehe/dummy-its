@@ -16,10 +16,9 @@ use App\Models\Repositories\ContentRepository;
 class ContentController {
     private ContentService $contentService;
 
-    public function __construct() {
-        // SOLID: DIP - Injecting through constructor
-        $contentRepository = new ContentRepository();
-        $this->contentService = new ContentService($contentRepository);
+    public function __construct(?ContentService $contentService = null) {
+        // SOLID: DIP - allow dependency injection, default to in-project wiring
+        $this->contentService = $contentService ?? new ContentService(new ContentRepository());
     }
 
     /**

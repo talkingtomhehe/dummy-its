@@ -1,108 +1,124 @@
 <?php
 namespace App\Models\Services;
 
+use App\Models\Interfaces\IAssessment;
 use App\Models\Interfaces\IQuizRepository;
 use App\Models\Interfaces\IResultRepository;
-use App\Models\Interfaces\IAssessment;
 
 /**
- * QuizService
- * Business logic for quiz operations
- * 
- * SOLID: Single Responsibility Principle (SRP) - Quiz business logic only
- * SOLID: Dependency Inversion Principle (DIP) - Depends on interfaces
- * SOLID: Open/Closed Principle (OCP) - Uses IAssessment for extensible grading
+ * QuizService centralises quiz business logic (fetching, grading, management).
  */
 class QuizService {
     private IQuizRepository $quizRepo;
     private IResultRepository $resultRepo;
     private IAssessment $quizAssessment;
 
-    public function __construct(
-        IQuizRepository $quizRepo,
-        IResultRepository $resultRepo,
-        IAssessment $quizAssessment
-    ) {
-        // SOLID: DIP - Constructor-based Dependency Injection with interfaces
+    public function __construct(IQuizRepository $quizRepo, IResultRepository $resultRepo, IAssessment $quizAssessment) {
         $this->quizRepo = $quizRepo;
         $this->resultRepo = $resultRepo;
         $this->quizAssessment = $quizAssessment;
     }
 
-    /**
-     * Get quiz details with questions
-     */
-    public function getQuizWithQuestions(int $assessmentId): array {
+    public function getQuizOverview(int $assessmentId, int $userId): array {
         $quiz = $this->quizRepo->getQuizById($assessmentId);
-        
+
         if (!$quiz) {
-            throw new \Exception("Quiz not found");
+            throw new \RuntimeException('Quiz not found');
         }
 
         $questions = $this->quizRepo->getQuizQuestions($assessmentId);
-        
-        // Fetch options for each question
-        foreach ($questions as &$question) {
-            $questionWithOptions = $this->quizRepo->getQuestionWithOptions($question['question_id']);
-            $question['options'] = $questionWithOptions['options'] ?? [];
+        $questionCount = count($questions);
+        $totalPoints = array_reduce($questions, static function (float $carry, array $item): float {
+            return $carry + (float)($item['points'] ?? 0);
+        }, 0.0);
+
+        $latestResult = $this->getLatestResultForUser($assessmentId, $userId);
+
+        $now = new \DateTimeImmutable('now');
+        $openTime = $quiz['open_time'] ? new \DateTimeImmutable($quiz['open_time']) : null;
+        $closeTime = $quiz['close_time'] ? new \DateTimeImmutable($quiz['close_time']) : null;
+
+        $canAttempt = true;
+        if ($openTime && $now < $openTime) {
+            $canAttempt = false;
         }
-        
-        $quiz['questions'] = $questions;
-        
-        return $quiz;
+        if ($closeTime && $now > $closeTime) {
+            $canAttempt = false;
+        }
+
+        return [
+            'quiz' => $quiz,
+            'question_count' => $questionCount,
+            'total_points' => $totalPoints,
+            'latest_result' => $latestResult,
+            'can_attempt' => $canAttempt,
+            'open_time' => $openTime,
+            'close_time' => $closeTime,
+            'max_score' => (float)($quiz['max_score'] ?? 10),
+        ];
     }
 
-    /**
-     * Submit quiz and calculate grade
-     * 
-     * SOLID: OCP - Uses IAssessment interface for grading
-     */
-    public function submitQuiz(int $assessmentId, int $userId, array $answers, int $timeTaken = null): array {
-        // Business logic: Check if quiz is still open
-        $quiz = $this->quizRepo->getQuizById($assessmentId);
-        
-        if (!$quiz) {
-            throw new \Exception("Quiz not found");
+    public function getQuizForTaking(int $assessmentId, int $userId): array {
+        $overview = $this->getQuizOverview($assessmentId, $userId);
+
+        if (!$overview['can_attempt']) {
+            throw new \RuntimeException('Quiz is not available at this time');
         }
 
-        $now = date('Y-m-d H:i:s');
-        if ($quiz['close_time'] && $now > $quiz['close_time']) {
-            throw new \Exception("Quiz submission deadline has passed");
-        }
-
-        // Get questions and correct answers
         $questions = $this->quizRepo->getQuizQuestions($assessmentId);
+        $normalisedQuestions = $this->normaliseQuestions($questions);
+
+        $overview['quiz']['questions'] = $normalisedQuestions;
+        $overview['quiz']['question_count'] = count($normalisedQuestions);
+        $overview['quiz']['total_points'] = $overview['total_points'];
+
+        return $overview;
+    }
+
+    public function submitQuiz(int $assessmentId, int $userId, array $answers, ?int $timeTaken = null): array {
+        $quiz = $this->quizRepo->getQuizById($assessmentId);
+
+        if (!$quiz) {
+            throw new \RuntimeException('Quiz not found');
+        }
+
+        if (!$this->quizAssessment->validateSubmission($answers)) {
+            throw new \InvalidArgumentException('No answers submitted');
+        }
+
+        $questions = $this->quizRepo->getQuizQuestions($assessmentId);
+        $normalisedQuestions = $this->normaliseQuestions($questions);
+
         $correctAnswers = [];
-        
-        foreach ($questions as $question) {
-            $questionWithOptions = $this->quizRepo->getQuestionWithOptions($question['question_id']);
+        foreach ($normalisedQuestions as $question) {
             $correctOptions = [];
-            
-            foreach ($questionWithOptions['options'] as $option) {
+            foreach ($question['options'] as $option) {
                 if ($option['is_correct']) {
-                    if ($question['question_type'] === 'mc-multi') {
-                        $correctOptions[] = (string)$option['option_id'];
-                    } else {
-                        $correctOptions = (string)$option['option_id'];
-                    }
+                    $correctOptions[] = (string)$option['option_id'];
                 }
             }
-            
+
             $correctAnswers[$question['question_id']] = [
                 'type' => $question['question_type'],
-                'correct' => $correctOptions,
-                'points' => $question['points'],
+                'correct' => $question['question_type'] === 'mc-multi' ? $correctOptions : ($correctOptions[0] ?? ''),
+                'points' => (float)$question['points'],
             ];
         }
 
-        // SOLID: OCP - Calculate grade using injected IAssessment implementation
-        $score = $this->quizAssessment->calculateGrade($answers, $correctAnswers);
+        $rawScore = $this->quizAssessment->calculateGrade($answers, $correctAnswers);
+        $totalPoints = array_reduce($normalisedQuestions, static function (float $carry, array $item): float {
+            return $carry + (float)$item['points'];
+        }, 0.0);
+        $maxScore = (float)($quiz['max_score'] ?? $totalPoints ?: 10);
 
-        // Save result
+        $finalScore = $totalPoints > 0
+            ? round(($rawScore / $totalPoints) * $maxScore, 2)
+            : 0.0;
+
         $resultData = [
             'assessment_id' => $assessmentId,
             'user_id' => $userId,
-            'score' => $score,
+            'score' => $finalScore,
             'answers' => $answers,
             'time_taken' => $timeTaken,
         ];
@@ -111,53 +127,202 @@ class QuizService {
 
         return [
             'result_id' => $resultId,
-            'score' => $score,
-            'max_score' => $quiz['max_score'],
+            'score' => $finalScore,
+            'raw_score' => $rawScore,
+            'total_points' => $totalPoints,
+            'max_score' => $maxScore,
         ];
     }
 
-    /**
-     * Get quiz result for student
-     */
-    public function getStudentQuizResult(int $userId, int $assessmentId): ?array {
-        $results = $this->resultRepo->getResultsByStudent($userId, $assessmentId);
-        return !empty($results) ? $results[0] : null;
+    public function getQuizResult(int $assessmentId, int $userId, ?int $resultId = null): array {
+        $quiz = $this->quizRepo->getQuizById($assessmentId);
+
+        if (!$quiz) {
+            throw new \RuntimeException('Quiz not found');
+        }
+
+        $result = null;
+
+        if ($resultId) {
+            $result = $this->resultRepo->getResultById($resultId);
+            if ($result && (int)$result['assessment_id'] !== $assessmentId) {
+                $result = null;
+            }
+            if ($result && (int)$result['user_id'] !== $userId) {
+                $result = null;
+            }
+        }
+
+        if (!$result) {
+            $result = $this->getLatestResultForUser($assessmentId, $userId);
+        }
+
+        if (!$result) {
+            throw new \RuntimeException('No quiz attempt found');
+        }
+
+        $answers = $result['answers'] ? json_decode($result['answers'], true) : [];
+        if (!is_array($answers)) {
+            $answers = [];
+        }
+
+        $questions = $this->normaliseQuestions($this->quizRepo->getQuizQuestions($assessmentId));
+        $questions = $this->markSelections($questions, $answers);
+
+        $totalPoints = array_reduce($questions, static function (float $carry, array $item): float {
+            return $carry + (float)$item['points'];
+        }, 0.0);
+
+        return [
+            'quiz' => $quiz,
+            'result' => $result,
+            'questions' => $questions,
+            'answers' => $answers,
+            'total_points' => $totalPoints,
+            'max_score' => (float)($quiz['max_score'] ?? 10),
+        ];
     }
 
-    /**
-     * Create quiz (Instructor)
-     */
+    public function getQuizManagementData(int $assessmentId): array {
+        $quiz = $this->quizRepo->getQuizById($assessmentId);
+
+        if (!$quiz) {
+            throw new \RuntimeException('Quiz not found');
+        }
+
+        $questions = $this->normaliseQuestions($this->quizRepo->getQuizQuestions($assessmentId));
+
+        return [
+            'quiz' => $quiz,
+            'questions' => $questions,
+        ];
+    }
+
+    public function getQuestionForEdit(int $questionId): ?array {
+        $question = $this->quizRepo->getQuestionWithOptions($questionId);
+
+        if (!$question) {
+            return null;
+        }
+
+        $question['options'] = $this->sortOptions($question['options']);
+
+        return $question;
+    }
+
+    public function updateQuestionWithOptions(int $questionId, array $questionData, array $options): bool {
+        $this->quizRepo->updateQuestion($questionId, $questionData);
+        $this->quizRepo->createOptions($questionId, $this->normaliseOptions($options));
+
+        return true;
+    }
+
+    public function deleteQuestion(int $questionId): bool {
+        return $this->quizRepo->deleteQuestion($questionId);
+    }
+
     public function createQuiz(array $data): int {
-        // Business logic: validate dates
-        if (!empty($data['open_time']) && !empty($data['close_time'])) {
-            if (strtotime($data['close_time']) < strtotime($data['open_time'])) {
-                throw new \Exception("Close time must be after open time");
-            }
+        if (!empty($data['open_time']) && !empty($data['close_time']) && strtotime($data['close_time']) < strtotime($data['open_time'])) {
+            throw new \InvalidArgumentException('Close time must be after open time');
         }
 
         return $this->quizRepo->createQuiz($data);
     }
 
-    /**
-     * Create question with options
-     */
     public function createQuestion(int $assessmentId, array $questionData, array $options): int {
         $questionData['assessment_id'] = $assessmentId;
         $questionId = $this->quizRepo->createQuestion($questionData);
-        
+
         if (!empty($options)) {
-            $this->quizRepo->createOptions($questionId, $options);
+            $this->quizRepo->createOptions($questionId, $this->normaliseOptions($options));
         }
-        
+
         return $questionId;
     }
 
-    /**
-     * Get quiz deadlines for calendar
-     */
+    public function getQuizWithQuestions(int $assessmentId): array {
+        $quiz = $this->quizRepo->getQuizById($assessmentId);
+        if (!$quiz) {
+            throw new \RuntimeException('Quiz not found');
+        }
+
+        $quiz['questions'] = $this->normaliseQuestions($this->quizRepo->getQuizQuestions($assessmentId));
+
+        return $quiz;
+    }
+
+    public function getStudentQuizResult(int $userId, int $assessmentId): ?array {
+        $results = $this->resultRepo->getResultsByStudent($userId, $assessmentId);
+        return $results[0] ?? null;
+    }
+
     public function getQuizDeadlines(int $subjectId = null): array {
-        // This would fetch all quizzes with open/close dates
-        // For now, returning empty array (would implement based on subject)
         return [];
+    }
+
+    private function getLatestResultForUser(int $assessmentId, int $userId): ?array {
+        $results = $this->resultRepo->getResultsByStudent($userId, $assessmentId);
+        return $results[0] ?? null;
+    }
+
+    private function normaliseQuestions(array $questions): array {
+        foreach ($questions as &$question) {
+            $question['question_id'] = (int)$question['question_id'];
+            $question['points'] = (float)$question['points'];
+            $question['display_order'] = (int)($question['display_order'] ?? 0);
+            $question['options'] = $this->sortOptions($question['options'] ?? []);
+        }
+
+        usort($questions, static function (array $a, array $b): int {
+            return ($a['display_order'] ?? 0) <=> ($b['display_order'] ?? 0);
+        });
+
+        return $questions;
+    }
+
+    private function sortOptions(array $options): array {
+        foreach ($options as &$option) {
+            $option['option_id'] = (int)($option['option_id'] ?? 0);
+            $option['is_correct'] = !empty($option['is_correct']);
+            $option['display_order'] = (int)($option['display_order'] ?? 0);
+        }
+
+        usort($options, static function (array $a, array $b): int {
+            return ($a['display_order'] ?? 0) <=> ($b['display_order'] ?? 0);
+        });
+
+        return $options;
+    }
+
+    private function normaliseOptions(array $options): array {
+        $normalised = [];
+
+        foreach ($options as $index => $option) {
+            $text = $option['option_text'] ?? $option['text'] ?? null;
+            if ($text === null || $text === '') {
+                continue;
+            }
+
+            $normalised[] = [
+                'option_text' => $text,
+                'is_correct' => !empty($option['is_correct']),
+                'display_order' => $option['display_order'] ?? $index,
+            ];
+        }
+
+        return $normalised;
+    }
+
+    private function markSelections(array $questions, array $answers): array {
+        foreach ($questions as &$question) {
+            $selected = $answers[$question['question_id']] ?? [];
+            $selectedValues = is_array($selected) ? array_map('strval', $selected) : [(string)$selected];
+
+            foreach ($question['options'] as &$option) {
+                $option['is_selected'] = in_array((string)$option['option_id'], $selectedValues, true);
+            }
+        }
+
+        return $questions;
     }
 }
