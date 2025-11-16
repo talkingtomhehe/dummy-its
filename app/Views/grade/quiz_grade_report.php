@@ -45,8 +45,8 @@
                     <td>
                         <button type="button" 
                                 class="button button-secondary button-icon" 
-                                onclick="viewDetails(<?= $result['student_id'] ?>)">
-                            <i data-feather="eye"></i>
+                                onclick="openFeedbackModal(<?= $result['result_id'] ?? 0 ?>, '<?= htmlspecialchars($result['student_name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($result['feedback'] ?? '', ENT_QUOTES) ?>')">
+                            <i data-feather="message-square"></i>
                         </button>
                     </td>
                 </tr>
@@ -61,8 +61,33 @@
     </main>
 </div>
 
+<!-- Feedback Modal -->
+<div id="feedback-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="feedback-modal-title">Feedback cho sinh viên</h2>
+            <button class="modal-close" onclick="closeFeedbackModal()"><i data-feather="x"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="feedback-form" onsubmit="submitFeedback(event)">
+                <input type="hidden" id="feedback-result-id" name="result-id">
+                <div class="form-group">
+                    <label for="feedback-text">Nội dung feedback</label>
+                    <textarea id="feedback-text" name="feedback-text" rows="5" placeholder="Nhập feedback..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="button button-secondary" onclick="closeFeedbackModal()">Hủy</button>
+                    <button type="submit" class="button button-primary">Lưu Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+const BASE_URL = document.body.dataset.baseUrl || '';
+
 const scores = <?= json_encode(array_filter(array_column($results, 'score'), fn($s) => $s !== null)) ?>;
 const scoreRanges = {
     '0-2': 0,
@@ -105,9 +130,53 @@ new Chart(ctx, {
     }
 });
 
-function viewDetails(studentId) {
-    window.location.href = '<?= base_url('/quiz/' . $quiz['id'] . '/results?student=') ?>' + studentId;
+function openFeedbackModal(resultId, studentName, currentFeedback) {
+    document.getElementById('feedback-modal-title').textContent = `Feedback cho ${studentName}`;
+    document.getElementById('feedback-result-id').value = resultId;
+    document.getElementById('feedback-text').value = currentFeedback || '';
+    document.getElementById('feedback-modal').style.display = 'flex';
+    feather.replace();
 }
+
+function closeFeedbackModal() {
+    document.getElementById('feedback-modal').style.display = 'none';
+    document.getElementById('feedback-form').reset();
+}
+
+function submitFeedback(e) {
+    e.preventDefault();
+    const resultId = document.getElementById('feedback-result-id').value;
+    const feedbackText = document.getElementById('feedback-text').value;
+    
+    fetch(`${BASE_URL}/grade/result/${resultId}/feedback`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ feedback: feedbackText })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alert('Feedback saved successfully!');
+            closeFeedbackModal();
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        alert('Error: ' + err.message);
+    });
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('feedback-modal');
+    if (event.target === modal) {
+        closeFeedbackModal();
+    }
+};
 
 feather.replace();
 </script>

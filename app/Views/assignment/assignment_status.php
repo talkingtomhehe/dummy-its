@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="breadcrumbs" style="margin-bottom: 20px;">
+            <a href="<?= BASE_URL ?>/course" style="color: var(--primary-color); text-decoration: none;">
+                <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                Back to course
+            </a>
+        </div>
         <h1 class="course-title" style="color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
             <i data-feather="upload-cloud" style="width: 28px; height: 28px;"></i>
             <span><?= htmlspecialchars($assignment['title'] ?? 'Assignment') ?></span>

@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="breadcrumbs" style="margin-bottom: 20px;">
+            <a href="<?= BASE_URL ?>/course/<?= $courseId ?? 1 ?>" style="color: var(--primary-color); text-decoration: none;">
+                <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                Back to course
+            </a>
+        </div>
         <h1 class="course-title">Grades: <?= htmlspecialchars($courseName) ?></h1>
         
         <table class="submission-status-table">
@@ -27,11 +33,15 @@
                     </td>
                     <td>
                         <?php if ($grade['type'] === 'quiz' && $grade['score'] !== null): ?>
-                            <a href="<?= base_url('/quiz/' . $grade['assessment_id'] . '/results') ?>">Xem lại bài làm</a>
+                            <a href="<?= base_url('/quiz/' . $grade['assessment_id'] . '/results') ?>" class="button button-secondary" style="font-size: 14px;">
+                                <i data-feather="eye"></i> View Results
+                            </a>
                         <?php elseif ($grade['feedback']): ?>
-                            <?= htmlspecialchars($grade['feedback']) ?>
+                            <button class="button button-secondary" onclick="showFeedbackModal('<?= htmlspecialchars($grade['title'], ENT_QUOTES) ?>', '<?= htmlspecialchars($grade['feedback'], ENT_QUOTES) ?>')" style="font-size: 14px;">
+                                <i data-feather="message-square"></i> View Feedback
+                            </button>
                         <?php else: ?>
-                            -
+                            <span style="color: #999;">-</span>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -40,5 +50,47 @@
         </table>
     </main>
 </div>
+
+<!-- Student Feedback View Modal -->
+<div id="student-feedback-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="feedback-modal-title">Instructor Feedback</h2>
+            <button class="modal-close" onclick="closeStudentFeedbackModal()"><i data-feather="x"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Feedback:</label>
+                <p id="student-feedback-text" style="white-space: pre-wrap; padding: 15px; background: #f9f9f9; border-radius: 6px; border: 1px solid var(--border-color); line-height: 1.6;"></p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="button button-primary" onclick="closeStudentFeedbackModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showFeedbackModal(title, feedback) {
+    document.getElementById('feedback-modal-title').textContent = 'Feedback: ' + title;
+    document.getElementById('student-feedback-text').textContent = feedback;
+    document.getElementById('student-feedback-modal').style.display = 'flex';
+    feather.replace();
+}
+
+function closeStudentFeedbackModal() {
+    document.getElementById('student-feedback-modal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('student-feedback-modal');
+    if (event.target === modal) {
+        closeStudentFeedbackModal();
+    }
+};
+
+feather.replace();
+</script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>

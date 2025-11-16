@@ -106,6 +106,9 @@ $router->get('/content/{id}', function($id) {
 });
 
 $router->post('/content/create', 'ContentController@createContent');
+$router->post('/content/{id}/update', function($id) {
+    (new \App\Controllers\ContentController())->updateContent(['id' => (int) $id]);
+});
 $router->post('/content/toggle/{id}', function($id) {
     (new \App\Controllers\ContentController())->toggleVisibility((int)$id);
 });
@@ -244,6 +247,13 @@ $router->post('/grade/assignment/{id}/save', function($id) {
         exit;
     }
     (new \App\Controllers\GradeController())->saveAssignmentGrades(['id' => $id]);
+});
+
+$router->post('/grade/result/{id}/feedback', function($id) {
+    if (!Session::isInstructor()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 403);
+    }
+    (new \App\Controllers\GradeController())->saveResultFeedback(['id' => $id]);
 });
 
 $router->get('/grade/quiz/{id}', function($id) {

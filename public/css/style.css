@@ -612,11 +612,17 @@ input:checked + .slider:before {
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
+    align-items: center;
+    justify-content: center;
+}
+.modal[style*="display: flex"] {
+    display: flex !important;
 }
 .modal-content {
     background-color: var(--bg-light);
-    margin: 10% auto;
+    margin: auto;
     max-width: 600px;
+    width: 90%;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     animation: slide-down 0.3s ease-out;
@@ -638,9 +644,16 @@ input:checked + .slider:before {
     color: #aaa;
     cursor: pointer;
     padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .modal-close:hover {
     color: #333;
+}
+.modal-close i {
+    width: 20px;
+    height: 20px;
 }
 .modal-body {
     padding: 20px;
@@ -676,6 +689,12 @@ input:checked + .slider:before {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-family: inherit;
+}
+.form-group select:disabled {
+    background-color: #f0f2f5;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 1;
 }
 .form-actions {
     display: flex;
@@ -1178,9 +1197,8 @@ input:checked + .slider:before {
     padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
 }
 .day-event.quiz-open {
     background-color: var(--success-color);

@@ -96,7 +96,8 @@ require_once __DIR__ . '/../layouts/header.php';
                                             'url' => 'link',
                                             'link' => 'link',
                                             'quiz' => 'help-circle',
-                                            'assignment' => 'clipboard'
+                                            'assignment' => 'clipboard',
+                                            'announcement' => 'bell'
                                         ];
                                         $icon = $icons[$item['type']] ?? 'file';
                                         ?>
@@ -218,22 +219,31 @@ require_once __DIR__ . '/../layouts/header.php';
     }
     
     // View content
+    const BASE_URL = document.body.dataset.baseUrl || '<?= BASE_URL ?>';
+
     function viewContent(id, type, assessmentId = null) {
-        const baseUrl = '<?= BASE_URL ?>';
+        const parsedAssessmentId = Number(assessmentId);
+        const hasAssessment = Number.isInteger(parsedAssessmentId) && parsedAssessmentId > 0;
 
         if (type === 'quiz') {
-            const targetId = assessmentId ?? id;
-            window.location.href = `${baseUrl}/quiz/${targetId}`;
+            if (hasAssessment) {
+                window.location.href = `${BASE_URL}/quiz/${parsedAssessmentId}`;
+            } else {
+                window.location.href = `${BASE_URL}/content/${id}/view`;
+            }
             return;
         }
 
         if (type === 'assignment') {
-            const targetId = assessmentId ?? id;
-            window.location.href = `${baseUrl}/assignment/${targetId}/status`;
+            if (hasAssessment) {
+                window.location.href = `${BASE_URL}/assignment/${parsedAssessmentId}/status`;
+            } else {
+                window.location.href = `${BASE_URL}/content/${id}/view`;
+            }
             return;
         }
 
-        window.location.href = `${baseUrl}/content/${id}/view`;
+        window.location.href = `${BASE_URL}/content/${id}/view`;
     }
     
     // Initialize feather icons

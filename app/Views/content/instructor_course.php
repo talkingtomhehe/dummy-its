@@ -108,7 +108,8 @@ require_once __DIR__ . '/../layouts/header.php';
                                             'url' => 'link',
                                             'link' => 'link',
                                             'quiz' => 'help-circle',
-                                            'assignment' => 'clipboard'
+                                            'assignment' => 'clipboard',
+                                            'announcement' => 'bell'
                                         ];
                                         $icon = $icons[$item['type']] ?? 'file';
                                         ?>
@@ -147,22 +148,31 @@ require_once __DIR__ . '/../layouts/header.php';
 </div>
 
 <script>
-    const BASE_URL = '<?= BASE_URL ?>';
+    const BASE_URL = document.body.dataset.baseUrl || '<?= BASE_URL ?>';
     
     function scrollToSection(id) {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
     
     function viewContent(id, type, assessmentId = null) {
+        const parsedAssessmentId = Number(assessmentId);
+        const hasAssessment = Number.isInteger(parsedAssessmentId) && parsedAssessmentId > 0;
+
         if (type === 'quiz') {
-            const targetId = assessmentId ?? id;
-            window.location.href = `${BASE_URL}/quiz/${targetId}`;
+            if (hasAssessment) {
+                window.location.href = `${BASE_URL}/quiz/${parsedAssessmentId}`;
+            } else {
+                window.location.href = `${BASE_URL}/content/${id}/view`;
+            }
             return;
         }
 
         if (type === 'assignment') {
-            const targetId = assessmentId ?? id;
-            window.location.href = `${BASE_URL}/assignment/${targetId}/status`;
+            if (hasAssessment) {
+                window.location.href = `${BASE_URL}/assignment/${parsedAssessmentId}/status`;
+            } else {
+                window.location.href = `${BASE_URL}/content/${id}/view`;
+            }
             return;
         }
 
@@ -302,6 +312,7 @@ require_once __DIR__ . '/../layouts/header.php';
         <div class="modal-body">
             <form id="add-item-form" onsubmit="submitContentForm(event)" enctype="multipart/form-data">
                 <input type="hidden" id="item-topic-id" name="topic-id">
+                <input type="hidden" id="editing-content-id" name="content-id">
                 
                 <div class="form-group">
                     <label for="item-type">Item Type:</label>
@@ -311,6 +322,7 @@ require_once __DIR__ . '/../layouts/header.php';
                         <option value="url">Link</option>
                         <option value="quiz">Quiz (Assessment)</option>
                         <option value="assignment">Assignment</option>
+                        <option value="announcement">Announcement</option>
                         <option value="file">File (PDF, etc)</option>
                     </select>
                 </div>
@@ -373,6 +385,13 @@ require_once __DIR__ . '/../layouts/header.php';
                     </div>
                 </div>
                 
+                <div id="form-group-announcement" class="dynamic-form-group" style="display: none;">
+                    <div class="form-group">
+                        <label for="item-content">Announcement Content:</label>
+                        <textarea name="item-content" id="announcement-content" rows="4" placeholder="Enter announcement text..."></textarea>
+                    </div>
+                </div>
+                
                 <div id="form-group-file" class="dynamic-form-group" style="display: none;">
                     <div class="form-group">
                         <label for="item-file">Upload File:</label>
@@ -382,7 +401,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 
                 <div class="form-actions">
                     <button type="button" class="button button-secondary" onclick="closeModal('add-item-modal')">Cancel</button>
-                    <button type="submit" class="button button-primary">Save and Return</button>
+                    <button type="submit" id="item-submit-button" class="button button-primary">Save and Return</button>
                 </div>
             </form>
         </div>
@@ -390,26 +409,100 @@ require_once __DIR__ . '/../layouts/header.php';
 </div>
 
 <script>
+let isEditingContent = false;
+
 function showAddTopicModal() {
     document.getElementById('add-topic-modal').style.display = 'flex';
     feather.replace();
 }
 
+function resetContentForm() {
+    const form = document.getElementById('add-item-form');
+    form.reset();
+    document.getElementById('editing-content-id').value = '';
+    document.getElementById('item-type').disabled = false;
+    toggleContentFields(document.getElementById('item-type').value);
+}
+
 function showAddContentModal(topicId) {
+    isEditingContent = false;
+    resetContentForm();
     document.getElementById('item-topic-id').value = topicId;
+    document.getElementById('item-submit-button').textContent = 'Save and Return';
+    document.querySelector('#add-item-modal .modal-title').textContent = 'Add an activity or resource';
     document.getElementById('add-item-modal').style.display = 'flex';
     feather.replace();
 }
 
+function populateContentForm(content) {
+    if (!content) {
+        return;
+    }
+
+    const rawType = content.content_type || content.type || 'text';
+    const normalizedType = rawType === 'link' ? 'url' : rawType;
+
+    document.getElementById('item-topic-id').value = content.topic_id || '';
+    document.getElementById('item-title').value = content.title || '';
+    document.getElementById('item-type').value = normalizedType;
+    document.getElementById('item-type').disabled = true;
+    toggleContentFields(normalizedType);
+
+    if (normalizedType === 'text' || normalizedType === 'page') {
+        document.getElementById('item-content').value = content.content_data || '';
+    } else if (normalizedType === 'video') {
+        document.getElementById('item-video-url').value = content.content_data || '';
+    } else if (normalizedType === 'url') {
+        document.getElementById('item-link-url').value = content.content_data || '';
+    } else if (normalizedType === 'announcement') {
+        document.getElementById('announcement-content').value = content.content_data || '';
+    }
+}
+
+function editContent(contentId) {
+    isEditingContent = true;
+    resetContentForm();
+    fetch(`${BASE_URL}/content/${contentId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success || !data.content) {
+                alert('Unable to load content details for editing.');
+                return;
+            }
+
+            document.getElementById('editing-content-id').value = contentId;
+            document.getElementById('item-submit-button').textContent = 'Update and Return';
+            document.querySelector('#add-item-modal .modal-title').textContent = 'Edit content item';
+            populateContentForm(data.content);
+            document.getElementById('add-item-modal').style.display = 'flex';
+            feather.replace();
+        })
+        .catch(() => {
+            alert('Unable to load content details for editing.');
+        });
+}
+
 function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        return;
+    }
+
+    modal.style.display = 'none';
+
+    if (modalId === 'add-item-modal') {
+        isEditingContent = false;
+        resetContentForm();
+    }
 }
 
 function toggleContentFields(type) {
     document.querySelectorAll('.dynamic-form-group').forEach(g => g.style.display = 'none');
     const groupId = 'form-group-' + type;
     const group = document.getElementById(groupId);
-    if (group) group.style.display = 'block';
+    if (group) {
+        group.style.display = 'block';
+    }
 
     if (type !== 'file') {
         const fileInput = document.getElementById('item-file');
@@ -438,8 +531,11 @@ function submitTopicForm(e) {
     fetch(`${BASE_URL}/topic/create`, { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
-            if (data.success) location.reload();
-            else alert('Error: ' + (data.error || 'Unknown error'));
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
         });
 }
 
@@ -449,14 +545,17 @@ function submitContentForm(e) {
     const topicId = form.querySelector('#item-topic-id').value;
     const title = form.querySelector('#item-title').value;
     const type = form.querySelector('#item-type').value;
+    const contentId = form.querySelector('#editing-content-id').value;
     
     let contentData = '';
-    if (type === 'text') {
+    if (type === 'text' || type === 'page') {
         contentData = form.querySelector('#item-content').value;
     } else if (type === 'video') {
         contentData = form.querySelector('#item-video-url').value;
-    } else if (type === 'url') {
+    } else if (type === 'url' || type === 'link') {
         contentData = form.querySelector('#item-link-url').value;
+    } else if (type === 'announcement') {
+        contentData = form.querySelector('#announcement-content').value;
     }
     
     const formData = new FormData();
@@ -477,19 +576,29 @@ function submitContentForm(e) {
             formData.append('item-file', fileInput.files[0]);
         }
     }
-    
-    fetch(`${BASE_URL}/content/create`, { method: 'POST', body: formData })
+
+    const endpoint = isEditingContent && contentId
+        ? `${BASE_URL}/content/${contentId}/update`
+        : `${BASE_URL}/content/create`;
+
+    fetch(endpoint, { method: 'POST', body: formData })
         .then(r => r.json())
         .then(data => {
-            if (data.success) location.reload();
-            else alert('Error: ' + (data.error || 'Unknown error'));
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(err => {
+            alert('Error: ' + err.message);
         });
 }
 
 // Close modal when clicking outside
 window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
+        closeModal(event.target.id);
     }
 }
 </script>

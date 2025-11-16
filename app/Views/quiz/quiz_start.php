@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="breadcrumbs" style="margin-bottom: 20px;">
+            <a href="<?= BASE_URL ?>/course" style="color: var(--primary-color); text-decoration: none;">
+                <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                Back to course
+            </a>
+        </div>
         <h1 class="course-title"><?= htmlspecialchars($quiz['title']) ?></h1>
         <?php
         $openTime = $quiz['open_time'] ?? null;
