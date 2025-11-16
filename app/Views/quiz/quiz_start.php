@@ -40,7 +40,7 @@
         <div class="page-controls" style="justify-content: center;">
             <?php if ($canTake): ?>
             <button class="button button-primary" onclick="window.location.href='<?= base_url('/quiz/' . $quiz['id'] . '/take') ?>'" style="padding: 12px 24px; font-size: 16px;">
-                <?= $hasAttempt ? 'Làm lại bài' : 'Bắt đầu làm bài' ?>
+                Start quiz
             </button>
             <?php else: ?>
             <p style="color: var(--danger-color); font-weight: 500;">Quiz đã đóng hoặc chưa mở</p>

@@ -86,9 +86,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const BASE_URL = document.body.dataset.baseUrl || '';
+const BASE_URL = document.body.dataset.baseUrl || '<?= BASE_URL ?>';
 
-const scores = <?= json_encode(array_filter(array_column($results, 'score'), fn($s) => $s !== null)) ?>;
+const scores = <?= json_encode(array_map(fn($r) => $r['score'] !== null ? floatval($r['score']) : null, $results)) ?>.filter(s => s !== null);
 const scoreRanges = {
     '0-2': 0,
     '2-4': 0,
@@ -126,6 +126,12 @@ new Chart(ctx, {
                     stepSize: 1
                 }
             }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
         }
     }
 });
@@ -148,12 +154,12 @@ function submitFeedback(e) {
     const resultId = document.getElementById('feedback-result-id').value;
     const feedbackText = document.getElementById('feedback-text').value;
     
+    const formData = new FormData();
+    formData.append('feedback', feedbackText);
+    
     fetch(`${BASE_URL}/grade/result/${resultId}/feedback`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ feedback: feedbackText })
+        body: formData
     })
     .then(r => r.json())
     .then(data => {

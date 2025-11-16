@@ -43,4 +43,9 @@ interface IContentWriter {
      * Toggle content visibility
      */
     public function toggleContentVisibility(int $contentId): bool;
+
+    /**
+     * Create assessment record for quiz or assignment
+     */
+    public function createAssessment(array $data): int;
 }

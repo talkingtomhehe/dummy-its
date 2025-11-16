@@ -136,6 +136,18 @@ class AssignmentService {
         return $this->resultRepo->submitAssignment($payload);
     }
 
+    public function getAssignmentSubmissionStats(int $assignmentId): array {
+        $assignment = $this->getAssignmentOrFail($assignmentId);
+        $stats = $this->assignmentRepo->getSubmissionStatistics($assignmentId);
+
+        return [
+            'assignment' => $this->normaliseAssignment($assignment),
+            'submitted_count' => $stats['submitted_count'],
+            'not_submitted_count' => $stats['not_submitted_count'],
+            'total_students' => $stats['total_students'],
+        ];
+    }
+
     private function getAssignmentOrFail(int $assignmentId): array {
         $assignment = $this->assignmentRepo->findById($assignmentId);
         if (!$assignment) {

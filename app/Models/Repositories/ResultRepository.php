@@ -315,12 +315,14 @@ class ResultRepository implements IResultRepository
                 'SELECT r.*, a.title, a.assessment_type, a.max_score
                  FROM assessment_results r
                  INNER JOIN assessments a ON r.assessment_id = a.assessment_id
-                 WHERE (r.user_id = :user_id OR r.student_id = :user_id)
+                 WHERE (r.user_id = :user_id OR r.student_id = :student_id)
                    AND r.assessment_id = :assessment_id
                  ORDER BY r.submitted_at DESC'
             );
+
             $stmt->execute([
                 'user_id' => $userId,
+                'student_id' => $userId,
                 'assessment_id' => $assessmentId,
             ]);
         } else {
@@ -328,10 +330,13 @@ class ResultRepository implements IResultRepository
                 'SELECT r.*, a.title, a.assessment_type, a.max_score
                  FROM assessment_results r
                  INNER JOIN assessments a ON r.assessment_id = a.assessment_id
-                 WHERE r.user_id = :user_id OR r.student_id = :user_id
+                 WHERE (r.user_id = :user_id OR r.student_id = :student_id)
                  ORDER BY r.submitted_at DESC'
             );
-            $stmt->execute(['user_id' => $userId]);
+            $stmt->execute([
+                'user_id' => $userId,
+                'student_id' => $userId,
+            ]);
         }
 
         return $stmt->fetchAll();

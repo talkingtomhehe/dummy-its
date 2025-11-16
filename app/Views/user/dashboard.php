@@ -65,6 +65,9 @@ require_once __DIR__ . '/../layouts/header.php';
                     </div>
                 </div>
                 <div class="section-content">
+                    <?php if ($error = \App\Core\Session::getFlash('error')): ?>
+                        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                    <?php endif; ?>
                     <p style="font-size: 16px; line-height: 1.7; color: #555;">
                         Welcome to your learning dashboard. Here you can see your upcoming quizzes and assignments.
                         <?php if ($isInstructor ?? false): ?>

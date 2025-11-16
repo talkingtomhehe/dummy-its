@@ -5,8 +5,7 @@
  */
 
 // Define base URL constant for use throughout the application
-define('BASE_URL', '/its');
-define('BASE_PATH', '/its/');
+require_once __DIR__ . '/../app/Core/config.php';
 
 // Start session
 session_start();
@@ -162,6 +161,23 @@ $router->get('/quiz/{id}/manage', function($id) {
     (new \App\Controllers\QuizController())->manage(['id' => $id]);
 });
 
+$router->get('/quiz/{quizId}/question/new', function($quizId) {
+    if (!Session::isInstructor()) {
+        header('Location: /its/course');
+        exit;
+    }
+    $_GET['quiz_id'] = $quizId;
+    (new \App\Controllers\QuizController())->editQuestion(['id' => 'new']);
+});
+
+$router->get('/quiz/question/{id}/edit', function($id) {
+    if (!Session::isInstructor()) {
+        header('Location: /its/course');
+        exit;
+    }
+    (new \App\Controllers\QuizController())->editQuestion(['id' => $id]);
+});
+
 $router->get('/quiz/question/{id}/edit', function($id) {
     if (!Session::isInstructor()) {
         header('Location: /its/course');
@@ -202,6 +218,14 @@ $router->get('/assignment/{id}/status', function($id) {
         exit;
     }
     (new \App\Controllers\AssignmentController())->showStatus(['id' => $id]);
+});
+
+$router->get('/assignment/{id}/instructor', function($id) {
+    if (!Session::isInstructor()) {
+        header('Location: /its/course');
+        exit;
+    }
+    (new \App\Controllers\AssignmentController())->showInstructorView(['id' => $id]);
 });
 
 $router->get('/assignment/{id}/submit', function($id) {

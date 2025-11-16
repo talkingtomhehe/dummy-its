@@ -25,9 +25,21 @@ class AssignmentController
     public function showStatus($params): void
     {
         $assignmentId = isset($params['id']) ? (int)$params['id'] : 0;
-        $studentId = (int)(Session::getUserId() ?? 0);
 
-        if ($assignmentId <= 0 || $studentId <= 0) {
+        if ($assignmentId <= 0) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        // If instructor, redirect to instructor view showing submission statistics
+        if (Session::isInstructor()) {
+            View::redirect('/assignment/' . $assignmentId . '/instructor');
+            return;
+        }
+
+        // Student view
+        $studentId = (int)(Session::getUserId() ?? 0);
+        if ($studentId <= 0) {
             View::redirect('/dashboard');
             return;
         }
@@ -118,6 +130,31 @@ class AssignmentController
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
             View::redirect('/assignment/' . $assignmentId . '/submit');
+        }
+    }
+
+    public function showInstructorView($params): void
+    {
+        $assignmentId = isset($params['id']) ? (int)$params['id'] : 0;
+
+        if ($assignmentId <= 0 || !Session::isInstructor()) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        try {
+            // Get assignment details and submission counts
+            $assignmentData = $this->assignmentService->getAssignmentSubmissionStats($assignmentId);
+
+            View::render('assignment/instructor_view', [
+                'assignment' => $assignmentData['assignment'],
+                'submittedCount' => $assignmentData['submitted_count'],
+                'notSubmittedCount' => $assignmentData['not_submitted_count'],
+                'totalStudents' => $assignmentData['total_students'],
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/dashboard');
         }
     }
 }

@@ -93,7 +93,26 @@ class ContentService {
             $data['content_type'] = 'link';
         }
 
-        return $this->contentRepo->createContentItem($data);
+        $contentId = $this->contentRepo->createContentItem($data);
+        
+        // If creating a quiz or assignment, also create the assessment record
+        if (in_array($data['content_type'], ['quiz', 'assignment'])) {
+            $this->contentRepo->createAssessment([
+                'topic_id' => $data['topic_id'],
+                'content_id' => $contentId,
+                'title' => $data['title'],
+                'assessment_type' => $data['content_type'] === 'quiz' ? 'quiz' : 'assignment',
+                'description' => $data['content_data'] ?? null,
+                'time_limit' => 0,
+                'open_time' => null,
+                'close_time' => null,
+                'max_score' => 10.00,
+                'is_visible' => $data['is_visible'] ?? 1,
+                'display_order' => $data['display_order'] ?? 0,
+            ]);
+        }
+        
+        return $contentId;
     }
 
     /**

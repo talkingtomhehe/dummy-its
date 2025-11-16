@@ -17,4 +17,9 @@ interface IAssignmentRepository {
      * Fetch latest submission for the given student and assignment.
      */
     public function getStudentSubmission(int $assessmentId, int $studentId): ?array;
+
+    /**
+     * Get submission statistics for an assignment (total, submitted, not submitted counts).
+     */
+    public function getSubmissionStatistics(int $assessmentId): array;
 }

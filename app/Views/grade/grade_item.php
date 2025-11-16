@@ -85,18 +85,54 @@
 <script>
 let currentStudentId = null;
 
-const submittedCount = <?= count(array_filter($submissions, fn($s) => $s['file_path'] !== null)) ?>;
-const notSubmittedCount = <?= count(array_filter($submissions, fn($s) => $s['file_path'] === null)) ?>;
+const submissions = <?= json_encode($submissions) ?>;
+const scores = submissions.map(s => s.grade).filter(g => g !== null && g !== '');
+
+const scoreRanges = {
+    '0-2': 0,
+    '2-4': 0,
+    '4-6': 0,
+    '6-8': 0,
+    '8-10': 0
+};
+
+scores.forEach(score => {
+    const numScore = parseFloat(score);
+    if (numScore < 2) scoreRanges['0-2']++;
+    else if (numScore < 4) scoreRanges['2-4']++;
+    else if (numScore < 6) scoreRanges['4-6']++;
+    else if (numScore < 8) scoreRanges['6-8']++;
+    else scoreRanges['8-10']++;
+});
 
 const ctx = document.getElementById('item-grade-chart').getContext('2d');
 new Chart(ctx, {
-    type: 'pie',
+    type: 'bar',
     data: {
-        labels: ['Đã nộp', 'Chưa nộp'],
+        labels: Object.keys(scoreRanges),
         datasets: [{
-            data: [submittedCount, notSubmittedCount],
-            backgroundColor: ['rgba(26, 188, 156, 0.6)', 'rgba(231, 76, 60, 0.6)']
+            label: 'Số lượng sinh viên',
+            data: Object.values(scoreRanges),
+            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+            borderColor: 'rgba(52, 152, 219, 1)',
+            borderWidth: 1
         }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        }
     }
 });
 

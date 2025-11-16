@@ -27,7 +27,7 @@
 
         <?php
         $openTime = $assignment['open_time'] ?? null;
-        $dueTime = $assignment['due_time'] ?? null;
+        $dueTime = $assignment['close_time'] ?? $assignment['due_time'] ?? null;
         $submission = $submission ?? null;
         ?>
         <div class="submission-info-box">
@@ -43,7 +43,7 @@
         }
         ?>
         <div class="submission-controls">
-            <button class="button button-primary button-large" <?= $canSubmit ? "onclick=\"window.location.href='" . base_url('/assignment/' . $assignment['id'] . '/submit') . "'\"" : 'disabled' ?>>
+            <button class="button button-primary button-large" <?= $canSubmit ? "onclick=\"window.location.href='" . base_url('/assignment/' . ($assignment['assessment_id'] ?? $assignment['id']) . '/submit') . "'\"" : 'disabled' ?>>
                 <?= $submitLabel ?>
             </button>
         </div>

@@ -25,9 +25,21 @@ class QuizController
     public function show($params): void
     {
         $quizId = isset($params['id']) ? (int)$params['id'] : 0;
-        $studentId = (int)Session::get('user_id');
+        
+        if ($quizId <= 0) {
+            View::redirect('/dashboard');
+            return;
+        }
 
-        if ($quizId <= 0 || !$studentId) {
+        // If instructor, redirect to manage page
+        if (Session::isInstructor()) {
+            View::redirect('/quiz/' . $quizId . '/manage');
+            return;
+        }
+
+        // Student view
+        $studentId = (int)Session::get('user_id');
+        if (!$studentId) {
             View::redirect('/dashboard');
             return;
         }
@@ -35,10 +47,17 @@ class QuizController
         try {
             $overview = $this->quizService->getQuizOverview($quizId, $studentId);
             $quiz = $this->formatQuizForView($overview['quiz'] ?? []);
+            $latestResult = $overview['latest_result'] ?? null;
+
+            // If student has completed the quiz, show results instead
+            if (!empty($latestResult)) {
+                View::redirect('/quiz/' . $quizId . '/results');
+                return;
+            }
 
             View::render('quiz/quiz_start', [
                 'quiz' => $quiz,
-                'hasAttempt' => !empty($overview['latest_result']),
+                'hasAttempt' => false,
                 'canTake' => (bool)($overview['can_attempt'] ?? false),
             ]);
         } catch (\Throwable $exception) {

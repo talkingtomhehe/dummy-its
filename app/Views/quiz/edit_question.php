@@ -24,17 +24,34 @@
             <div class="form-group">
                 <label>Các lựa chọn</label>
                 <div id="options-container-mc">
-                    <?php if (isset($question['options']) && count($question['options']) > 0): ?>
+                    <?php 
+                    $currentType = $question['question_type'] ?? 'multiple_choice';
+                    $isTrueFalse = $currentType === 'true_false';
+                    
+                    if (isset($question['options']) && count($question['options']) > 0): ?>
                         <?php foreach ($question['options'] as $index => $option): ?>
                         <div class="option-group">
                             <input type="<?= $question['question_type'] === 'multiple_answer' ? 'checkbox' : 'radio' ?>" 
                                    name="correct_answer<?= $question['question_type'] === 'multiple_answer' ? '[]' : '' ?>" 
                                    value="<?= $index ?>" 
                                    <?= $option['is_correct'] ? 'checked' : '' ?>>
-                            <input type="text" name="options[]" placeholder="Lựa chọn <?= $index + 1 ?>" value="<?= htmlspecialchars($option['option_text']) ?>">
+                            <input type="text" name="options[]" placeholder="Lựa chọn <?= $index + 1 ?>" 
+                                   value="<?= htmlspecialchars($option['option_text']) ?>" 
+                                   <?= $isTrueFalse ? 'readonly' : '' ?>>
+                            <?php if (!$isTrueFalse): ?>
                             <button type="button" class="button button-icon button-danger remove-option"><i data-feather="trash-2"></i></button>
+                            <?php endif; ?>
                         </div>
                         <?php endforeach; ?>
+                    <?php elseif ($isTrueFalse): ?>
+                        <div class="option-group">
+                            <input type="radio" name="correct_answer" value="0" checked>
+                            <input type="text" name="options[]" placeholder="Đúng" value="Đúng" readonly>
+                        </div>
+                        <div class="option-group">
+                            <input type="radio" name="correct_answer" value="1">
+                            <input type="text" name="options[]" placeholder="Sai" value="Sai" readonly>
+                        </div>
                     <?php else: ?>
                         <div class="option-group">
                             <input type="radio" name="correct_answer" value="0">
@@ -44,7 +61,7 @@
                     <?php endif; ?>
                 </div>
 
-                <button type="button" class="button button-link" id="add-option-btn"><i data-feather="plus"></i> Thêm lựa chọn</button>
+                <button type="button" class="button button-link" id="add-option-btn" style="display: <?= $isTrueFalse ? 'none' : 'flex' ?>;"><i data-feather="plus"></i> Thêm lựa chọn</button>
             </div>
 
             <div class="form-actions-full">
@@ -90,17 +107,52 @@ document.addEventListener('click', function(e) {
 });
 
 document.getElementById('question-type').addEventListener('change', function() {
-    const inputType = this.value === 'multiple_answer' ? 'checkbox' : 'radio';
-    const nameAttr = this.value === 'multiple_answer' ? 'correct_answer[]' : 'correct_answer';
+    const questionType = this.value;
+    const isTrueFalse = questionType === 'true_false';
+    const inputType = questionType === 'multiple_answer' ? 'checkbox' : 'radio';
+    const nameAttr = questionType === 'multiple_answer' ? 'correct_answer[]' : 'correct_answer';
+    const container = document.getElementById('options-container-mc');
+    const addBtn = document.getElementById('add-option-btn');
     
-    document.querySelectorAll('#options-container-mc .option-group input[type="radio"], #options-container-mc .option-group input[type="checkbox"]').forEach(input => {
-        const newInput = document.createElement('input');
-        newInput.type = inputType;
-        newInput.name = nameAttr;
-        newInput.value = input.value;
-        newInput.checked = input.checked;
-        input.replaceWith(newInput);
-    });
+    if (isTrueFalse) {
+        // Replace with True/False options
+        container.innerHTML = `
+            <div class="option-group">
+                <input type="radio" name="correct_answer" value="0" checked>
+                <input type="text" name="options[]" value="Đúng" readonly>
+            </div>
+            <div class="option-group">
+                <input type="radio" name="correct_answer" value="1">
+                <input type="text" name="options[]" value="Sai" readonly>
+            </div>
+        `;
+        addBtn.style.display = 'none';
+        optionCount = 2;
+    } else {
+        // Update existing options input types
+        addBtn.style.display = 'flex';
+        document.querySelectorAll('#options-container-mc .option-group input[type="radio"], #options-container-mc .option-group input[type="checkbox"]').forEach(input => {
+            const newInput = document.createElement('input');
+            newInput.type = inputType;
+            newInput.name = nameAttr;
+            newInput.value = input.value;
+            newInput.checked = input.checked;
+            input.replaceWith(newInput);
+        });
+        // Make text inputs editable and ensure delete buttons exist
+        document.querySelectorAll('#options-container-mc .option-group input[type="text"]').forEach(input => {
+            input.readOnly = false;
+            const group = input.closest('.option-group');
+            if (!group.querySelector('.remove-option')) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'button button-icon button-danger remove-option';
+                btn.innerHTML = '<i data-feather="trash-2"></i>';
+                group.appendChild(btn);
+            }
+        });
+    }
+    feather.replace();
 });
 
 function deleteQuestion(questionId) {

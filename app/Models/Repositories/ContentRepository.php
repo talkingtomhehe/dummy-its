@@ -215,4 +215,29 @@ class ContentRepository implements IContentRepository {
 
         return $stmt->fetchAll();
     }
+
+    public function createAssessment(array $data): int {
+        $stmt = $this->db->prepare("
+            INSERT INTO assessments 
+            (topic_id, content_id, title, assessment_type, description, time_limit, open_time, close_time, max_score, is_visible, display_order)
+            VALUES 
+            (:topic_id, :content_id, :title, :assessment_type, :description, :time_limit, :open_time, :close_time, :max_score, :is_visible, :display_order)
+        ");
+        
+        $stmt->execute([
+            'topic_id' => $data['topic_id'],
+            'content_id' => $data['content_id'] ?? null,
+            'title' => $data['title'],
+            'assessment_type' => $data['assessment_type'],
+            'description' => $data['description'] ?? null,
+            'time_limit' => $data['time_limit'] ?? 0,
+            'open_time' => $data['open_time'] ?? null,
+            'close_time' => $data['close_time'] ?? null,
+            'max_score' => $data['max_score'] ?? 10.00,
+            'is_visible' => $data['is_visible'] ?? 1,
+            'display_order' => $data['display_order'] ?? 0,
+        ]);
+        
+        return (int) $this->db->lastInsertId();
+    }
 }
