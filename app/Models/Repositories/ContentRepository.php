@@ -124,8 +124,24 @@ class ContentRepository implements IContentRepository {
     }
 
     public function deleteTopic(int $topicId): bool {
-        $stmt = $this->db->prepare("DELETE FROM topics WHERE topic_id = :topic_id");
-        return $stmt->execute(['topic_id' => $topicId]);
+        try {
+            $this->db->beginTransaction();
+
+            $deleteAssessments = $this->db->prepare('DELETE FROM assessments WHERE topic_id = :topic_id');
+            $deleteAssessments->execute(['topic_id' => $topicId]);
+
+            $deleteContent = $this->db->prepare('DELETE FROM content_items WHERE topic_id = :topic_id');
+            $deleteContent->execute(['topic_id' => $topicId]);
+
+            $deleteTopic = $this->db->prepare('DELETE FROM topics WHERE topic_id = :topic_id');
+            $deleteTopic->execute(['topic_id' => $topicId]);
+
+            $this->db->commit();
+            return $deleteTopic->rowCount() > 0;
+        } catch (\Throwable $throwable) {
+            $this->db->rollBack();
+            throw $throwable;
+        }
     }
 
     public function createContentItem(array $data): int {
@@ -184,5 +200,19 @@ class ContentRepository implements IContentRepository {
             WHERE content_id = :content_id
         ");
         return $stmt->execute(['content_id' => $contentId]);
+    }
+
+    public function getAssessmentsWithSchedule(): array {
+        $stmt = $this->db->prepare(
+            "
+            SELECT assessment_id, title, assessment_type, open_time, close_time
+            FROM assessments
+            WHERE open_time IS NOT NULL OR close_time IS NOT NULL
+            ORDER BY COALESCE(open_time, close_time)
+            "
+        );
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
 }

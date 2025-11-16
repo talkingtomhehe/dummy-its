@@ -63,6 +63,17 @@ class ContentService {
     }
 
     /**
+     * Delete topic and associated content
+     */
+    public function deleteTopic(int $topicId): bool {
+        if ($topicId <= 0) {
+            throw new \InvalidArgumentException('Invalid topic identifier');
+        }
+
+        return $this->contentRepo->deleteTopic($topicId);
+    }
+
+    /**
      * Create content item (Instructor only)
      */
     public function createContentItem(array $data): int {
@@ -111,5 +122,12 @@ class ContentService {
      */
     public function getAllSubjects(): array {
         return $this->contentRepo->getAllSubjects();
+    }
+
+    /**
+     * Get assessments that have open or close times
+     */
+    public function getAssessmentsWithSchedule(): array {
+        return $this->contentRepo->getAssessmentsWithSchedule();
     }
 }

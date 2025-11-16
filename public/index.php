@@ -73,6 +73,14 @@ $router->get('/dashboard/events', function() {
 });
 
 // Course/Content routes
+$router->post('/toggle-editing', function() {
+    if (!Session::isInstructor()) {
+        \App\Core\View::json(['success' => false, 'message' => 'Unauthorized'], 403);
+        return;
+    }
+    (new \App\Controllers\AuthController())->toggleEditing();
+});
+
 $router->get('/course', function() {
     if (!Session::isAuthenticated()) {
         header('Location: /its/');
@@ -106,6 +114,9 @@ $router->post('/content/delete/{id}', function($id) {
 });
 
 $router->post('/topic/create', 'ContentController@createTopic');
+$router->post('/topic/delete/{id}', function($id) {
+    (new \App\Controllers\ContentController())->deleteTopic(['id' => (int) $id]);
+});
 
 // Quiz routes
 $router->get('/quiz/{id}', function($id) {

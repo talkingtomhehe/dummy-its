@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Avatar dropdown functionality
     const avatarBtn = document.getElementById('avatar-btn');
     const avatarDropdown = document.getElementById('avatar-dropdown');
+    const baseUrl = document.body.dataset.baseUrl || '/its';
     
     if (avatarBtn && avatarDropdown) {
         avatarBtn.addEventListener('click', function(e) {
@@ -42,20 +43,63 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Editing toggle for instructors
     const editingToggle = document.getElementById('editing-toggle');
-    if (editingToggle) {
-        editingToggle.addEventListener('change', function() {
-            const isEditing = this.checked;
-            console.log('Editing mode:', isEditing);
-            
-            // Toggle editing mode UI
-            document.body.classList.toggle('editing-mode', isEditing);
-            
-            // Show/hide editing controls
-            const editControls = document.querySelectorAll('.edit-controls, .item-controls');
-            editControls.forEach(control => {
-                control.style.display = isEditing ? 'flex' : 'none';
-            });
+
+    const applyEditingState = (isEditing) => {
+        document.body.classList.toggle('editing-mode', isEditing);
+
+        const editControls = document.querySelectorAll('.instructor-controls, .edit-controls, .item-controls');
+        editControls.forEach((control) => {
+            let displayValue = 'block';
+            if (control.classList.contains('item-controls') || control.classList.contains('instructor-controls')) {
+                displayValue = 'flex';
+            }
+            if (control.tagName === 'BUTTON') {
+                displayValue = 'inline-flex';
+            }
+
+            control.style.display = isEditing ? displayValue : 'none';
         });
+    };
+
+    if (editingToggle) {
+        applyEditingState(editingToggle.checked);
+
+        editingToggle.addEventListener('change', function() {
+            const desiredState = this.checked;
+
+            fetch(`${baseUrl}/toggle-editing`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({}),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`Request failed with status ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((payload) => {
+                    if (!payload || payload.success !== true) {
+                        throw new Error(payload && payload.message ? payload.message : 'Unable to toggle editing mode.');
+                    }
+
+                    const newState = Boolean(payload.is_editing);
+                    editingToggle.checked = newState;
+                    applyEditingState(newState);
+                })
+                .catch((error) => {
+                    console.error('Failed to toggle editing mode:', error);
+                    editingToggle.checked = !desiredState;
+                    applyEditingState(editingToggle.checked);
+                    showNotification('Unable to update editing mode. Please try again.', 'error');
+                });
+        });
+    } else {
+        applyEditingState(false);
     }
 
     initDashboardPage();

@@ -44,6 +44,7 @@ class ContentController {
                         'type' => $item['content_type'],
                         'is_visible' => $item['is_visible'],
                         'content_data' => $item['content_data'],
+                        'file_path' => $item['file_path'] ?? null,
                         'assessment_id' => $item['assessment_id'] ?? null,
                         'assessment_type' => $item['assessment_type'] ?? null
                     ];
@@ -113,13 +114,83 @@ class ContentController {
         }
 
         try {
+            $contentType = strtolower(trim($_POST['content_type'] ?? ''));
+            $uploadedFilePath = null;
+            $uploadedFile = $_FILES['item-file'] ?? null;
+
+            if ($uploadedFile && ($uploadedFile['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK && is_uploaded_file($uploadedFile['tmp_name'])) {
+                $originalName = $uploadedFile['name'] ?? 'upload';
+                $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                $safeBaseName = preg_replace('/[^A-Za-z0-9_-]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+                $uniquePrefix = str_replace('.', '', uniqid('', true));
+                $uniqueName = $uniquePrefix . '_' . ($safeBaseName ?: 'file');
+                if ($extension !== '') {
+                    $uniqueName .= '.' . $extension;
+                }
+
+                $contentUploadDir = realpath(__DIR__ . '/../../public/uploads/content');
+                $videoUploadDir = realpath(__DIR__ . '/../../public/uploads/videos');
+
+                if ($contentUploadDir === false) {
+                    $contentUploadDir = __DIR__ . '/../../public/uploads/content';
+                    if (!is_dir($contentUploadDir) && !mkdir($contentUploadDir, 0775, true) && !is_dir($contentUploadDir)) {
+                        throw new \RuntimeException('Unable to initialize content upload directory.');
+                    }
+                }
+
+                if ($videoUploadDir === false) {
+                    $videoUploadDir = __DIR__ . '/../../public/uploads/videos';
+                    if (!is_dir($videoUploadDir) && !mkdir($videoUploadDir, 0775, true) && !is_dir($videoUploadDir)) {
+                        throw new \RuntimeException('Unable to initialize video upload directory.');
+                    }
+                }
+
+                if ($contentType === 'video') {
+                    $allowedVideoExtensions = ['mp4', 'webm', 'ogg', 'ogv', 'mov'];
+                    if ($extension && !in_array($extension, $allowedVideoExtensions, true)) {
+                        throw new \InvalidArgumentException('Unsupported video format uploaded.');
+                    }
+
+                    $destination = rtrim($videoUploadDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $uniqueName;
+                    if (!move_uploaded_file($uploadedFile['tmp_name'], $destination)) {
+                        throw new \RuntimeException('Failed to store uploaded video file.');
+                    }
+
+                    $uploadedFilePath = $uniqueName;
+                } else {
+                    $allowedFileExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'zip', 'rar', 'txt', 'png', 'jpg', 'jpeg', 'gif'];
+                    if ($extension && !in_array($extension, $allowedFileExtensions, true)) {
+                        throw new \InvalidArgumentException('Unsupported file format uploaded.');
+                    }
+
+                    $destination = rtrim($contentUploadDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $uniqueName;
+                    if (!move_uploaded_file($uploadedFile['tmp_name'], $destination)) {
+                        throw new \RuntimeException('Failed to store uploaded file.');
+                    }
+
+                    $uploadedFilePath = $uniqueName;
+                }
+            } elseif ($uploadedFile && ($uploadedFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                throw new \RuntimeException('File upload failed. Please try again.');
+            }
+
             $data = [
-                'topic_id' => $_POST['topic_id'] ?? 0,
-                'title' => $_POST['title'] ?? '',
-                'content_type' => $_POST['content_type'] ?? '',
-                'content_data' => $_POST['content_data'] ?? '',
-                'display_order' => $_POST['display_order'] ?? 0,
+                'topic_id' => isset($_POST['topic_id']) ? (int) $_POST['topic_id'] : 0,
+                'title' => trim($_POST['title'] ?? ''),
+                'content_type' => $contentType,
+                'content_data' => trim($_POST['content_data'] ?? ''),
+                'display_order' => isset($_POST['display_order']) ? (int) $_POST['display_order'] : 0,
+                'file_path' => $uploadedFilePath,
             ];
+
+            if ($contentType === 'video' && $uploadedFilePath) {
+                // Use uploaded video file, omit external URL
+                $data['content_data'] = '';
+            }
+
+            if ($contentType === 'file' && $uploadedFilePath) {
+                $data['content_data'] = '';
+            }
 
             $contentId = $this->contentService->createContentItem($data);
             View::json(['success' => true, 'content_id' => $contentId]);
@@ -188,6 +259,39 @@ class ContentController {
             View::json(['success' => $result]);
         } catch (\Exception $e) {
             View::json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete topic (Instructor only)
+     */
+    public function deleteTopic($params): void {
+        if (!Session::isInstructor()) {
+            View::json(['error' => 'Unauthorized'], 403);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            View::json(['error' => 'Method not allowed'], 405);
+            return;
+        }
+
+        $topicId = isset($params['id']) ? (int) $params['id'] : 0;
+        if ($topicId <= 0) {
+            View::json(['error' => 'Invalid topic identifier'], 400);
+            return;
+        }
+
+        try {
+            $result = $this->contentService->deleteTopic($topicId);
+            if (!$result) {
+                View::json(['error' => 'Topic not found or already deleted'], 404);
+                return;
+            }
+
+            View::json(['success' => true]);
+        } catch (\Throwable $throwable) {
+            View::json(['error' => $throwable->getMessage()], 500);
         }
     }
 

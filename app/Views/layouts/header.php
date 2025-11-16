@@ -8,7 +8,7 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body data-base-url="<?= BASE_URL ?>">
     <?php if (isset($showHeader) && $showHeader): ?>
     <header>
         <div class="header-left">
@@ -22,7 +22,7 @@
             <?php if (isset($isInstructor) && $isInstructor): ?>
             <label class="editing-label">Editing</label>
             <label class="toggle-switch">
-                <input type="checkbox" id="editing-toggle">
+                <input type="checkbox" id="editing-toggle" <?= \App\Core\Session::get('is_editing', false) ? 'checked' : '' ?>>
                 <span class="slider"></span>
             </label>
             <?php endif; ?>

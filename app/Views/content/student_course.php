@@ -220,13 +220,20 @@ require_once __DIR__ . '/../layouts/header.php';
     // View content
     function viewContent(id, type, assessmentId = null) {
         const baseUrl = '<?= BASE_URL ?>';
+
         if (type === 'quiz') {
-            window.location.href = `${baseUrl}/quiz/${assessmentId ?? id}`;
-        } else if (type === 'assignment') {
-            window.location.href = `${baseUrl}/assignment/${assessmentId ?? id}`;
-        } else {
-            window.location.href = `${baseUrl}/content/${id}/view`;
+            const targetId = assessmentId ?? id;
+            window.location.href = `${baseUrl}/quiz/${targetId}`;
+            return;
         }
+
+        if (type === 'assignment') {
+            const targetId = assessmentId ?? id;
+            window.location.href = `${baseUrl}/assignment/${targetId}/status`;
+            return;
+        }
+
+        window.location.href = `${baseUrl}/content/${id}/view`;
     }
     
     // Initialize feather icons

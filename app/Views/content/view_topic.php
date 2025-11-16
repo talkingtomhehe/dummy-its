@@ -23,6 +23,12 @@ require_once __DIR__ . '/../layouts/header.php';
             <span><?= htmlspecialchars($contentTitle) ?></span>
         </div>
 
+        <div class="page-controls" style="margin: 20px 0 30px;">
+            <button class="button button-secondary" onclick="window.location.href='<?= base_url('/course/' . $courseId) ?>'">
+                Back to course
+            </button>
+        </div>
+
         <div class="content-container" id="content-container-body">
             <?php if (in_array($contentType, ['text', 'page'], true)): ?>
                 <div class="content-text">
@@ -31,7 +37,31 @@ require_once __DIR__ . '/../layouts/header.php';
 
             <?php elseif ($contentType === 'video'): ?>
                 <div class="content-video">
-                    <?php if (strpos($contentData, 'youtube.com') !== false || strpos($contentData, 'youtu.be') !== false): ?>
+                    <?php if (!empty($filePath)): ?>
+                        <?php
+                        $relativeVideo = ltrim($filePath, '/');
+                        if (strpos($relativeVideo, 'uploads/videos/') === 0) {
+                            $videoUrl = base_url('/' . $relativeVideo);
+                        } elseif (strpos($relativeVideo, 'videos/') === 0) {
+                            $videoUrl = base_url('/uploads/' . $relativeVideo);
+                        } else {
+                            $videoUrl = base_url('/uploads/videos/' . $relativeVideo);
+                        }
+                        $videoExt = strtolower(pathinfo($relativeVideo, PATHINFO_EXTENSION));
+                        $mimeTypes = [
+                            'mp4' => 'video/mp4',
+                            'webm' => 'video/webm',
+                            'ogg' => 'video/ogg',
+                            'ogv' => 'video/ogg',
+                            'mov' => 'video/quicktime',
+                        ];
+                        $videoMime = $mimeTypes[$videoExt] ?? 'video/mp4';
+                        ?>
+                        <video width="100%" height="500" controls>
+                            <source src="<?= htmlspecialchars($videoUrl) ?>" type="<?= htmlspecialchars($videoMime) ?>">
+                            Your browser does not support the video tag.
+                        </video>
+                    <?php elseif (strpos($contentData, 'youtube.com') !== false || strpos($contentData, 'youtu.be') !== false): ?>
                         <?php
                         preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $contentData, $matches);
                         $videoId = $matches[1] ?? '';
@@ -47,12 +77,18 @@ require_once __DIR__ . '/../layouts/header.php';
                         <p>Unable to load this video. Please check the URL.</p>
                         <?php endif; ?>
                     <?php elseif (!empty($contentData)): ?>
+                        <?php
+                        $videoSrc = $contentData;
+                        if (strpos($videoSrc, 'http://') !== 0 && strpos($videoSrc, 'https://') !== 0) {
+                            $videoSrc = base_url('/' . ltrim($videoSrc, '/'));
+                        }
+                        ?>
                         <video width="100%" height="500" controls>
-                            <source src="<?= htmlspecialchars($contentData) ?>" type="video/mp4">
+                            <source src="<?= htmlspecialchars($videoSrc) ?>" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     <?php else: ?>
-                        <p>No video URL provided.</p>
+                        <p>No video provided.</p>
                     <?php endif; ?>
                 </div>
 
@@ -66,13 +102,33 @@ require_once __DIR__ . '/../layouts/header.php';
 
             <?php elseif ($contentType === 'file'): ?>
                 <?php
-                $downloadPath = $filePath ?: $contentData;
                 $downloadUrl = null;
-                if ($downloadPath) {
-                    $isAbsolute = preg_match('/^https?:\/\//i', $downloadPath) === 1;
-                    $downloadUrl = $isAbsolute
-                        ? $downloadPath
-                        : base_url('/uploads/' . ltrim($downloadPath, '/'));
+                $downloadPath = null;
+                if (!empty($filePath)) {
+                    $downloadPath = ltrim($filePath, '/');
+                    if (strpos($downloadPath, 'uploads/content/') === 0) {
+                        $downloadUrl = base_url('/' . $downloadPath);
+                    } elseif (strpos($downloadPath, 'content/') === 0) {
+                        $downloadUrl = base_url('/uploads/' . $downloadPath);
+                    } else {
+                        $downloadUrl = base_url('/uploads/content/' . $downloadPath);
+                    }
+                } elseif (!empty($contentData)) {
+                    $contentDataTrimmed = ltrim($contentData, '/');
+                    $isAbsolute = preg_match('/^https?:\/\//i', $contentDataTrimmed) === 1;
+                    if ($isAbsolute) {
+                        $downloadUrl = $contentDataTrimmed;
+                        $downloadPath = $contentDataTrimmed;
+                    } else {
+                        $downloadPath = $contentDataTrimmed;
+                        if (strpos($downloadPath, 'uploads/content/') === 0) {
+                            $downloadUrl = base_url('/' . $downloadPath);
+                        } elseif (strpos($downloadPath, 'content/') === 0) {
+                            $downloadUrl = base_url('/uploads/' . $downloadPath);
+                        } else {
+                            $downloadUrl = base_url('/uploads/content/' . $downloadPath);
+                        }
+                    }
                 }
                 ?>
                 <div class="content-file">
@@ -81,7 +137,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <a href="<?= htmlspecialchars($downloadUrl) ?>" target="_blank" class="button button-primary" download>
                         <i data-feather="download"></i> Download file
                     </a>
-                    <?php if (in_array(strtolower(pathinfo($downloadPath, PATHINFO_EXTENSION)), ['pdf'], true)): ?>
+                    <?php if ($downloadPath && in_array(strtolower(pathinfo($downloadPath, PATHINFO_EXTENSION)), ['pdf'], true)): ?>
                     <div style="margin-top: 20px;">
                         <iframe src="<?= htmlspecialchars($downloadUrl) ?>"
                                 width="100%"
@@ -106,7 +162,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <?php elseif ($contentType === 'assignment'): ?>
                 <div class="content-assignment">
                     <p>This activity is an assignment. Click below to view the submission details.</p>
-                    <button class="button button-primary" onclick="window.location.href='<?= base_url('/assignment/' . ($assessmentId ?? $contentId)) ?>'">
+                    <button class="button button-primary" onclick="window.location.href='<?= base_url('/assignment/' . ($assessmentId ?? $contentId) . '/status') ?>'">
                         View assignment
                     </button>
                 </div>
@@ -114,12 +170,6 @@ require_once __DIR__ . '/../layouts/header.php';
             <?php else: ?>
                 <p>This content type is not yet supported.</p>
             <?php endif; ?>
-        </div>
-
-        <div class="page-controls" style="margin-top: 30px;">
-            <button class="button button-secondary" onclick="window.location.href='<?= base_url('/course/' . $courseId) ?>'">
-                Back to course
-            </button>
         </div>
     </main>
 </div>

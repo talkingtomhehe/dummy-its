@@ -149,6 +149,25 @@ class AuthController {
     }
 
     /**
+     * Toggle instructor editing mode flag in session
+     */
+    public function toggleEditing(): void {
+        if (!Session::isInstructor()) {
+            View::json(['success' => false, 'message' => 'Unauthorized'], 403);
+            return;
+        }
+
+        $current = (bool)Session::get('is_editing', false);
+        $newState = !$current;
+        Session::set('is_editing', $newState);
+
+        View::json([
+            'success' => true,
+            'is_editing' => $newState,
+        ]);
+    }
+
+    /**
      * Check authentication middleware
      */
     public static function checkAuth(): bool {

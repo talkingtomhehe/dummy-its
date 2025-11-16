@@ -38,4 +38,9 @@ interface IContentReader {
      * Get all subjects
      */
     public function getAllSubjects(): array;
+
+    /**
+     * Get assessments that have scheduling information
+     */
+    public function getAssessmentsWithSchedule(): array;
 }

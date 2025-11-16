@@ -58,11 +58,11 @@ require_once __DIR__ . '/../layouts/header.php';
             <div class="tabs">
                 <button class="tab active" data-tab="content">Course</button>
                 <button class="tab" data-tab="participants">Participants</button>
-                <button class="tab" onclick="window.location.href='<?= BASE_URL ?>/grades'">Grades</button>
+                <button class="tab" onclick="window.location.href='<?= BASE_URL ?>/grades/<?= $courseId ?? 1 ?>'">Grades</button>
             </div>
             
             <!-- Page Controls - Initially hidden, shown when editing mode is ON -->
-            <div class="page-controls instructor-controls" style="margin: 20px 0; display: none;">
+            <div class="page-controls instructor-controls" style="margin: 20px 0; display: <?= \App\Core\Session::get('is_editing', false) ? 'flex' : 'none' ?>;">
                 <button class="button button-secondary" onclick="showAddTopicModal()">
                     <i data-feather="plus"></i> Add New Topic
                 </button>
@@ -85,6 +85,11 @@ require_once __DIR__ . '/../layouts/header.php';
                             <div class="section-header-content">
                                 <i class="arrow" data-feather="chevron-right"></i>
                                 <span class="section-title"><?= htmlspecialchars($topic['name']) ?></span>
+                            </div>
+                            <div class="section-actions instructor-controls item-controls" style="display: <?= \App\Core\Session::get('is_editing', false) ? 'flex' : 'none' ?>;">
+                                <button class="button button-icon button-danger" onclick="deleteTopic(<?= $topic['id'] ?>)" title="Delete Topic">
+                                    <i data-feather="trash-2"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="section-content">
@@ -115,7 +120,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <span style="color: #999; font-size: 12px;">(Hidden)</span>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="item-controls instructor-controls" style="display: none;">
+                                    <div class="item-controls instructor-controls" style="display: <?= \App\Core\Session::get('is_editing', false) ? 'flex' : 'none' ?>;">
                                         <button class="button button-icon" onclick="toggleVisibility(<?= $item['id'] ?>)" title="<?= $item['is_visible'] ? 'Hide' : 'Show' ?>">
                                             <i data-feather="<?= $item['is_visible'] ? 'eye' : 'eye-off' ?>"></i>
                                         </button>
@@ -129,7 +134,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                 </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                            <button class="button button-link instructor-controls" onclick="showAddContentModal(<?= $topic['id'] ?>)" style="margin-top: 10px; display: none;">
+                            <button class="button button-link instructor-controls" onclick="showAddContentModal(<?= $topic['id'] ?>)" style="margin-top: 10px; display: <?= \App\Core\Session::get('is_editing', false) ? 'flex' : 'none' ?>;">
                                 <i data-feather="plus"></i> Add an activity or resource
                             </button>
                         </div>
@@ -150,12 +155,14 @@ require_once __DIR__ . '/../layouts/header.php';
     
     function viewContent(id, type, assessmentId = null) {
         if (type === 'quiz') {
-            window.location.href = `${BASE_URL}/quiz/${assessmentId ?? id}`;
+            const targetId = assessmentId ?? id;
+            window.location.href = `${BASE_URL}/quiz/${targetId}`;
             return;
         }
 
         if (type === 'assignment') {
-            window.location.href = `${BASE_URL}/assignment/${assessmentId ?? id}`;
+            const targetId = assessmentId ?? id;
+            window.location.href = `${BASE_URL}/assignment/${targetId}/status`;
             return;
         }
 
@@ -176,6 +183,17 @@ require_once __DIR__ . '/../layouts/header.php';
     function deleteContent(contentId) {
         if (confirm('Are you sure you want to delete this content item?')) {
             fetch(`${BASE_URL}/content/delete/${contentId}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                    else alert('Error: ' + (data.error || 'Unknown error'));
+                });
+        }
+    }
+
+    function deleteTopic(topicId) {
+        if (confirm('Are you sure you want to delete this topic and all its content?')) {
+            fetch(`${BASE_URL}/topic/delete/${topicId}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) location.reload();
@@ -282,7 +300,7 @@ require_once __DIR__ . '/../layouts/header.php';
             <button class="modal-close" onclick="closeModal('add-item-modal')"><i data-feather="x"></i></button>
         </div>
         <div class="modal-body">
-            <form id="add-item-form" onsubmit="submitContentForm(event)">
+            <form id="add-item-form" onsubmit="submitContentForm(event)" enctype="multipart/form-data">
                 <input type="hidden" id="item-topic-id" name="topic-id">
                 
                 <div class="form-group">
@@ -313,6 +331,11 @@ require_once __DIR__ . '/../layouts/header.php';
                     <div class="form-group">
                         <label for="item-video-url">Video URL:</label>
                         <input type="text" name="item-video-url" id="item-video-url" placeholder="e.g., https://youtube.com/watch?v=...">
+                    </div>
+                    <div class="form-group">
+                        <label for="item-video-file">Upload Video File (optional):</label>
+                        <input type="file" name="item-file" id="item-video-file" accept="video/*">
+                        <small>Select a file to upload instead of using a URL.</small>
                     </div>
                 </div>
                 
@@ -353,7 +376,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <div id="form-group-file" class="dynamic-form-group" style="display: none;">
                     <div class="form-group">
                         <label for="item-file">Upload File:</label>
-                        <input type="file" name="item-file" id="item-file">
+                        <input type="file" name="item-file" id="item-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt,.png,.jpg,.jpeg,.gif">
                     </div>
                 </div>
                 
@@ -387,6 +410,20 @@ function toggleContentFields(type) {
     const groupId = 'form-group-' + type;
     const group = document.getElementById(groupId);
     if (group) group.style.display = 'block';
+
+    if (type !== 'file') {
+        const fileInput = document.getElementById('item-file');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    }
+
+    if (type !== 'video') {
+        const videoFileInput = document.getElementById('item-video-file');
+        if (videoFileInput) {
+            videoFileInput.value = '';
+        }
+    }
 }
 
 function submitTopicForm(e) {
@@ -428,6 +465,18 @@ function submitContentForm(e) {
     formData.append('content_type', type);
     formData.append('content_data', contentData);
     formData.append('display_order', 0);
+
+    if (type === 'video') {
+        const videoFile = form.querySelector('#item-video-file');
+        if (videoFile && videoFile.files && videoFile.files[0]) {
+            formData.append('item-file', videoFile.files[0]);
+        }
+    } else if (type === 'file') {
+        const fileInput = form.querySelector('#item-file');
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            formData.append('item-file', fileInput.files[0]);
+        }
+    }
     
     fetch(`${BASE_URL}/content/create`, { method: 'POST', body: formData })
         .then(r => r.json())
