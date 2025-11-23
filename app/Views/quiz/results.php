@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="back-to-course-box">
+            <a href="<?= BASE_URL ?>/course">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
+        </div>
         <h1 class="course-title">Kết quả: <?= htmlspecialchars($quiz['title']) ?></h1>
         <?php
         $startedAt = $result['started_at'] ?? null;

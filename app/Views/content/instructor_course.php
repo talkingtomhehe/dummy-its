@@ -380,8 +380,8 @@ require_once __DIR__ . '/../layouts/header.php';
                         <input type="datetime-local" name="assignment-open-time" id="assignment-open-time">
                     </div>
                     <div class="form-group">
-                        <label for="assignment-due-time">Due date:</label>
-                        <input type="datetime-local" name="assignment-due-time" id="assignment-due-time">
+                        <label for="assignment-close-time">Close time:</label>
+                        <input type="datetime-local" name="assignment-close-time" id="assignment-close-time">
                     </div>
                 </div>
                 

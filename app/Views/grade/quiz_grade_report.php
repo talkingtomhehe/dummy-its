@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="back-to-course-box">
+            <a href="<?= BASE_URL ?>/course">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
+        </div>
         <h1 class="course-title">Báo cáo điểm: <?= htmlspecialchars($quiz['title']) ?></h1>
         
         <div class="chart-container">
@@ -168,15 +174,15 @@ function submitFeedback(e) {
     .then(r => r.json())
     .then(data => {
         if (data.success) {
-            alert('Feedback saved successfully!');
+            showNotification('Feedback saved successfully!', 'success');
             closeFeedbackModal();
             location.reload();
         } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
+            showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
         }
     })
     .catch(err => {
-        alert('Error: ' + err.message);
+        showNotification('Error: ' + err.message, 'error');
     });
 }
 

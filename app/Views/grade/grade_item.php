@@ -2,6 +2,12 @@
 
 <div class="container">
     <main class="main">
+        <div class="back-to-course-box">
+            <a href="<?= BASE_URL ?>/course">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
+        </div>
         <h1 class="course-title">Chấm điểm: <?= htmlspecialchars($assignment['title']) ?></h1>
         
         <?php if ($successMessage = \App\Core\Session::getFlash('success')): ?>
@@ -176,6 +182,7 @@ function saveFeedback() {
         const feedback = document.getElementById('feedback-textarea').value;
         document.getElementById('feedback-' + currentStudentId).value = feedback;
         closeFeedback();
+        showNotification('Feedback saved successfully!', 'success');
     }
 }
 

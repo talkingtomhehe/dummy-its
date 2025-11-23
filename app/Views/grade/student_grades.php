@@ -2,10 +2,10 @@
 
 <div class="container">
     <main class="main">
-        <div class="breadcrumbs" style="margin-bottom: 20px;">
-            <a href="<?= BASE_URL ?>/course/<?= $courseId ?? 1 ?>" style="color: var(--primary-color); text-decoration: none;">
-                <i data-feather="arrow-left" style="width: 16px; height: 16px; vertical-align: middle;"></i>
-                Back to course
+        <div class="back-to-course-box">
+            <a href="<?= BASE_URL ?>/course/<?= $courseId ?? 1 ?>">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
             </a>
         </div>
         <h1 class="course-title">Grades: <?= htmlspecialchars($courseName) ?></h1>

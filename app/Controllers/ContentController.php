@@ -203,12 +203,12 @@ class ContentController {
             
             // Add quiz/assignment specific fields
             if ($contentType === 'quiz') {
-                $data['open_time'] = !empty($_POST['quiz-open-time']) ? $_POST['quiz-open-time'] : null;
-                $data['close_time'] = !empty($_POST['quiz-close-time']) ? $_POST['quiz-close-time'] : null;
+                $data['open_time'] = !empty($_POST['quiz-open-time']) ? str_replace('T', ' ', $_POST['quiz-open-time']) . ':00' : null;
+                $data['close_time'] = !empty($_POST['quiz-close-time']) ? str_replace('T', ' ', $_POST['quiz-close-time']) . ':00' : null;
                 $data['time_limit'] = isset($_POST['quiz-time-limit']) ? (int)$_POST['quiz-time-limit'] : 0;
             } elseif ($contentType === 'assignment') {
-                $data['open_time'] = !empty($_POST['assignment-open-time']) ? $_POST['assignment-open-time'] : null;
-                $data['close_time'] = !empty($_POST['assignment-close-time']) ? $_POST['assignment-close-time'] : null;
+                $data['open_time'] = !empty($_POST['assignment-open-time']) ? str_replace('T', ' ', $_POST['assignment-open-time']) . ':00' : null;
+                $data['close_time'] = !empty($_POST['assignment-close-time']) ? str_replace('T', ' ', $_POST['assignment-close-time']) . ':00' : null;
             }
 
             if ($contentType === 'video' && $uploadedFilePath) {

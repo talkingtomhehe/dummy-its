@@ -1153,7 +1153,9 @@ input:checked + .slider:before {
     padding: 10px;
     border-bottom: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
-    min-height: 120px; 
+    min-height: 120px;
+    max-height: 120px;
+    overflow: hidden;
     position: relative;
 }
 .calendar-day:nth-child(7n), .calendar-weekday:nth-child(7) {
@@ -1495,5 +1497,124 @@ input:checked + .slider:before {
 .button-large {
     padding: 14px 28px;
     font-size: 16px;
+}
+
+/* === NOTIFICATION SYSTEM === */
+.notification-container {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.notification {
+    min-width: 300px;
+    max-width: 500px;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease-out;
+    pointer-events: all;
+    color: white;
+    font-weight: 500;
+}
+
+.notification.success {
+    background-color: var(--success-color);
+}
+
+.notification.error {
+    background-color: var(--danger-color);
+}
+
+.notification i {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.notification.fade-out {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* === TABLE TRUNCATION === */
+.submission-status-table td:first-child {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* === BUTTON HOVER EFFECTS === */
+.button:hover,
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.button:active,
+button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* === BACK TO COURSE BUTTON === */
+.back-to-course-box {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.back-to-course-box a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: var(--bg-light);
+    border: 2px solid var(--primary-color);
+    border-radius: 6px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.back-to-course-box a:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateX(-4px);
+}
+
+.back-to-course-box a i {
+    width: 18px;
+    height: 18px;
 }
 

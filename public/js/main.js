@@ -574,3 +574,49 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+/**
+ * Notification System
+ * Shows auto-dismissing notifications (success/error)
+ */
+let notificationContainer = null;
+
+function showNotification(message, type = 'success') {
+    // Create container if it doesn't exist
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+    notification.innerHTML = `
+        <i data-feather="${icon}"></i>
+        <span>${escapeHtml(message)}</span>
+    `;
+    
+    notificationContainer.appendChild(notification);
+    
+    // Replace feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => {
+            notification.remove();
+            // Remove container if no notifications left
+            if (notificationContainer.children.length === 0) {
+                notificationContainer.remove();
+                notificationContainer = null;
+            }
+        }, 300);
+    }, 5000);
+}
+
