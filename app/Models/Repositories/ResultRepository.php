@@ -21,17 +21,17 @@ class ResultRepository implements IResultRepository
             'SELECT a.assessment_id, a.title, a.assessment_type, a.max_score,
                     t.subject_id, s.subject_name,
                     ar.score, ar.feedback, ar.status, ar.submitted_at,
-                    ar.submission_file
+                    ar.submission_file, ar.original_filenames
              FROM assessments a
              INNER JOIN topics t ON a.topic_id = t.topic_id
              INNER JOIN subjects s ON t.subject_id = s.subject_id
              LEFT JOIN assessment_results ar ON ar.assessment_id = a.assessment_id
-                AND (ar.student_id = :student_id OR ar.user_id = :student_id)
+                AND (ar.student_id = :student_id1 OR ar.user_id = :user_id1)
                 AND ar.submitted_at = (
                     SELECT MAX(ar2.submitted_at)
                     FROM assessment_results ar2
                     WHERE ar2.assessment_id = a.assessment_id
-                      AND (ar2.student_id = :student_id OR ar2.user_id = :student_id)
+                      AND (ar2.student_id = :student_id2 OR ar2.user_id = :user_id2)
                 )
              WHERE t.subject_id = :course_id
              ORDER BY a.display_order, a.title'
@@ -39,7 +39,10 @@ class ResultRepository implements IResultRepository
 
         $stmt->execute([
             'course_id' => $courseId,
-            'student_id' => $studentId,
+            'student_id1' => $studentId,
+            'user_id1' => $studentId,
+            'student_id2' => $studentId,
+            'user_id2' => $studentId,
         ]);
 
         return $stmt->fetchAll();
@@ -85,6 +88,7 @@ class ResultRepository implements IResultRepository
                     COALESCE(ar.student_id, ar.user_id) AS student_id,
                     u.full_name AS student_name,
                     ar.submission_file,
+                    ar.original_filenames,
                     ar.score,
                     ar.feedback,
                     ar.submitted_at,
@@ -144,7 +148,7 @@ class ResultRepository implements IResultRepository
             'SELECT result_id
              FROM assessment_results
              WHERE assessment_id = :assessment_id
-               AND (student_id = :student_id OR user_id = :student_id)
+               AND (student_id = :student_id OR user_id = :user_id)
              ORDER BY submitted_at DESC
              LIMIT 1'
         );
@@ -154,7 +158,7 @@ class ResultRepository implements IResultRepository
              SET score = :score,
                  feedback = :feedback,
                  graded_at = NOW(),
-                 status = CASE WHEN :score IS NULL THEN status ELSE \'graded\' END
+                 status = CASE WHEN :score_check IS NULL THEN status ELSE \'graded\' END
              WHERE result_id = :result_id'
         );
 
@@ -166,6 +170,7 @@ class ResultRepository implements IResultRepository
             $select->execute([
                 'assessment_id' => $assessmentId,
                 'student_id' => $studentId,
+                'user_id' => $studentId,
             ]);
 
             $row = $select->fetch();
@@ -175,6 +180,7 @@ class ResultRepository implements IResultRepository
             
             $update->execute([
                 'score' => $score,
+                'score_check' => $score,
                 'feedback' => $textFeedback,
                 'result_id' => $row['result_id'],
             ]);
@@ -237,13 +243,14 @@ class ResultRepository implements IResultRepository
             'SELECT result_id
              FROM assessment_results
              WHERE assessment_id = :assessment_id
-               AND (user_id = :user_id OR student_id = :user_id)
+               AND (user_id = :user_id OR student_id = :student_id)
              ORDER BY submitted_at DESC
              LIMIT 1'
         );
         $lookup->execute([
             'assessment_id' => $assessmentId,
             'user_id' => $userId,
+            'student_id' => $userId,
         ]);
 
         $existingId = $lookup->fetchColumn();
@@ -252,6 +259,7 @@ class ResultRepository implements IResultRepository
             $update = $this->db->prepare(
                 'UPDATE assessment_results
                  SET submission_file = :submission_file,
+                     original_filenames = :original_filenames,
                      status = :status,
                      student_id = :student_id,
                      submitted_at = NOW()
@@ -259,6 +267,7 @@ class ResultRepository implements IResultRepository
             );
             $update->execute([
                 'submission_file' => $data['submission_file'] ?? null,
+                'original_filenames' => $data['original_filenames'] ?? null,
                 'status' => $data['status'] ?? 'submitted',
                 'student_id' => $userId,
                 'result_id' => $existingId,
@@ -273,6 +282,7 @@ class ResultRepository implements IResultRepository
                  user_id,
                  student_id,
                  submission_file,
+                 original_filenames,
                  status,
                  submitted_at
              ) VALUES (
@@ -280,6 +290,7 @@ class ResultRepository implements IResultRepository
                  :user_id,
                  :student_id,
                  :submission_file,
+                 :original_filenames,
                  :status,
                  NOW()
              )'
@@ -289,6 +300,7 @@ class ResultRepository implements IResultRepository
             'user_id' => $userId,
             'student_id' => $userId,
             'submission_file' => $data['submission_file'] ?? null,
+            'original_filenames' => $data['original_filenames'] ?? null,
             'status' => $data['status'] ?? 'submitted',
         ]);
 
@@ -363,13 +375,14 @@ class ResultRepository implements IResultRepository
              SET score = :score,
                  feedback = :feedback,
                  graded_at = NOW(),
-                 status = CASE WHEN :score IS NULL THEN status ELSE \'graded\' END
+                 status = CASE WHEN :score_check IS NULL THEN status ELSE \'graded\' END
              WHERE result_id = :result_id'
         );
 
         return $stmt->execute([
             'result_id' => $resultId,
             'score' => $data['score'] ?? null,
+            'score_check' => $data['score'] ?? null,
             'feedback' => $data['feedback'] ?? null,
         ]);
     }

@@ -57,16 +57,13 @@ class AssignmentRepository implements IAssignmentRepository {
     }
 
     public function getSubmissionStatistics(int $assessmentId): array {
-        // Get all students enrolled in the course this assignment belongs to
+        // Get count of all students in the system
         $stmt = $this->db->prepare('
-            SELECT COUNT(DISTINCT e.user_id) as total_students
-            FROM assessments a
-            INNER JOIN topics t ON a.topic_id = t.topic_id
-            INNER JOIN enrollments e ON t.subject_id = e.subject_id
-            WHERE a.assessment_id = :assessment_id
-              AND e.role = "student"
+            SELECT COUNT(*) as total_students
+            FROM users
+            WHERE role = "student"
         ');
-        $stmt->execute(['assessment_id' => $assessmentId]);
+        $stmt->execute();
         $totalStudents = (int)($stmt->fetch()['total_students'] ?? 0);
 
         // Get count of students who have submitted

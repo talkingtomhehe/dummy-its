@@ -91,12 +91,24 @@ class GradeService
 
         $submissionPayload = array_map(static function (array $row): array {
             $hasScore = array_key_exists('score', $row) && $row['score'] !== null;
+            
+            // Decode file paths and original names if JSON
+            $filePath = $row['submission_file'] ?? $row['file_path'] ?? null;
+            $originalNames = $row['original_filenames'] ?? null;
+            
+            if ($filePath && $filePath[0] === '[') {
+                $filePath = json_decode($filePath, true);
+            }
+            if ($originalNames && $originalNames[0] === '[') {
+                $originalNames = json_decode($originalNames, true);
+            }
 
             return [
                 'result_id' => isset($row['result_id']) ? (int) $row['result_id'] : null,
                 'student_id' => isset($row['student_id']) ? (int) $row['student_id'] : null,
                 'student_name' => $row['student_name'] ?? '',
-                'file_path' => $row['submission_file'] ?? $row['file_path'] ?? null,
+                'file_path' => $filePath,
+                'original_filenames' => $originalNames,
                 'grade' => $hasScore ? (float) $row['score'] : null,
                 'feedback' => $row['feedback'] ?? null,
                 'submitted_at' => $row['submitted_at'] ?? null,

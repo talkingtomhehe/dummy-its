@@ -62,33 +62,24 @@ class AssignmentService {
         return $status;
     }
 
-    public function processSubmissionUpload(array $file, int $assignmentId, int $studentId, ?string $previousFile = null): string {
-        if (isset($file['name']) && is_array($file['name'])) {
-            throw new \RuntimeException('Multiple files detected. Please upload a single file.');
+    public function processSubmissionUpload(array $files, int $assignmentId, int $studentId, $previousFiles = null): array {
+        // Handle multiple file upload
+        $isMultiple = isset($files['name']) && is_array($files['name']);
+        
+        if (!$isMultiple) {
+            // Single file upload (legacy)
+            $files = [
+                'name' => [$files['name'] ?? ''],
+                'type' => [$files['type'] ?? ''],
+                'tmp_name' => [$files['tmp_name'] ?? ''],
+                'error' => [$files['error'] ?? UPLOAD_ERR_NO_FILE],
+                'size' => [$files['size'] ?? 0]
+            ];
         }
 
-        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            throw new \RuntimeException('No file uploaded or upload error occurred.');
-        }
-
-        $size = (int)($file['size'] ?? 0);
-        if (isset($file['size']) && is_array($file['size'])) {
-            throw new \RuntimeException('Multiple files detected. Please upload a single file.');
-        }
-        if ($size <= 0) {
-            throw new \RuntimeException('Uploaded file is empty.');
-        }
-        if ($size > self::MAX_FILE_BYTES) {
-            throw new \RuntimeException('Uploaded file exceeds the maximum size of 10 MB.');
-        }
-
-        $extension = strtolower(pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
-        if ($extension === '') {
-            throw new \RuntimeException('Unable to determine file type.');
-        }
-        if (!in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
-            throw new \RuntimeException('Invalid file type. Allowed types: PDF, DOC, DOCX, ZIP, RAR.');
-        }
+        $uploadedFiles = [];
+        $originalNames = [];
+        $fileCount = count($files['name']);
 
         if (!is_dir($this->uploadDirectory)) {
             if (!mkdir($this->uploadDirectory, 0775, true) && !is_dir($this->uploadDirectory)) {
@@ -96,36 +87,85 @@ class AssignmentService {
             }
         }
 
-        $tmpPath = $file['tmp_name'] ?? null;
-        if (!$tmpPath || !is_uploaded_file($tmpPath)) {
-            throw new \RuntimeException('Temporary upload not found. Please retry.');
+        for ($i = 0; $i < $fileCount; $i++) {
+            $error = $files['error'][$i] ?? UPLOAD_ERR_NO_FILE;
+            
+            if ($error !== UPLOAD_ERR_OK) {
+                if ($error === UPLOAD_ERR_NO_FILE && $fileCount === 1) {
+                    throw new \RuntimeException('No file uploaded or upload error occurred.');
+                }
+                continue; // Skip this file if multiple files
+            }
+
+            $size = (int)($files['size'][$i] ?? 0);
+            if ($size <= 0) {
+                throw new \RuntimeException('Uploaded file is empty.');
+            }
+            if ($size > self::MAX_FILE_BYTES) {
+                throw new \RuntimeException('File "' . $files['name'][$i] . '" exceeds the maximum size of 10 MB.');
+            }
+
+            $originalName = $files['name'][$i] ?? '';
+            $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+            if ($extension === '') {
+                throw new \RuntimeException('Unable to determine file type for "' . $originalName . '".');
+            }
+            if (!in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
+                throw new \RuntimeException('Invalid file type for "' . $originalName . '". Allowed types: PDF, DOC, DOCX, ZIP, RAR.');
+            }
+
+            $tmpPath = $files['tmp_name'][$i] ?? null;
+            if (!$tmpPath || !is_uploaded_file($tmpPath)) {
+                throw new \RuntimeException('Temporary upload not found for "' . $originalName . '". Please retry.');
+            }
+
+            $filename = sprintf(
+                'assignment_%d_student_%d_%s_%d.%s',
+                $assignmentId,
+                $studentId,
+                date('YmdHis'),
+                $i,
+                $extension
+            );
+            $targetPath = $this->uploadDirectory . DIRECTORY_SEPARATOR . $filename;
+
+            if (!move_uploaded_file($tmpPath, $targetPath)) {
+                throw new \RuntimeException('Failed to store uploaded file "' . $originalName . '".');
+            }
+
+            $uploadedFiles[] = $filename;
+            $originalNames[] = $originalName;
         }
 
-        $filename = sprintf(
-            'assignment_%d_student_%d_%s.%s',
-            $assignmentId,
-            $studentId,
-            date('YmdHis'),
-            $extension
-        );
-        $targetPath = $this->uploadDirectory . DIRECTORY_SEPARATOR . $filename;
-
-        if (!move_uploaded_file($tmpPath, $targetPath)) {
-            throw new \RuntimeException('Failed to store uploaded file.');
+        if (empty($uploadedFiles)) {
+            throw new \RuntimeException('No valid files were uploaded.');
         }
 
-        if ($previousFile && $previousFile !== $filename) {
-            $this->deleteExistingFile($previousFile);
+        // Delete previous files if they exist
+        if ($previousFiles) {
+            $prevFileList = is_string($previousFiles) ? json_decode($previousFiles, true) : $previousFiles;
+            if (!is_array($prevFileList)) {
+                $prevFileList = [$previousFiles];
+            }
+            foreach ($prevFileList as $prevFile) {
+                if ($prevFile && !in_array($prevFile, $uploadedFiles)) {
+                    $this->deleteExistingFile($prevFile);
+                }
+            }
         }
 
-        return $filename;
+        return [
+            'files' => $uploadedFiles,
+            'original_names' => $originalNames
+        ];
     }
 
-    public function recordSubmission(int $assignmentId, int $studentId, string $storedFilename): int {
+    public function recordSubmission(int $assignmentId, int $studentId, array $uploadResult): int {
         $payload = [
             'assessment_id' => $assignmentId,
             'user_id' => $studentId,
-            'submission_file' => $storedFilename,
+            'submission_file' => json_encode($uploadResult['files']),
+            'original_filenames' => json_encode($uploadResult['original_names']),
             'status' => 'submitted',
         ];
 
@@ -175,11 +215,23 @@ class AssignmentService {
     }
 
     private function normaliseSubmission(array $submission): array {
+        $submissionFile = $submission['submission_file'] ?? null;
+        $originalNames = $submission['original_filenames'] ?? null;
+        
+        // Decode JSON if it's an array
+        if ($submissionFile && $submissionFile[0] === '[') {
+            $submissionFile = json_decode($submissionFile, true);
+        }
+        if ($originalNames && $originalNames[0] === '[') {
+            $originalNames = json_decode($originalNames, true);
+        }
+        
         return [
             'result_id' => isset($submission['result_id']) ? (int)$submission['result_id'] : null,
             'assessment_id' => isset($submission['assessment_id']) ? (int)$submission['assessment_id'] : null,
             'user_id' => isset($submission['user_id']) ? (int)$submission['user_id'] : null,
-            'submission_file' => $submission['submission_file'] ?? null,
+            'submission_file' => $submissionFile,
+            'original_filenames' => $originalNames,
             'status' => $submission['status'] ?? null,
             'score' => $submission['score'] !== null ? (float)$submission['score'] : null,
             'feedback' => $submission['feedback'] ?? null,

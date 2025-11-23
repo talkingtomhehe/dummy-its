@@ -3,13 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 15, 2025 lúc 11:05 AM
+-- Thời gian đã tạo: Th10 23, 2025 lúc 11:41 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
--- SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
--- START TRANSACTION;
-
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -49,8 +49,10 @@ CREATE TABLE `assessments` (
 --
 
 INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `assessment_type`, `description`, `time_limit`, `open_time`, `close_time`, `max_score`, `is_visible`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 2, 7, '1.3 Quiz: Introduction Concepts', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(1, 2, 7, '1.3 Quiz: Introduction Concepts aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, '2025-11-15 02:27:14', '2025-11-16 17:34:45'),
+(2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(5, 2, 16, 'abc', 'assignment', '', 0, NULL, NULL, 10.00, 1, 0, '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
+(6, 2, 17, 'abc', 'quiz', '', 0, NULL, NULL, 10.00, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22');
 
 -- --------------------------------------------------------
 
@@ -66,7 +68,8 @@ CREATE TABLE `assessment_results` (
   `score` decimal(5,2) DEFAULT NULL,
   `answers` text DEFAULT NULL COMMENT 'JSON encoded answers',
   `feedback` text DEFAULT NULL,
-  `submission_file` varchar(500) DEFAULT NULL,
+  `submission_file` text DEFAULT NULL COMMENT 'JSON array of uploaded file paths',
+  `original_filenames` text DEFAULT NULL COMMENT 'JSON array of original filenames',
   `status` enum('pending','in_progress','submitted','graded','completed') DEFAULT 'submitted',
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `started_at` datetime DEFAULT NULL,
@@ -75,9 +78,16 @@ CREATE TABLE `assessment_results` (
   `time_taken` int(11) DEFAULT NULL COMMENT 'Time taken in seconds'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `status`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
-(1, 1, 1, 1, 6.67, '{"1":"c","2":"a","3":["a","b"]}', NULL, NULL, 'completed', '2025-11-14 18:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
-(2, 1, 2, 2, 10.00, '{"1":"c","2":"c","3":["a","b"]}', NULL, NULL, 'completed', '2025-11-14 19:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332);
+--
+-- Đang đổ dữ liệu cho bảng `assessment_results`
+--
+
+INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `original_filenames`, `status`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
+(1, 1, 1, 1, 6.67, '{\"1\":\"c\",\"2\":\"a\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 11:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
+(2, 1, 2, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 12:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332),
+(3, 6, 1, 1, 0.00, '{\"7\":\"34\",\"8\":[\"37\"],\"9\":[\"39\"]}', NULL, NULL, NULL, 'completed', '2025-11-16 21:26:45', NULL, '2025-11-17 04:26:45', NULL, NULL),
+(4, 2, 1, 1, NULL, NULL, NULL, 'assignment_2_student_1_20251123090239.pdf', NULL, 'submitted', '2025-11-23 08:02:39', NULL, NULL, NULL, NULL),
+(5, 5, 1, 1, NULL, NULL, NULL, '[\"assignment_5_student_1_20251123095346_0.pdf\",\"assignment_5_student_1_20251123095346_1.pdf\"]', '[\"Book1.pdf\",\"abc.pdf\"]', 'submitted', '2025-11-23 08:53:46', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -103,14 +113,16 @@ CREATE TABLE `content_items` (
 --
 
 INSERT INTO `content_items` (`content_id`, `topic_id`, `title`, `content_type`, `content_data`, `file_path`, `is_visible`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Announcements', 'page', '<h2>Course Announcements</h2><p>Welcome to Software Testing course!</p>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(2, 1, 'Course Q&A Forum', 'page', '<h2>Q&A Forum</h2><p>Ask your questions here.</p>', NULL, 1, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(3, 2, '1.1 Slides: Introduction to Software Testing', 'page', '<h2>Introduction to Software Testing</h2><p>Software testing is a critical phase in software development...</p><p>Key concepts include: Verification, Validation, Quality Assurance.</p>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(4, 2, '1.2 Video: What is Testing?', 'video', 'https://www.youtube.com/embed/example', NULL, 1, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(5, 2, '1.2.1 External Link: Introduction to Testing', 'link', 'https://www.guru99.com/software-testing-introduction-importance.html', NULL, 1, 3, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(6, 3, 'Assignment Specification', 'page', '<h2>Final Project Assignment</h2><p>Develop a comprehensive test plan for a given software system.</p><p><strong>Requirements:</strong></p><ul><li>Test case design</li><li>Test execution plan</li><li>Bug report documentation</li></ul>', NULL, 1, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', NULL, NULL, 1, 4, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(8, 3, 'Final Project Submission', 'assignment', '<p>Upload your completed project deliverables.</p>', NULL, 1, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(1, 1, 'Announcements', 'page', '<h2>Course Announcements</h2><p>Welcome to Software Testing course!</p>', NULL, 1, 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(2, 1, 'Course Q&A Forum', 'page', '<h2>Q&A Forum</h2><p>Ask your questions here.</p>', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(3, 2, '1.1 Slides: Introduction to Software Testing', 'page', '<h2>Introduction to Software Testing</h2><p>Software testing is a critical phase in software development...</p><p>Key concepts include: Verification, Validation, Quality Assurance.</p>', NULL, 1, 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(4, 2, '1.2 Video: What is Testing?', 'video', 'https://www.youtube.com/embed/example', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(5, 2, '1.2.1 External Link: Introduction to Testing', 'link', 'https://www.guru99.com/software-testing-introduction-importance.html', NULL, 1, 3, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(6, 3, 'Assignment Specification', 'page', '<h2>Final Project Assignment</h2><p>Develop a comprehensive test plan for a given software system.</p><p><strong>Requirements:</strong></p><ul><li>Test case design</li><li>Test execution plan</li><li>Bug report documentation</li></ul>', NULL, 1, 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', NULL, NULL, 1, 4, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(8, 3, 'Final Project Submission', 'assignment', '<p>Upload your completed project deliverables.</p>', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(16, 2, 'abc', 'assignment', '', NULL, 1, 0, '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
+(17, 2, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22');
 
 -- --------------------------------------------------------
 
@@ -131,16 +143,30 @@ CREATE TABLE `quiz_options` (
 --
 
 INSERT INTO `quiz_options` (`option_id`, `question_id`, `option_text`, `is_correct`, `display_order`) VALUES
-(1, 1, 'A. Một quy trình tìm lỗi trong phần mềm.', 0, 1),
-(2, 1, 'B. Một quy trình xác minh rằng phần mềm hoạt động đúng như mong đợi.', 0, 2),
-(3, 1, 'C. Cả A và B.', 1, 3),
-(4, 1, 'D. Một quy trình viết mã.', 0, 4),
-(5, 2, 'A. Chức năng đầu vào.', 0, 1),
-(6, 2, 'B. Chức năng đầu ra.', 0, 2),
-(7, 2, 'C. Cấu trúc mã nguồn bên trong.', 1, 3),
-(8, 3, 'A. Kiểm thử cấu trúc.', 1, 1),
-(9, 3, 'B. Kiểm thử hộp kính.', 1, 2),
-(10, 3, 'C. Kiểm thử dựa trên thông số kỹ thuật.', 0, 3);
+(16, 1, 'A. Một quy trình tìm lỗi trong phần mềm.', 0, 0),
+(17, 1, 'B. Một quy trình xác minh rằng phần mềm hoạt động đúng như mong đợi.', 0, 1),
+(18, 1, 'C. Cả A và B.', 1, 2),
+(19, 1, 'D. Một quy trình viết mã.', 0, 3),
+(20, 1, 'abc', 0, 4),
+(21, 3, 'A. Kiểm thử cấu trúc.', 0, 0),
+(22, 3, 'B. Kiểm thử hộp kính.', 1, 1),
+(23, 3, 'C. Kiểm thử dựa trên thông số kỹ thuật.', 1, 2),
+(24, 4, 'Đúng', 1, 0),
+(25, 4, 'Sai', 0, 1),
+(26, 5, 'cac', 0, 0),
+(27, 5, 'ku', 0, 1),
+(28, 5, 'chim', 0, 2),
+(29, 5, 'cac dap an con la deu dung', 0, 3),
+(30, 6, 'cu', 1, 0),
+(31, 6, 'cac', 1, 1),
+(32, 6, 'chim', 1, 2),
+(33, 7, 'cu', 0, 0),
+(34, 7, 'cac', 0, 1),
+(35, 7, 'chim', 1, 2),
+(36, 8, 'cu', 1, 0),
+(37, 8, 'cac', 1, 1),
+(38, 9, 'Đúng', 1, 0),
+(39, 9, 'Sai', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -164,9 +190,14 @@ CREATE TABLE `quiz_questions` (
 --
 
 INSERT INTO `quiz_questions` (`question_id`, `assessment_id`, `question_text`, `question_type`, `points`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 1, '\"Testing\" là gì?', 'mc-single', 3.33, 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(2, 1, 'Kiểm thử Black-box KHÔNG quan tâm đến:', 'mc-single', 3.33, 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(3, 1, 'Kiểm thử White-box còn được gọi là gì?', 'mc-multi', 3.34, 3, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(1, 1, '\"Testing\" là gì?', 'mc-single', 1.00, 0, '2025-11-15 02:27:14', '2025-11-16 19:02:30'),
+(3, 1, 'Kiểm thử White-box còn được gọi là gì?', 'mc-multi', 1.00, 0, '2025-11-15 02:27:14', '2025-11-16 19:03:06'),
+(4, 1, 'dung hay sai', 'tf', 1.00, 0, '2025-11-16 19:11:49', '2025-11-16 19:11:49'),
+(5, 1, 'con kec la gi', 'mc-single', 1.00, 0, '2025-11-16 19:12:29', '2025-11-16 19:12:29'),
+(6, 1, 'con kec la gi', 'mc-multi', 1.00, 0, '2025-11-16 19:12:49', '2025-11-16 19:12:49'),
+(7, 6, 'con kec la gi?', 'mc-single', 1.00, 0, '2025-11-16 21:25:29', '2025-11-16 21:25:29'),
+(8, 6, 'con kec la gi', 'mc-multi', 1.00, 0, '2025-11-16 21:25:47', '2025-11-16 21:25:47'),
+(9, 6, 'con kec la gi', 'tf', 1.00, 0, '2025-11-16 21:25:59', '2025-11-16 21:25:59');
 
 -- --------------------------------------------------------
 
@@ -189,7 +220,7 @@ CREATE TABLE `subjects` (
 --
 
 INSERT INTO `subjects` (`subject_id`, `subject_name`, `subject_code`, `description`, `instructor_id`, `created_at`, `updated_at`) VALUES
-(1, 'Software Testing', 'CO3015', 'Comprehensive course on Software Testing methodologies and practices', 4, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(1, 'Software Testing', 'CO3015', 'Comprehensive course on Software Testing methodologies and practices', 4, '2025-11-15 02:27:14', '2025-11-15 02:27:14');
 
 -- --------------------------------------------------------
 
@@ -212,9 +243,9 @@ CREATE TABLE `topics` (
 --
 
 INSERT INTO `topics` (`topic_id`, `subject_id`, `topic_title`, `description`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 1, '2025-11-15 09:27:14', '2025-11-15 09:27:14'),
-(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 09:27:14', '2025-11-15 09:27:14');
+(1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14');
 
 -- --------------------------------------------------------
 
@@ -237,10 +268,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `username`, `password_hash`, `full_name`, `email`, `role`, `created_at`) VALUES
-(1, 'student1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Phan Khánh Nhân', 'nhan.phan@student.edu.vn', 'student', '2025-11-15 09:27:14'),
-(2, 'student2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Võ Huỳnh Khánh Vy', 'vy.vo@student.edu.vn', 'student', '2025-11-15 09:27:14'),
-(3, 'student3', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nguyễn Văn A', 'a.nguyen@student.edu.vn', 'student', '2025-11-15 09:27:14'),
-(4, 'instructor1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bộ Hoài Thắng', 'thang.bo@instructor.edu.vn', 'instructor', '2025-11-15 09:27:14');
+(1, 'student1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Phan Khánh Nhân', 'nhan.phan@student.edu.vn', 'student', '2025-11-15 02:27:14'),
+(2, 'student2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Võ Huỳnh Khánh Vy', 'vy.vo@student.edu.vn', 'student', '2025-11-15 02:27:14'),
+(3, 'student3', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nguyễn Văn A', 'a.nguyen@student.edu.vn', 'student', '2025-11-15 02:27:14'),
+(4, 'instructor1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bộ Hoài Thắng', 'thang.bo@instructor.edu.vn', 'instructor', '2025-11-15 02:27:14');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -331,31 +362,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `assessment_results`
 --
 ALTER TABLE `assessment_results`
-  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `content_items`
 --
 ALTER TABLE `content_items`
-  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_options`
 --
 ALTER TABLE `quiz_options`
-  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT cho bảng `subjects`

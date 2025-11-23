@@ -338,7 +338,20 @@ function renderCalendar(monthTitle, calendarGrid, currentDate, events) {
             dayEvents.forEach((event) => {
                 const title = escapeHtml(event.title || 'Event');
                 const type = escapeHtml(event.type || 'quiz-open');
-                eventsHtml += `<div class="day-event ${type}" title="${title}">${title}</div>`;
+                const eventId = event.id || '';
+                const eventType = event.assessment_type || (type.includes('quiz') ? 'quiz' : 'assignment');
+                const eventData = JSON.stringify({
+                    id: eventId,
+                    type: eventType,
+                    title: event.assessment_title || event.title || '',
+                    description: event.description || '',
+                    timeLimit: event.time_limit || 0,
+                    maxScore: event.max_score || 10,
+                    openTime: event.open_time || '',
+                    closeTime: event.close_time || '',
+                    status: type
+                }).replace(/"/g, '&quot;');
+                eventsHtml += `<div class="day-event ${type}" title="${title}" onclick='showEventPopup(${eventData})'>${title}</div>`;
             });
             eventsHtml += '</div>';
         }
@@ -391,7 +404,145 @@ function normalizeEvents(events) {
         date: event.date,
         title: event.title,
         type: event.type || 'quiz-open',
+        id: event.id || event.assessment_id || '',
+        assessment_type: event.assessment_type || '',
+        assessment_title: event.assessment_title || '',
+        description: event.description || '',
+        time_limit: event.time_limit || 0,
+        max_score: event.max_score || 10,
+        open_time: event.open_time || '',
+        close_time: event.close_time || '',
     })).filter((event) => Boolean(event.date && event.title));
+}
+
+/**
+ * Show event details popup with comprehensive information
+ */
+function showEventPopup(eventData) {
+    const baseUrl = document.querySelector('body').dataset.baseUrl || '/its';
+    const isQuiz = eventData.type === 'quiz';
+    const isAssignment = eventData.type === 'assignment';
+    
+    // Format dates
+    const formatDate = (dateStr) => {
+        if (!dateStr) return 'Not set';
+        const date = new Date(dateStr);
+        return date.toLocaleString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+    
+    const openTime = formatDate(eventData.openTime);
+    const closeTime = formatDate(eventData.closeTime);
+    const timeLimit = eventData.timeLimit > 0 ? `${eventData.timeLimit} minutes` : 'No time limit';
+    const maxScore = eventData.maxScore || 10;
+    const isClosing = eventData.status && eventData.status.includes('close');
+    const statusText = isClosing ? 'Closing Soon' : 'Open';
+    const statusColor = isClosing ? 'var(--danger-color)' : 'var(--success-color)';
+    
+    // Create modal overlay
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="display: flex; align-items: center; gap: 10px; word-break: break-word;">
+                    <i data-feather="${isQuiz ? 'help-circle' : 'clipboard'}"></i>
+                    <span style="flex: 1;">${escapeHtml(eventData.title)}</span>
+                </h2>
+                <button class="modal-close" onclick="this.closest('.modal').remove()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: calc(90vh - 200px); overflow-y: auto;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Type:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px; border-left: 3px solid var(--primary-color);">
+                        ${isQuiz ? '📝 Quiz' : '📋 Assignment'}
+                    </p>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Status:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px; border-left: 3px solid ${statusColor}; color: ${statusColor}; font-weight: 600;">
+                        ${statusText}
+                    </p>
+                </div>
+                
+                ${eventData.description ? `
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Description:</label>
+                    <p style="margin: 0; padding: 12px; background: var(--background-color); border-radius: 6px; line-height: 1.6; word-wrap: break-word; white-space: pre-wrap;">
+                        ${escapeHtml(eventData.description)}
+                    </p>
+                </div>
+                ` : ''}
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Opens:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px;">
+                        <i data-feather="calendar" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                        ${openTime}
+                    </p>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Due:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px;">
+                        <i data-feather="calendar" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                        ${closeTime}
+                    </p>
+                </div>
+                
+                ${isQuiz ? `
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Time Limit:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px;">
+                        <i data-feather="clock" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                        ${timeLimit}
+                    </p>
+                </div>
+                ` : ''}
+                
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: var(--accent-color); display: block; margin-bottom: 5px;">Maximum Score:</label>
+                    <p style="margin: 0; padding: 8px 12px; background: var(--background-color); border-radius: 6px;">
+                        <i data-feather="award" style="width: 16px; height: 16px; vertical-align: middle;"></i>
+                        ${maxScore} points
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                <button class="button button-secondary" onclick="this.closest('.modal').remove()">Close</button>
+                ${isQuiz ? `<button class="button button-primary" onclick="window.location.href='${baseUrl}/quiz/${eventData.id}'">
+                    <i data-feather="play"></i> Take Quiz
+                </button>` : ''}
+                ${isAssignment ? `<button class="button button-primary" onclick="window.location.href='${baseUrl}/assignment/${eventData.id}/status'">
+                    <i data-feather="upload"></i> Submit Assignment
+                </button>` : ''}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Close when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Replace feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 }
 
 /**

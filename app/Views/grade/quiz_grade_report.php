@@ -26,14 +26,18 @@
                         <?= $result['completed_at'] ? 'Đã làm bài' : 'Chưa làm bài' ?>
                     </td>
                     <td>
-                        <?php if ($result['completed_at']): ?>
+                        <?php if ($result['completed_at'] && $result['started_at']): ?>
                             <?php
                             $start = strtotime($result['started_at']);
                             $end = strtotime($result['completed_at']);
-                            $diff = $end - $start;
-                            $minutes = floor($diff / 60);
-                            $seconds = $diff % 60;
-                            echo $minutes . ' phút ' . $seconds . ' giây';
+                            if ($start && $end) {
+                                $diff = $end - $start;
+                                $minutes = floor($diff / 60);
+                                $seconds = $diff % 60;
+                                echo $minutes . ' phút ' . $seconds . ' giây';
+                            } else {
+                                echo '-';
+                            }
                             ?>
                         <?php else: ?>
                             -

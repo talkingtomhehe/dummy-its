@@ -116,14 +116,14 @@ class AssignmentController
             }
 
             $existingFile = $payload['submission']['submission_file'] ?? null;
-            $storedFile = $this->assignmentService->processSubmissionUpload(
+            $uploadResult = $this->assignmentService->processSubmissionUpload(
                 $_FILES['submission_file'],
                 $assignmentId,
                 $studentId,
                 $existingFile
             );
 
-            $this->assignmentService->recordSubmission($assignmentId, $studentId, $storedFile);
+            $this->assignmentService->recordSubmission($assignmentId, $studentId, $uploadResult);
 
             Session::flash('success', 'Assignment submitted successfully.');
             View::redirect('/assignment/' . $assignmentId . '/status');

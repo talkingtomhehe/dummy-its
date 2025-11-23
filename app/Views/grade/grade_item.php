@@ -4,6 +4,18 @@
     <main class="main">
         <h1 class="course-title">Chấm điểm: <?= htmlspecialchars($assignment['title']) ?></h1>
         
+        <?php if ($successMessage = \App\Core\Session::getFlash('success')): ?>
+            <div class="alert alert-success" style="margin-bottom: 20px;">
+                <?= htmlspecialchars($successMessage) ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($errorMessage = \App\Core\Session::getFlash('error')): ?>
+            <div class="alert alert-danger" style="margin-bottom: 20px;">
+                <?= htmlspecialchars($errorMessage) ?>
+            </div>
+        <?php endif; ?>
+        
         <div class="chart-container">
             <canvas id="item-grade-chart"></canvas>
         </div>
@@ -27,11 +39,22 @@
                             <?= $submission['file_path'] ? 'Đã nộp' : 'Chưa nộp' ?>
                         </td>
                         <td>
-                            <?php if ($submission['file_path']): ?>
-                                <a href="<?= base_url('/uploads/assignments/' . $submission['file_path']) ?>" target="_blank">
-                                    <?= htmlspecialchars($submission['file_path']) ?>
-                                </a>
-                            <?php else: ?>
+                            <?php if ($submission['file_path']): 
+                                $files = is_array($submission['file_path']) ? $submission['file_path'] : [$submission['file_path']];
+                                $originals = isset($submission['original_filenames']) && is_array($submission['original_filenames']) 
+                                    ? $submission['original_filenames'] 
+                                    : $files;
+                                foreach ($files as $idx => $file):
+                                    $displayName = $originals[$idx] ?? $file;
+                            ?>
+                                <div style="margin-bottom: 5px;">
+                                    <a href="<?= base_url('/uploads/assignments/' . $file) ?>" target="_blank">
+                                        <i data-feather="file"></i> <?= htmlspecialchars($displayName) ?>
+                                    </a>
+                                </div>
+                            <?php 
+                                endforeach;
+                            else: ?>
                                 -
                             <?php endif; ?>
                         </td>

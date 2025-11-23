@@ -87,20 +87,42 @@ class DashboardController {
             $label = ucfirst($type);
             $assessmentTitle = trim($assessment['title'] ?? '');
             $suffix = $assessmentTitle !== '' ? ': ' . $assessmentTitle : '';
+            $assessmentId = $assessment['assessment_id'] ?? '';
+            $description = $assessment['description'] ?? '';
+            $timeLimit = $assessment['time_limit'] ?? 0;
+            $maxScore = $assessment['max_score'] ?? 10;
+            $openTime = $assessment['open_time'] ?? null;
+            $closeTime = $assessment['close_time'] ?? null;
 
-            if (!empty($assessment['open_time'])) {
+            if (!empty($openTime)) {
                 $events[] = [
-                    'date' => date('Y-m-d', strtotime($assessment['open_time'])),
+                    'date' => date('Y-m-d', strtotime($openTime)),
                     'title' => sprintf('%s Opens%s', $label, $suffix),
                     'type' => sprintf('%s-open', $type),
+                    'id' => $assessmentId,
+                    'assessment_type' => $type,
+                    'assessment_title' => $assessmentTitle,
+                    'description' => $description,
+                    'time_limit' => $timeLimit,
+                    'max_score' => $maxScore,
+                    'open_time' => $openTime,
+                    'close_time' => $closeTime,
                 ];
             }
 
-            if (!empty($assessment['close_time'])) {
+            if (!empty($closeTime)) {
                 $events[] = [
-                    'date' => date('Y-m-d', strtotime($assessment['close_time'])),
+                    'date' => date('Y-m-d', strtotime($closeTime)),
                     'title' => sprintf('%s Closes%s', $label, $suffix),
                     'type' => sprintf('%s-close', $type),
+                    'id' => $assessmentId,
+                    'assessment_type' => $type,
+                    'assessment_title' => $assessmentTitle,
+                    'description' => $description,
+                    'time_limit' => $timeLimit,
+                    'max_score' => $maxScore,
+                    'open_time' => $openTime,
+                    'close_time' => $closeTime,
                 ];
             }
         }

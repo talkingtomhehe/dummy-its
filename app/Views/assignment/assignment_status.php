@@ -88,11 +88,22 @@
                 <tr>
                     <th>File submissions</th>
                     <td>
-                        <?php if ($submission && !empty($submission['submission_file'])): ?>
-                            <a href="<?= base_url('/uploads/assignments/' . $submission['submission_file']) ?>" target="_blank">
-                                <i data-feather="file"></i> <?= htmlspecialchars($submission['submission_file']) ?>
-                            </a>
-                        <?php else: ?>
+                        <?php if ($submission && !empty($submission['submission_file'])): 
+                            $files = is_array($submission['submission_file']) ? $submission['submission_file'] : [$submission['submission_file']];
+                            $originals = isset($submission['original_filenames']) && is_array($submission['original_filenames']) 
+                                ? $submission['original_filenames'] 
+                                : $files;
+                            foreach ($files as $idx => $file):
+                                $displayName = $originals[$idx] ?? $file;
+                        ?>
+                            <div style="margin-bottom: 5px;">
+                                <a href="<?= base_url('/uploads/assignments/' . $file) ?>" target="_blank">
+                                    <i data-feather="file"></i> <?= htmlspecialchars($displayName) ?>
+                                </a>
+                            </div>
+                        <?php 
+                            endforeach;
+                        else: ?>
                             -
                         <?php endif; ?>
                     </td>

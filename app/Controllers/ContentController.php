@@ -4,7 +4,9 @@ namespace App\Controllers;
 use App\Core\Session;
 use App\Core\View;
 use App\Models\Services\ContentService;
+use App\Models\Services\GradeService;
 use App\Models\Repositories\ContentRepository;
+use App\Models\Repositories\ResultRepository;
 
 /**
  * ContentController
@@ -15,10 +17,12 @@ use App\Models\Repositories\ContentRepository;
  */
 class ContentController {
     private ContentService $contentService;
+    private GradeService $gradeService;
 
-    public function __construct(?ContentService $contentService = null) {
+    public function __construct(?ContentService $contentService = null, ?GradeService $gradeService = null) {
         // SOLID: DIP - allow dependency injection, default to in-project wiring
         $this->contentService = $contentService ?? new ContentService(new ContentRepository());
+        $this->gradeService = $gradeService ?? new GradeService(new ResultRepository());
     }
 
     /**
@@ -57,11 +61,20 @@ class ContentController {
                 ];
             }
             
+            // Load grades for students
+            $grades = [];
+            if (!Session::isInstructor()) {
+                $studentId = Session::getUserId();
+                if ($studentId) {
+                    $grades = $this->gradeService->getStudentGrades($studentId, $subjectId);
+                }
+            }
+
             $data = [
                 'courseName' => $courseData['subject']['subject_name'] ?? 'Course',
                 'courseId' => $subjectId,
                 'topics' => $mappedTopics,
-                'grades' => [], // TODO: Fetch from GradeService
+                'grades' => $grades,
                 'userRole' => Session::getUserRole(),
                 'isInstructor' => Session::isInstructor(),
                 'userName' => Session::get('full_name')
@@ -187,6 +200,16 @@ class ContentController {
                 'display_order' => isset($_POST['display_order']) ? (int) $_POST['display_order'] : 0,
                 'file_path' => $uploadedFilePath,
             ];
+            
+            // Add quiz/assignment specific fields
+            if ($contentType === 'quiz') {
+                $data['open_time'] = !empty($_POST['quiz-open-time']) ? $_POST['quiz-open-time'] : null;
+                $data['close_time'] = !empty($_POST['quiz-close-time']) ? $_POST['quiz-close-time'] : null;
+                $data['time_limit'] = isset($_POST['quiz-time-limit']) ? (int)$_POST['quiz-time-limit'] : 0;
+            } elseif ($contentType === 'assignment') {
+                $data['open_time'] = !empty($_POST['assignment-open-time']) ? $_POST['assignment-open-time'] : null;
+                $data['close_time'] = !empty($_POST['assignment-close-time']) ? $_POST['assignment-close-time'] : null;
+            }
 
             if ($contentType === 'video' && $uploadedFilePath) {
                 // Use uploaded video file, omit external URL

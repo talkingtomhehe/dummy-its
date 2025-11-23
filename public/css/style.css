@@ -1197,14 +1197,18 @@ input:checked + .slider:before {
     padding: 4px 8px;
     border-radius: 4px;
     cursor: pointer;
-    white-space: normal;
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
-.day-event.quiz-open {
+.day-event.quiz-open,
+.day-event.assignment-open {
     background-color: var(--success-color);
     color: white;
 }
-.day-event.quiz-close {
+.day-event.quiz-close,
+.day-event.assignment-close {
     background-color: var(--danger-color);
     color: white;
 }

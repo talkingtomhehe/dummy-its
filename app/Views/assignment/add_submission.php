@@ -12,26 +12,37 @@
 
         <form id="submission-form" method="POST" action="<?= base_url('/assignment/' . $assignment['id'] . '/upload') ?>" enctype="multipart/form-data">
             <div class="drop-zone-container">
-                <input type="file" id="file-input" name="submission_file" accept=".pdf,.doc,.docx,.zip,.rar">
+                <input type="file" id="file-input" name="submission_file[]" accept=".pdf,.doc,.docx,.zip,.rar" multiple>
                 
                 <div class="drop-zone" id="drop-zone-box">
                     <div class="drop-zone-icon"><i data-feather="upload-cloud" style="width: 48px; height: 48px;"></i></div>
                     <div class="drop-zone-text">
                         Kéo và thả file của bạn vào đây
-                        <small>Hoặc nhấp để chọn file</small>
+                        <small>Hoặc nhấp để chọn file (có thể chọn nhiều file)</small>
                     </div>
                 </div>
                 
                 <div id="file-preview-list">
-                    <?php if (isset($submission) && !empty($submission['submission_file'])): ?>
+                    <?php 
+                    if (isset($submission) && !empty($submission['submission_file'])):
+                        $files = is_array($submission['submission_file']) ? $submission['submission_file'] : [$submission['submission_file']];
+                        $originals = isset($submission['original_filenames']) && is_array($submission['original_filenames']) 
+                            ? $submission['original_filenames'] 
+                            : $files;
+                        foreach ($files as $idx => $file):
+                            $displayName = $originals[$idx] ?? $file;
+                    ?>
                     <div class="file-preview-item">
                         <i data-feather="file"></i>
-                        <span><?= htmlspecialchars($submission['submission_file']) ?></span>
-                        <button type="button" class="button button-icon button-danger" onclick="removeFile()">
-                            <i data-feather="x"></i>
-                        </button>
+                        <span><?= htmlspecialchars($displayName) ?></span>
+                        <a href="<?= base_url('/uploads/assignments/' . $file) ?>" target="_blank" class="button button-icon">
+                            <i data-feather="download"></i>
+                        </a>
                     </div>
-                    <?php endif; ?>
+                    <?php 
+                        endforeach;
+                    endif; 
+                    ?>
                 </div>
             </div>
 

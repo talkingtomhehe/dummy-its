@@ -205,7 +205,7 @@ class ContentRepository implements IContentRepository {
     public function getAssessmentsWithSchedule(): array {
         $stmt = $this->db->prepare(
             "
-            SELECT assessment_id, title, assessment_type, open_time, close_time
+            SELECT assessment_id, title, assessment_type, description, time_limit, open_time, close_time, max_score
             FROM assessments
             WHERE open_time IS NOT NULL OR close_time IS NOT NULL
             ORDER BY COALESCE(open_time, close_time)

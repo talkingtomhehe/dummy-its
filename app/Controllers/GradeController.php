@@ -135,9 +135,9 @@ class GradeController
 
         try {
             $this->gradeService->saveAssignmentGrades($assignmentId, $grades, is_array($feedbacks) ? $feedbacks : []);
-            Session::set('success', 'Grades saved successfully!');
+            Session::flash('success', 'Grades saved successfully!');
         } catch (\Throwable $throwable) {
-            Session::set('error', 'Không thể lưu điểm. Vui lòng thử lại.');
+            Session::flash('error', 'Không thể lưu điểm. Vui lòng thử lại: ' . $throwable->getMessage());
         }
 
         redirect_to('/grade/assignment/' . $assignmentId);

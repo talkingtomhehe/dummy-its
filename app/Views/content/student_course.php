@@ -145,20 +145,26 @@ require_once __DIR__ . '/../layouts/header.php';
                                 <?php foreach ($grades ?? [] as $grade): ?>
                                 <tr>
                                     <td>
-                                        <strong><?= htmlspecialchars($grade['assessment_title']) ?></strong>
+                                        <strong><?= htmlspecialchars($grade['title'] ?? 'Assessment') ?></strong>
                                     </td>
-                                    <td><?= ucfirst(htmlspecialchars($grade['assessment_type'])) ?></td>
+                                    <td><?= ucfirst(htmlspecialchars($grade['type'] ?? 'N/A')) ?></td>
                                     <td>
-                                        <?php if ($grade['grade'] !== null): ?>
+                                        <?php if (isset($grade['score']) && $grade['score'] !== null): ?>
                                         <strong style="color: var(--success-color);">
-                                            <?= number_format($grade['grade'], 1) ?>/<?= $grade['max_grade'] ?>
+                                            <?= number_format($grade['score'], 1) ?>/<?= $grade['max_score'] ?? 10 ?>
                                         </strong>
                                         <?php else: ?>
                                         <span style="color: #777;">Not graded</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= htmlspecialchars($grade['feedback'] ?? '-') ?></td>
-                                    <td><?= date('M d, Y H:i', strtotime($grade['submitted_at'])) ?></td>
+                                    <td>
+                                        <?php if (!empty($grade['submitted_at'])): ?>
+                                            <?= date('M d, Y H:i', strtotime($grade['submitted_at'])) ?>
+                                        <?php else: ?>
+                                            <span style="color: #777;">Not submitted</span>
+                                        <?php endif; ?>
+                                    </td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
