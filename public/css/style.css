@@ -7,7 +7,7 @@ html {
     --primary-color: #0D8FA3;
     --primary-dark: #0a6a7a;
     --primary-light: #e8f4f8;
-    --accent-color: #0D5B7A;
+    --accent-color: #0D8FA3;
     --text-color: #333;
     --border-color: #ddd;
     --bg-color: #f5f5f5;
@@ -559,7 +559,10 @@ input:checked + .slider:before {
 .button-icon {
     background: none;
     padding: 4px;
-    font-size: 0; 
+    font-size: 0;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
 }
 .button-icon i.feather {
     width: 18px;
@@ -1574,6 +1577,13 @@ input:checked + .slider:before {
     white-space: nowrap;
 }
 
+.truncate-text {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* === BUTTON HOVER EFFECTS === */
 .button:hover,
 button:hover:not(:disabled) {
@@ -1616,5 +1626,108 @@ button:active:not(:disabled) {
 .back-to-course-box a i {
     width: 18px;
     height: 18px;
+}
+
+/* === FOOTER === */
+.site-footer {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 40px 20px 20px;
+    margin-top: 60px;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.footer-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.footer-section p {
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.footer-links a:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.footer-contact {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-contact li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.footer-contact i {
+    width: 16px;
+    height: 16px;
+}
+
+.footer-social {
+    display: flex;
+    gap: 15px;
+}
+
+.footer-social a {
+    color: white;
+    opacity: 0.9;
+    transition: all 0.2s;
+    display: inline-flex;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.footer-social a:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.footer-social i {
+    width: 20px;
+    height: 20px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 14px;
 }
 

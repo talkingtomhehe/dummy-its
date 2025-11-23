@@ -23,10 +23,11 @@ require_once __DIR__ . '/../layouts/header.php';
             <span><?= htmlspecialchars($contentTitle) ?></span>
         </div>
 
-        <div class="page-controls" style="margin: 20px 0 30px;">
-            <button class="button button-secondary" onclick="window.location.href='<?= base_url('/course/' . $courseId) ?>'">
-                Back to course
-            </button>
+        <div class="back-to-course-box">
+            <a href="<?= base_url('/course/' . $courseId) ?>">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
         </div>
 
         <div class="content-container" id="content-container-body">

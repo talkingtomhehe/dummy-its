@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+$showHeader = true;
+require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">
@@ -52,6 +54,10 @@
                 <tr>
                     <th>Điểm</th>
                     <td class="grade"><?= number_format($score, 2) ?> / 10.00</td>
+                </tr>
+                <tr>
+                    <th>Feedback</th>
+                    <td><?= isset($result['feedback']) && $result['feedback'] ? htmlspecialchars($result['feedback']) : '-' ?></td>
                 </tr>
             </tbody>
         </table>

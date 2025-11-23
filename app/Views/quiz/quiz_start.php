@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+$showHeader = true;
+require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">

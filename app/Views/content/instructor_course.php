@@ -184,8 +184,12 @@ require_once __DIR__ . '/../layouts/header.php';
             fetch(`${BASE_URL}/content/toggle/${contentId}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) location.reload();
-                    else alert('Error: ' + (data.error || 'Unknown error'));
+                    if (data.success) {
+                        showNotification('Visibility toggled successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
                 });
         }
     }
@@ -195,8 +199,12 @@ require_once __DIR__ . '/../layouts/header.php';
             fetch(`${BASE_URL}/content/delete/${contentId}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) location.reload();
-                    else alert('Error: ' + (data.error || 'Unknown error'));
+                    if (data.success) {
+                        showNotification('Content deleted successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
                 });
         }
     }
@@ -206,8 +214,12 @@ require_once __DIR__ . '/../layouts/header.php';
             fetch(`${BASE_URL}/topic/delete/${topicId}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) location.reload();
-                    else alert('Error: ' + (data.error || 'Unknown error'));
+                    if (data.success) {
+                        showNotification('Topic deleted successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
                 });
         }
     }
@@ -224,8 +236,12 @@ require_once __DIR__ . '/../layouts/header.php';
             fetch(`${BASE_URL}/topic/create`, { method: 'POST', body: formData })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) location.reload();
-                    else alert('Error: ' + (data.error || 'Unknown error'));
+                    if (data.success) {
+                        showNotification('Topic created successfully!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
+                    }
                 });
         }
     }
@@ -532,9 +548,10 @@ function submitTopicForm(e) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showNotification('Topic created successfully!', 'success');
+                setTimeout(() => location.reload(), 1500);
             } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
+                showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
             }
         });
 }
@@ -565,6 +582,21 @@ function submitContentForm(e) {
     formData.append('content_data', contentData);
     formData.append('display_order', 0);
 
+    // Add quiz/assignment specific fields
+    if (type === 'quiz') {
+        const openTime = form.querySelector('#quiz-open-time');
+        const closeTime = form.querySelector('#quiz-close-time');
+        const timeLimit = form.querySelector('#quiz-time-limit');
+        if (openTime && openTime.value) formData.append('quiz-open-time', openTime.value);
+        if (closeTime && closeTime.value) formData.append('quiz-close-time', closeTime.value);
+        if (timeLimit) formData.append('quiz-time-limit', timeLimit.value || 0);
+    } else if (type === 'assignment') {
+        const openTime = form.querySelector('#assignment-open-time');
+        const closeTime = form.querySelector('#assignment-close-time');
+        if (openTime && openTime.value) formData.append('assignment-open-time', openTime.value);
+        if (closeTime && closeTime.value) formData.append('assignment-close-time', closeTime.value);
+    }
+
     if (type === 'video') {
         const videoFile = form.querySelector('#item-video-file');
         if (videoFile && videoFile.files && videoFile.files[0]) {
@@ -585,13 +617,15 @@ function submitContentForm(e) {
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                const message = isEditingContent && contentId ? 'Content updated successfully!' : 'Content created successfully!';
+                showNotification(message, 'success');
+                setTimeout(() => location.reload(), 1500);
             } else {
-                alert('Error: ' + (data.error || 'Unknown error'));
+                showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
             }
         })
         .catch(err => {
-            alert('Error: ' + err.message);
+            showNotification('Error: ' + err.message, 'error');
         });
 }
 

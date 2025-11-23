@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+$showHeader = true;
+require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">
@@ -55,7 +57,7 @@
                     <td>
                         <button type="button" 
                                 class="button button-secondary button-icon" 
-                                onclick="openFeedbackModal(<?= $result['result_id'] ?? 0 ?>, '<?= htmlspecialchars($result['student_name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($result['feedback'] ?? '', ENT_QUOTES) ?>')">
+                                onclick="event.preventDefault(); event.stopPropagation(); openFeedbackModal(<?= $result['result_id'] ?? 0 ?>, '<?= htmlspecialchars($result['student_name'], ENT_QUOTES) ?>', '<?= addslashes(htmlspecialchars($result['feedback'] ?? '', ENT_QUOTES)) ?>');">
                             <i data-feather="message-square"></i>
                         </button>
                     </td>
@@ -176,7 +178,7 @@ function submitFeedback(e) {
         if (data.success) {
             showNotification('Feedback saved successfully!', 'success');
             closeFeedbackModal();
-            location.reload();
+            setTimeout(() => location.reload(), 1500);
         } else {
             showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
         }

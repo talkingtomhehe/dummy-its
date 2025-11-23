@@ -1,4 +1,6 @@
-<?php require_once __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+$showHeader = true;
+require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">
@@ -22,7 +24,7 @@
             <tbody>
                 <?php foreach ($grades as $grade): ?>
                 <tr>
-                    <td><?= htmlspecialchars($grade['title']) ?></td>
+                    <td class="truncate-text" title="<?= htmlspecialchars($grade['title']) ?>"><?= htmlspecialchars($grade['title']) ?></td>
                     <td><?= ucfirst($grade['type']) ?></td>
                     <td>
                         <?php if ($grade['score'] !== null): ?>
@@ -36,10 +38,14 @@
                             <a href="<?= base_url('/quiz/' . $grade['assessment_id'] . '/results') ?>" class="button button-secondary" style="font-size: 14px;">
                                 <i data-feather="eye"></i> View Results
                             </a>
-                        <?php elseif ($grade['feedback']): ?>
-                            <button class="button button-secondary" onclick="showFeedbackModal('<?= htmlspecialchars($grade['title'], ENT_QUOTES) ?>', '<?= htmlspecialchars($grade['feedback'], ENT_QUOTES) ?>')" style="font-size: 14px;">
+                        <?php endif; ?>
+                        
+                        <?php if ($grade['feedback']): ?>
+                            <button class="button button-secondary" onclick="showFeedbackModal('<?= htmlspecialchars($grade['title'], ENT_QUOTES) ?>', '<?= htmlspecialchars($grade['feedback'], ENT_QUOTES) ?>')" style="font-size: 14px; <?= ($grade['type'] === 'quiz' && $grade['score'] !== null) ? 'margin-left: 5px;' : '' ?>">
                                 <i data-feather="message-square"></i> View Feedback
                             </button>
+                        <?php elseif ($grade['score'] !== null): ?>
+                            <span style="color: #999;">No feedback</span>
                         <?php else: ?>
                             <span style="color: #999;">-</span>
                         <?php endif; ?>
