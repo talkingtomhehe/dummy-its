@@ -885,10 +885,35 @@ function displayNotifications(notifications) {
                 }
                 
                 // Navigate to related content if available
-                if (notification.related_type && notification.related_id) {
-                    const baseUrl = document.body.dataset.baseUrl || '/its';
-                    let url = '';
-                    
+                const baseUrl = document.body.dataset.baseUrl || '/its';
+                const message = notification.message.toLowerCase();
+                const title = notification.title.toLowerCase();
+                let url = '';
+                
+                // Check for grade/feedback notifications first
+                if (title.includes('grade') || title.includes('graded') || 
+                    title.includes('feedback') || message.includes('graded')) {
+                    // Direct to student grades page
+                    url = `${baseUrl}/grade/student`;
+                } 
+                // Check for new content notifications
+                else if (title.includes('new content') || title.includes('content added') || 
+                         message.includes('new content') || message.includes('content added')) {
+                    // Direct to content view if we have the related_id
+                    if (notification.related_type === 'content' && notification.related_id) {
+                        url = `${baseUrl}/content/${notification.related_id}/view`;
+                    }
+                }
+                // Check for content modified notifications
+                else if (title.includes('modified') || title.includes('updated') || 
+                         message.includes('modified') || message.includes('updated')) {
+                    // Direct to content view if we have the related_id
+                    if (notification.related_type === 'content' && notification.related_id) {
+                        url = `${baseUrl}/content/${notification.related_id}/view`;
+                    }
+                }
+                // Fallback to related_type based navigation
+                else if (notification.related_type && notification.related_id) {
                     switch (notification.related_type) {
                         case 'content':
                             url = `${baseUrl}/content/${notification.related_id}/view`;
@@ -902,14 +927,11 @@ function displayNotifications(notifications) {
                         case 'course':
                             url = `${baseUrl}/course/${notification.related_id}`;
                             break;
-                        default:
-                            // If related type is not recognized, don't navigate
-                            return;
                     }
-                    
-                    if (url) {
-                        window.location.href = url;
-                    }
+                }
+                
+                if (url) {
+                    window.location.href = url;
                 }
             }
         });

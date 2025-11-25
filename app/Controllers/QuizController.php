@@ -82,18 +82,13 @@ class QuizController
             
             // Get quiz statistics
             $totalQuestions = count($questions);
-            
-            // TODO: Get actual student statistics from database
-            // For now, using placeholder values
-            $totalStudents = 0;
-            $completedCount = 0;
-            $notCompletedCount = 0;
+            $statistics = $this->quizService->getQuizStatistics($quizId);
 
             View::render('quiz/instructor_view', [
                 'quiz' => $quiz,
-                'totalStudents' => $totalStudents,
-                'completedCount' => $completedCount,
-                'notCompletedCount' => $notCompletedCount,
+                'totalStudents' => $statistics['total_students'],
+                'completedCount' => $statistics['completed_count'],
+                'notCompletedCount' => $statistics['not_completed_count'],
                 'totalQuestions' => $totalQuestions,
             ]);
         } catch (\Throwable $exception) {
@@ -138,9 +133,11 @@ class QuizController
         }
 
         $answers = $this->extractAnswersFromRequest($_POST ?? []);
+        $timeTaken = isset($_POST['time_taken']) ? (int)$_POST['time_taken'] : null;
+        $startedAt = $_POST['started_at'] ?? null;
 
         try {
-            $result = $this->quizService->submitQuiz($quizId, $studentId, $answers, $_POST['time_taken'] ?? null);
+            $result = $this->quizService->submitQuiz($quizId, $studentId, $answers, $timeTaken, $startedAt);
             $resultId = $result['result_id'] ?? null;
             $redirectUrl = '/quiz/' . $quizId . '/results' . ($resultId ? '?result_id=' . $resultId : '');
             View::redirect($redirectUrl);

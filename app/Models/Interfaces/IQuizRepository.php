@@ -62,4 +62,9 @@ interface IQuizRepository {
      * Get quizzes by topic
      */
     public function getQuizzesByTopic(int $topicId): array;
+
+    /**
+     * Get quiz statistics (total students, completed count, etc.)
+     */
+    public function getQuizStatistics(int $assessmentId): array;
 }

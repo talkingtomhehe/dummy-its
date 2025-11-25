@@ -18,13 +18,16 @@ class ResultRepository implements IResultRepository
     public function getStudentGrades(int $courseId, int $studentId): array
     {
         $stmt = $this->db->prepare(
-            'SELECT a.assessment_id, a.title, a.assessment_type, a.max_score,
+            'SELECT a.assessment_id, 
+                    COALESCE(ci.title, a.title) as title,
+                    a.assessment_type, a.max_score,
                     t.subject_id, s.subject_name,
                     ar.score, ar.feedback, ar.status, ar.submitted_at,
                     ar.submission_file, ar.original_filenames
              FROM assessments a
              INNER JOIN topics t ON a.topic_id = t.topic_id
              INNER JOIN subjects s ON t.subject_id = s.subject_id
+             LEFT JOIN content_items ci ON a.content_id = ci.content_id
              LEFT JOIN assessment_results ar ON ar.assessment_id = a.assessment_id
                 AND (ar.student_id = :student_id1 OR ar.user_id = :user_id1)
                 AND ar.submitted_at = (
@@ -201,6 +204,7 @@ class ResultRepository implements IResultRepository
                  score,
                  answers,
                  time_taken,
+                 started_at,
                  status,
                  submitted_at,
                  completed_at
@@ -211,11 +215,22 @@ class ResultRepository implements IResultRepository
                  :score,
                  :answers,
                  :time_taken,
+                 :started_at,
                  :status,
                  NOW(),
                  NOW()
              )'
         );
+
+        $startedAt = null;
+        if (!empty($data['started_at'])) {
+            try {
+                $startedAt = (new \DateTime($data['started_at']))->format('Y-m-d H:i:s');
+            } catch (\Exception $e) {
+                // If invalid date format, use current time
+                $startedAt = date('Y-m-d H:i:s');
+            }
+        }
 
         $stmt->execute([
             'assessment_id' => $data['assessment_id'],
@@ -224,6 +239,7 @@ class ResultRepository implements IResultRepository
             'score' => $data['score'],
             'answers' => json_encode($data['answers'] ?? []),
             'time_taken' => $data['time_taken'] ?? null,
+            'started_at' => $startedAt,
             'status' => $data['status'] ?? 'completed',
         ]);
 

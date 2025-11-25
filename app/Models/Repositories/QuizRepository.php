@@ -18,8 +18,13 @@ class QuizRepository implements IQuizRepository {
 
     public function getQuizById(int $assessmentId): ?array {
         $stmt = $this->db->prepare('
-            SELECT a.*, t.topic_title, t.subject_id, s.subject_name
+            SELECT a.*, 
+                   COALESCE(ci.title, a.title) as title,
+                   a.title as assessment_title,
+                   ci.title as content_title,
+                   t.topic_title, t.subject_id, s.subject_name
             FROM assessments a
+            LEFT JOIN content_items ci ON a.content_id = ci.content_id
             JOIN topics t ON a.topic_id = t.topic_id
             JOIN subjects s ON t.subject_id = s.subject_id
             WHERE a.assessment_id = :assessment_id AND a.assessment_type = "quiz"
@@ -317,15 +322,14 @@ class QuizRepository implements IQuizRepository {
     }
 
     public function getQuizStatistics(int $assessmentId): array {
-        // Get total enrolled students for the course
+        // Get total students in the system (since there's no enrollment table)
+        // In a real application, this would query an enrollments table
         $stmt = $this->db->prepare('
-            SELECT COUNT(DISTINCT e.user_id) as total_students
-            FROM assessments a
-            JOIN topics t ON a.topic_id = t.topic_id
-            JOIN enrollments e ON e.subject_id = t.subject_id
-            WHERE a.assessment_id = :assessment_id
+            SELECT COUNT(*) as total_students
+            FROM users
+            WHERE role = \'student\'
         ');
-        $stmt->execute(['assessment_id' => $assessmentId]);
+        $stmt->execute();
         $totalStudents = (int)($stmt->fetch()['total_students'] ?? 0);
 
         // Get number of students who completed the quiz

@@ -75,7 +75,7 @@ class QuizService {
         return $overview;
     }
 
-    public function submitQuiz(int $assessmentId, int $userId, array $answers, ?int $timeTaken = null): array {
+    public function submitQuiz(int $assessmentId, int $userId, array $answers, ?int $timeTaken = null, ?string $startedAt = null): array {
         $quiz = $this->quizRepo->getQuizById($assessmentId);
 
         if (!$quiz) {
@@ -121,6 +121,7 @@ class QuizService {
             'score' => $finalScore,
             'answers' => $answers,
             'time_taken' => $timeTaken,
+            'started_at' => $startedAt,
         ];
 
         $resultId = $this->resultRepo->submitQuizResult($resultData);
@@ -258,6 +259,10 @@ class QuizService {
 
     public function getQuizDeadlines(int $subjectId = null): array {
         return [];
+    }
+
+    public function getQuizStatistics(int $assessmentId): array {
+        return $this->quizRepo->getQuizStatistics($assessmentId);
     }
 
     private function getLatestResultForUser(int $assessmentId, int $userId): ?array {
