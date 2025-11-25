@@ -32,13 +32,62 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Notification button (placeholder)
+    // Notification button functionality
     const notificationBtn = document.getElementById('notification-btn');
     if (notificationBtn) {
-        notificationBtn.addEventListener('click', function() {
-            console.log('Notifications clicked');
-            // TODO: Implement notification functionality
+        // Create notification dropdown
+        const notificationDropdown = document.createElement('div');
+        notificationDropdown.className = 'notification-dropdown';
+        notificationDropdown.id = 'notification-dropdown';
+        notificationDropdown.innerHTML = `
+            <div class="notification-header">
+                <h3>Notifications</h3>
+                <button class="mark-all-read-btn" id="mark-all-read">Mark all read</button>
+            </div>
+            <div class="notification-list" id="notification-list">
+                <div class="notification-loading">Loading...</div>
+            </div>
+        `;
+        notificationBtn.parentElement.appendChild(notificationDropdown);
+        
+        // Badge for unread count
+        const badge = document.createElement('span');
+        badge.className = 'notification-badge';
+        badge.id = 'notification-badge';
+        badge.style.display = 'none';
+        notificationBtn.appendChild(badge);
+        
+        // Toggle dropdown
+        notificationBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+            if (notificationDropdown.classList.contains('show')) {
+                loadNotifications();
+            }
         });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!notificationDropdown.contains(event.target) && event.target !== notificationBtn) {
+                notificationDropdown.classList.remove('show');
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside
+        notificationDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Mark all as read
+        document.getElementById('mark-all-read').addEventListener('click', function() {
+            markAllNotificationsAsRead();
+        });
+        
+        // Load unread count on page load
+        updateUnreadCount();
+        
+        // Poll for new notifications every 30 seconds
+        setInterval(updateUnreadCount, 30000);
     }
     
     // Editing toggle for instructors
@@ -335,7 +384,11 @@ function renderCalendar(monthTitle, calendarGrid, currentDate, events) {
         let eventsHtml = '';
         if (dayEvents.length > 0) {
             eventsHtml = '<div class="day-events">';
-            dayEvents.forEach((event) => {
+            const maxVisible = 2;
+            const visibleEvents = dayEvents.slice(0, maxVisible);
+            const remainingCount = dayEvents.length - maxVisible;
+            
+            visibleEvents.forEach((event) => {
                 const title = escapeHtml(event.title || 'Event');
                 const type = escapeHtml(event.type || 'quiz-open');
                 const eventId = event.id || '';
@@ -353,6 +406,12 @@ function renderCalendar(monthTitle, calendarGrid, currentDate, events) {
                 }).replace(/"/g, '&quot;');
                 eventsHtml += `<div class="day-event ${type}" title="${title}" onclick='showEventPopup(${eventData})'>${title}</div>`;
             });
+            
+            if (remainingCount > 0) {
+                const allEventsData = JSON.stringify(dayEvents).replace(/"/g, '&quot;');
+                eventsHtml += `<div class="day-event-more" onclick='showAllDayEvents("${dateStr}", ${allEventsData})'>+${remainingCount} more...</div>`;
+            }
+            
             eventsHtml += '</div>';
         }
 
@@ -413,6 +472,137 @@ function normalizeEvents(events) {
         open_time: event.open_time || '',
         close_time: event.close_time || '',
     })).filter((event) => Boolean(event.date && event.title));
+}
+
+/**
+ * Show all events for a specific day in a modal
+ */
+function showAllDayEvents(dateStr, eventsData) {
+    const baseUrl = document.querySelector('body').dataset.baseUrl || '/its';
+    const events = Array.isArray(eventsData) ? eventsData : [];
+    
+    if (events.length === 0) {
+        return;
+    }
+    
+    // Format date
+    const date = new Date(dateStr);
+    const formattedDate = date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    // Build event list HTML
+    let eventsListHtml = '';
+    events.forEach((event) => {
+        const isQuiz = (event.assessment_type || event.type || '').toLowerCase().includes('quiz');
+        const isAssignment = (event.assessment_type || event.type || '').toLowerCase().includes('assignment');
+        const icon = isQuiz ? 'help-circle' : 'clipboard';
+        const eventType = event.type || 'event';
+        const statusClass = eventType.includes('close') ? 'danger' : 'success';
+        const statusText = eventType.includes('close') ? 'Closing' : 'Opening';
+        
+        const formatTime = (timeStr) => {
+            if (!timeStr) return 'Not set';
+            const time = new Date(timeStr);
+            return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        };
+        
+        const openTime = formatTime(event.open_time);
+        const closeTime = formatTime(event.close_time);
+        
+        const eventData = JSON.stringify({
+            id: event.id || event.assessment_id || '',
+            type: event.assessment_type || (isQuiz ? 'quiz' : 'assignment'),
+            title: event.assessment_title || event.title || '',
+            description: event.description || '',
+            timeLimit: event.time_limit || 0,
+            maxScore: event.max_score || 10,
+            openTime: event.open_time || '',
+            closeTime: event.close_time || '',
+            status: event.type
+        }).replace(/"/g, '&quot;');
+        
+        eventsListHtml += `
+            <div class="event-list-item" onclick='showEventPopup(${eventData})' style="cursor: pointer; padding: 15px; margin-bottom: 10px; background: var(--bg-light); border-radius: 6px; border-left: 3px solid var(--primary-color); transition: all 0.2s;">
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <div style="flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--primary-light); border-radius: 50%;">
+                        <i data-feather="${icon}" style="width: 18px; height: 18px; color: var(--primary-color);"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <h4 style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: var(--text-color); word-wrap: break-word;">
+                            ${escapeHtml(event.title || 'Event')}
+                        </h4>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 8px;">
+                            <span style="font-size: 13px; color: #666;">
+                                <i data-feather="calendar" style="width: 14px; height: 14px; vertical-align: middle;"></i>
+                                ${statusText}: ${eventType.includes('open') ? openTime : closeTime}
+                            </span>
+                            <span style="font-size: 13px; padding: 2px 8px; border-radius: 12px; background: var(--${statusClass}-color); color: white; font-weight: 500;">
+                                ${isQuiz ? 'Quiz' : 'Assignment'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 650px; max-height: 85vh;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="display: flex; align-items: center; gap: 10px;">
+                    <i data-feather="calendar"></i>
+                    <span>Events on ${formattedDate}</span>
+                </h2>
+                <button class="modal-close" onclick="this.closest('.modal').remove()">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="max-height: calc(85vh - 150px); overflow-y: auto; padding: 20px;">
+                <p style="margin-bottom: 20px; color: #666; font-size: 14px;">
+                    <strong>${events.length}</strong> event${events.length !== 1 ? 's' : ''} scheduled for this day
+                </p>
+                ${eventsListHtml}
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end;">
+                <button class="button button-secondary" onclick="this.closest('.modal').remove()">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add hover effect to event items
+    const eventItems = modal.querySelectorAll('.event-list-item');
+    eventItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.background = '#f0f8fa';
+            this.style.transform = 'translateX(5px)';
+        });
+        item.addEventListener('mouseleave', function() {
+            this.style.background = 'var(--bg-light)';
+            this.style.transform = 'translateX(0)';
+        });
+    });
+    
+    // Close when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    // Replace feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 }
 
 /**
@@ -620,3 +810,218 @@ function showNotification(message, type = 'success') {
     }, 5000);
 }
 
+/**
+ * Notification Dropdown Functions
+ */
+function loadNotifications() {
+    const baseUrl = document.body.dataset.baseUrl || '/its';
+    const notificationList = document.getElementById('notification-list');
+    
+    if (!notificationList) return;
+    
+    notificationList.innerHTML = '<div class="notification-loading">Loading...</div>';
+    
+    fetch(`${baseUrl}/notifications`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.notifications) {
+            displayNotifications(data.notifications);
+        } else {
+            notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Failed to load notifications:', error);
+        notificationList.innerHTML = '<div class="notification-error">Failed to load notifications</div>';
+    });
+}
+
+function displayNotifications(notifications) {
+    const notificationList = document.getElementById('notification-list');
+    
+    if (!notificationList) return;
+    
+    if (notifications.length === 0) {
+        notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+        return;
+    }
+    
+    notificationList.innerHTML = '';
+    
+    notifications.forEach(notification => {
+        const notifElement = document.createElement('div');
+        notifElement.className = `notification-item ${notification.is_read ? '' : 'unread'}`;
+        notifElement.dataset.id = notification.notification_id;
+        
+        const timeAgo = formatTimeAgo(notification.created_at);
+        const typeIcon = getNotificationIcon(notification.type);
+        
+        notifElement.innerHTML = `
+            <div class="notification-icon ${notification.type}">
+                <i data-feather="${typeIcon}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${escapeHtml(notification.title)}</div>
+                <div class="notification-message">${escapeHtml(notification.message)}</div>
+                <div class="notification-time">${timeAgo}</div>
+            </div>
+            <button class="notification-delete" onclick="deleteNotification(${notification.notification_id})">
+                <i data-feather="x"></i>
+            </button>
+        `;
+        
+        // Mark as read when clicked
+        if (!notification.is_read) {
+            notifElement.addEventListener('click', function(e) {
+                if (!e.target.closest('.notification-delete')) {
+                    markNotificationAsRead(notification.notification_id);
+                }
+            });
+        }
+        
+        notificationList.appendChild(notifElement);
+    });
+    
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+}
+
+function updateUnreadCount() {
+    const baseUrl = document.body.dataset.baseUrl || '/its';
+    const badge = document.getElementById('notification-badge');
+    
+    if (!badge) return;
+    
+    fetch(`${baseUrl}/notifications/unread-count`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.count !== undefined) {
+            if (data.count > 0) {
+                badge.textContent = data.count > 99 ? '99+' : data.count;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Failed to update unread count:', error);
+    });
+}
+
+function markNotificationAsRead(notificationId) {
+    const baseUrl = document.body.dataset.baseUrl || '/its';
+    
+    fetch(`${baseUrl}/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notifElement = document.querySelector(`[data-id="${notificationId}"]`);
+            if (notifElement) {
+                notifElement.classList.remove('unread');
+            }
+            updateUnreadCount();
+        }
+    })
+    .catch(error => {
+        console.error('Failed to mark notification as read:', error);
+    });
+}
+
+function markAllNotificationsAsRead() {
+    const baseUrl = document.body.dataset.baseUrl || '/its';
+    
+    fetch(`${baseUrl}/notifications/read-all`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotifications();
+            updateUnreadCount();
+        }
+    })
+    .catch(error => {
+        console.error('Failed to mark all as read:', error);
+    });
+}
+
+function deleteNotification(notificationId) {
+    const baseUrl = document.body.dataset.baseUrl || '/its';
+    
+    fetch(`${baseUrl}/notifications/${notificationId}/delete`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const notifElement = document.querySelector(`[data-id="${notificationId}"]`);
+            if (notifElement) {
+                notifElement.remove();
+            }
+            updateUnreadCount();
+            
+            // Check if list is empty
+            const notificationList = document.getElementById('notification-list');
+            if (notificationList && notificationList.children.length === 0) {
+                notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Failed to delete notification:', error);
+    });
+}
+
+function getNotificationIcon(type) {
+    const icons = {
+        'success': 'check-circle',
+        'error': 'alert-circle',
+        'warning': 'alert-triangle',
+        'info': 'info'
+    };
+    return icons[type] || 'bell';
+}
+
+function formatTimeAgo(timestamp) {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now - past;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    
+    return past.toLocaleDateString();
+}

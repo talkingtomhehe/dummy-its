@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 23, 2025 lúc 11:41 AM
+-- Thời gian đã tạo: Th10 25, 2025 lúc 09:13 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -52,7 +52,9 @@ INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `
 (1, 2, 7, '1.3 Quiz: Introduction Concepts aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, '2025-11-15 02:27:14', '2025-11-16 17:34:45'),
 (2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (5, 2, 16, 'abc', 'assignment', '', 0, NULL, NULL, 10.00, 1, 0, '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
-(6, 2, 17, 'abc', 'quiz', '', 0, NULL, NULL, 10.00, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22');
+(6, 2, 17, 'abc', 'quiz', '', 0, NULL, NULL, 10.00, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22'),
+(7, 1, 19, 'abc', 'quiz', '', 30, '2025-11-25 11:31:00', '2025-11-26 11:31:00', 10.00, 1, 0, '2025-11-25 04:31:28', '2025-11-25 04:31:28'),
+(8, 1, 20, 'abc', 'assignment', '', 0, '2025-11-25 11:31:00', '2025-11-26 11:31:00', 10.00, 1, 0, '2025-11-25 04:31:49', '2025-11-25 04:31:49');
 
 -- --------------------------------------------------------
 
@@ -85,9 +87,9 @@ CREATE TABLE `assessment_results` (
 INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `original_filenames`, `status`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
 (1, 1, 1, 1, 6.67, '{\"1\":\"c\",\"2\":\"a\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 11:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
 (2, 1, 2, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 12:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332),
-(3, 6, 1, 1, 0.00, '{\"7\":\"34\",\"8\":[\"37\"],\"9\":[\"39\"]}', NULL, NULL, NULL, 'completed', '2025-11-16 21:26:45', NULL, '2025-11-17 04:26:45', NULL, NULL),
+(3, 6, 1, 1, 0.00, '{\"7\":\"34\",\"8\":[\"37\"],\"9\":[\"39\"]}', 'hoc ngu qua', NULL, NULL, 'graded', '2025-11-16 21:26:45', NULL, '2025-11-17 04:26:45', '2025-11-25 08:08:25', NULL),
 (4, 2, 1, 1, NULL, NULL, NULL, 'assignment_2_student_1_20251123090239.pdf', NULL, 'submitted', '2025-11-23 08:02:39', NULL, NULL, NULL, NULL),
-(5, 5, 1, 1, NULL, NULL, NULL, '[\"assignment_5_student_1_20251123095346_0.pdf\",\"assignment_5_student_1_20251123095346_1.pdf\"]', '[\"Book1.pdf\",\"abc.pdf\"]', 'submitted', '2025-11-23 08:53:46', NULL, NULL, NULL, NULL);
+(5, 5, 1, 1, 9.00, NULL, 'hay qua em oi', '[\"assignment_5_student_1_20251123095346_0.pdf\",\"assignment_5_student_1_20251123095346_1.pdf\"]', '[\"Book1.pdf\",\"abc.pdf\"]', 'graded', '2025-11-23 08:53:46', NULL, NULL, '2025-11-25 08:09:03', NULL);
 
 -- --------------------------------------------------------
 
@@ -122,7 +124,35 @@ INSERT INTO `content_items` (`content_id`, `topic_id`, `title`, `content_type`, 
 (7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', NULL, NULL, 1, 4, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (8, 3, 'Final Project Submission', 'assignment', '<p>Upload your completed project deliverables.</p>', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (16, 2, 'abc', 'assignment', '', NULL, 1, 0, '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
-(17, 2, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22');
+(17, 2, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22'),
+(19, 1, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-25 04:31:28', '2025-11-25 04:31:28'),
+(20, 1, 'abc', 'assignment', '', NULL, 1, 0, '2025-11-25 04:31:49', '2025-11-25 04:31:49');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `notification_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `message` text NOT NULL,
+  `type` enum('info','success','warning','error') DEFAULT 'info',
+  `related_type` varchar(50) DEFAULT NULL COMMENT 'Type of related entity (quiz, assignment, etc.)',
+  `related_id` int(11) DEFAULT NULL COMMENT 'ID of related entity',
+  `is_read` tinyint(1) DEFAULT 0,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `notifications`
+--
+
+INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `type`, `related_type`, `related_id`, `is_read`, `read_at`, `created_at`) VALUES
+(2, 1, 'Grade Posted', 'Your assignment \'abc\' has been graded.', 'success', 'assignment', NULL, 1, '2025-11-25 08:09:33', '2025-11-25 08:09:03');
 
 -- --------------------------------------------------------
 
@@ -245,7 +275,9 @@ CREATE TABLE `topics` (
 INSERT INTO `topics` (`topic_id`, `subject_id`, `topic_title`, `description`, `display_order`, `created_at`, `updated_at`) VALUES
 (1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14');
+(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(4, 1, 'Topic 4', '', 0, '2025-11-25 08:12:04', '2025-11-25 08:12:04'),
+(5, 1, 'Topic 3', '', 0, '2025-11-25 08:12:25', '2025-11-25 08:12:25');
 
 -- --------------------------------------------------------
 
@@ -312,6 +344,17 @@ ALTER TABLE `content_items`
   ADD KEY `idx_content_topic_visible` (`topic_id`,`is_visible`);
 
 --
+-- Chỉ mục cho bảng `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`notification_id`),
+  ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_read` (`is_read`),
+  ADD KEY `idx_created` (`created_at`),
+  ADD KEY `idx_user_read` (`user_id`,`is_read`),
+  ADD KEY `idx_notifications_user_created` (`user_id`,`created_at`);
+
+--
 -- Chỉ mục cho bảng `quiz_options`
 --
 ALTER TABLE `quiz_options`
@@ -362,7 +405,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT cho bảng `assessment_results`
@@ -374,7 +417,13 @@ ALTER TABLE `assessment_results`
 -- AUTO_INCREMENT cho bảng `content_items`
 --
 ALTER TABLE `content_items`
-  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT cho bảng `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_options`
@@ -398,7 +447,7 @@ ALTER TABLE `subjects`
 -- AUTO_INCREMENT cho bảng `topics`
 --
 ALTER TABLE `topics`
-  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
@@ -430,6 +479,12 @@ ALTER TABLE `assessment_results`
 --
 ALTER TABLE `content_items`
   ADD CONSTRAINT `content_items_ibfk_1` FOREIGN KEY (`topic_id`) REFERENCES `topics` (`topic_id`) ON DELETE CASCADE;
+
+--
+-- Các ràng buộc cho bảng `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `fk_notification_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `quiz_options`

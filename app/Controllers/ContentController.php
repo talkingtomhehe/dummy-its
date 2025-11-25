@@ -343,6 +343,16 @@ class ContentController {
                 'is_visible' => $existing['is_visible'] ?? 1,
                 'display_order' => $existing['display_order'] ?? 0,
             ];
+            
+            // Add quiz/assignment specific fields for updates
+            if ($contentType === 'quiz') {
+                $updateData['open_time'] = !empty($_POST['quiz-open-time']) ? str_replace('T', ' ', $_POST['quiz-open-time']) . ':00' : null;
+                $updateData['close_time'] = !empty($_POST['quiz-close-time']) ? str_replace('T', ' ', $_POST['quiz-close-time']) . ':00' : null;
+                $updateData['time_limit'] = isset($_POST['quiz-time-limit']) ? (int)$_POST['quiz-time-limit'] : 0;
+            } elseif ($contentType === 'assignment') {
+                $updateData['open_time'] = !empty($_POST['assignment-open-time']) ? str_replace('T', ' ', $_POST['assignment-open-time']) . ':00' : null;
+                $updateData['close_time'] = !empty($_POST['assignment-close-time']) ? str_replace('T', ' ', $_POST['assignment-close-time']) . ':00' : null;
+            }
 
             $updated = $this->contentService->updateContentItem($contentId, $updateData);
 

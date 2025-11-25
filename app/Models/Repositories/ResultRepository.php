@@ -310,9 +310,10 @@ class ResultRepository implements IResultRepository
     public function getResultById(int $resultId): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT *
-             FROM assessment_results
-             WHERE result_id = :result_id'
+            'SELECT ar.*, a.title as assessment_title, a.assessment_type
+             FROM assessment_results ar
+             INNER JOIN assessments a ON ar.assessment_id = a.assessment_id
+             WHERE ar.result_id = :result_id'
         );
         $stmt->execute(['result_id' => $resultId]);
         $row = $stmt->fetch();

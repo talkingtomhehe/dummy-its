@@ -15,16 +15,21 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
         <table class="submission-status-table">
             <thead>
                 <tr>
-                    <th style="width: 50%;">Tên mục</th>
-                    <th>Loại</th>
-                    <th>Điểm</th>
-                    <th>Feedback</th>
+                    <th style="width: 30%;">Tên mục</th>
+                    <th style="width: 15%;">Loại</th>
+                    <th style="width: 20%;">Điểm</th>
+                    <th style="width: 35%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($grades as $grade): ?>
                 <tr>
-                    <td class="truncate-text" title="<?= htmlspecialchars($grade['title']) ?>"><?= htmlspecialchars($grade['title']) ?></td>
+                    <td class="truncate-cell" title="<?= htmlspecialchars($grade['title']) ?>">
+                        <?php 
+                        $title = htmlspecialchars($grade['title']);
+                        echo (strlen($title) > 50) ? substr($title, 0, 47) . '...' : $title;
+                        ?>
+                    </td>
                     <td><?= ucfirst($grade['type']) ?></td>
                     <td>
                         <?php if ($grade['score'] !== null): ?>
@@ -40,14 +45,12 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                             </a>
                         <?php endif; ?>
                         
-                        <?php if ($grade['feedback']): ?>
-                            <button class="button button-secondary" onclick="showFeedbackModal('<?= htmlspecialchars($grade['title'], ENT_QUOTES) ?>', '<?= htmlspecialchars($grade['feedback'], ENT_QUOTES) ?>')" style="font-size: 14px; <?= ($grade['type'] === 'quiz' && $grade['score'] !== null) ? 'margin-left: 5px;' : '' ?>">
+                        <?php if ($grade['score'] !== null): ?>
+                            <button class="button button-secondary" onclick="showFeedbackModal('<?= addslashes(htmlspecialchars($grade['title'], ENT_QUOTES)) ?>', '<?= addslashes(htmlspecialchars($grade['feedback'] ?? 'No feedback provided.', ENT_QUOTES)) ?>')" style="font-size: 14px; <?= ($grade['type'] === 'quiz' && $grade['score'] !== null) ? 'margin-left: 5px;' : '' ?>">
                                 <i data-feather="message-square"></i> View Feedback
                             </button>
-                        <?php elseif ($grade['score'] !== null): ?>
-                            <span style="color: #999;">No feedback</span>
-                        <?php else: ?>
-                            <span style="color: #999;">-</span>
+                        <?php elseif ($grade['score'] === null): ?>
+                            <span style="color: #999;">Not graded</span>
                         <?php endif; ?>
                     </td>
                 </tr>

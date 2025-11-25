@@ -119,7 +119,28 @@ class ContentService {
      * Update content item
      */
     public function updateContentItem(int $contentId, array $data): bool {
-        return $this->contentRepo->updateContentItem($contentId, $data);
+        $result = $this->contentRepo->updateContentItem($contentId, $data);
+        
+        // If updating quiz or assignment, also update the assessment table
+        if ($result && isset($data['content_type']) && in_array($data['content_type'], ['quiz', 'assignment'])) {
+            $assessmentData = [];
+            if (isset($data['open_time'])) {
+                $assessmentData['open_time'] = $data['open_time'];
+            }
+            if (isset($data['close_time'])) {
+                $assessmentData['close_time'] = $data['close_time'];
+            }
+            if (isset($data['time_limit'])) {
+                $assessmentData['time_limit'] = $data['time_limit'];
+            }
+            
+            // Only update assessment if there's data to update
+            if (!empty($assessmentData)) {
+                $this->contentRepo->updateAssessmentByContentId($contentId, $assessmentData);
+            }
+        }
+        
+        return $result;
     }
 
     /**

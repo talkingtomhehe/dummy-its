@@ -78,7 +78,7 @@ class ContentRepository implements IContentRepository {
 
     public function getContentItemById(int $contentId): ?array {
         $stmt = $this->db->prepare("
-            SELECT ci.*, a.assessment_id, a.assessment_type
+            SELECT ci.*, a.assessment_id, a.assessment_type, a.open_time, a.close_time, a.time_limit
             FROM content_items ci
             LEFT JOIN assessments a ON a.content_id = ci.content_id
             WHERE ci.content_id = :content_id
@@ -186,6 +186,34 @@ class ContentRepository implements IContentRepository {
             'is_visible' => $data['is_visible'] ?? true,
             'display_order' => $data['display_order'] ?? 0,
         ]);
+    }
+
+    public function updateAssessmentByContentId(int $contentId, array $data): bool {
+        // Build dynamic UPDATE query based on provided fields
+        $fields = [];
+        $params = ['content_id' => $contentId];
+        
+        if (isset($data['open_time'])) {
+            $fields[] = 'open_time = :open_time';
+            $params['open_time'] = $data['open_time'];
+        }
+        if (isset($data['close_time'])) {
+            $fields[] = 'close_time = :close_time';
+            $params['close_time'] = $data['close_time'];
+        }
+        if (isset($data['time_limit'])) {
+            $fields[] = 'time_limit = :time_limit';
+            $params['time_limit'] = $data['time_limit'];
+        }
+        
+        if (empty($fields)) {
+            return true; // Nothing to update
+        }
+        
+        $sql = "UPDATE assessments SET " . implode(', ', $fields) . " WHERE content_id = :content_id";
+        $stmt = $this->db->prepare($sql);
+        
+        return $stmt->execute($params);
     }
 
     public function deleteContentItem(int $contentId): bool {

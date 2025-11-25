@@ -472,7 +472,44 @@ function populateContentForm(content) {
         document.getElementById('item-link-url').value = content.content_data || '';
     } else if (normalizedType === 'announcement') {
         document.getElementById('announcement-content').value = content.content_data || '';
+    } else if (normalizedType === 'quiz') {
+        // Populate quiz specific fields
+        document.getElementById('quiz-time-limit').value = content.time_limit || 30;
+        if (content.open_time) {
+            const openTime = formatDateTimeForInput(content.open_time);
+            document.getElementById('quiz-open-time').value = openTime;
+        }
+        if (content.close_time) {
+            const closeTime = formatDateTimeForInput(content.close_time);
+            document.getElementById('quiz-close-time').value = closeTime;
+        }
+    } else if (normalizedType === 'assignment') {
+        // Populate assignment specific fields
+        if (content.open_time) {
+            const openTime = formatDateTimeForInput(content.open_time);
+            document.getElementById('assignment-open-time').value = openTime;
+        }
+        if (content.close_time) {
+            const closeTime = formatDateTimeForInput(content.close_time);
+            document.getElementById('assignment-close-time').value = closeTime;
+        }
     }
+}
+
+// Helper function to format datetime for datetime-local input
+function formatDateTimeForInput(datetimeStr) {
+    if (!datetimeStr) return '';
+    // Convert "2025-11-25 14:30:00" to "2025-11-25T14:30"
+    const dateObj = new Date(datetimeStr);
+    if (isNaN(dateObj.getTime())) return '';
+    
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function editContent(contentId) {

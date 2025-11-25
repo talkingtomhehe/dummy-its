@@ -48,4 +48,6 @@ interface IContentWriter {
      * Create assessment record for quiz or assignment
      */
     public function createAssessment(array $data): int;
+
+    public function updateAssessmentByContentId(int $contentId, array $data): bool;
 }

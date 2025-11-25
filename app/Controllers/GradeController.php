@@ -8,16 +8,19 @@ use App\Models\Repositories\ContentRepository;
 use App\Models\Repositories\ResultRepository;
 use App\Models\Services\ContentService;
 use App\Models\Services\GradeService;
+use App\Models\Services\NotificationService;
 
 class GradeController
 {
     private GradeService $gradeService;
     private ContentService $contentService;
+    private NotificationService $notificationService;
 
-    public function __construct(?GradeService $gradeService = null, ?ContentService $contentService = null)
+    public function __construct(?GradeService $gradeService = null, ?ContentService $contentService = null, ?NotificationService $notificationService = null)
     {
         $this->gradeService = $gradeService ?? new GradeService(new ResultRepository());
         $this->contentService = $contentService ?? new ContentService(new ContentRepository());
+        $this->notificationService = $notificationService ?? new NotificationService();
     }
 
     /**
@@ -134,10 +137,40 @@ class GradeController
         }
 
         try {
+            // Get assignment details for notification
+            $assignmentData = $this->gradeService->getAssignmentSubmissions($assignmentId);
+            $assignmentTitle = $assignmentData['assignment']['title'] ?? 'Assignment';
+            
             $this->gradeService->saveAssignmentGrades($assignmentId, $grades, is_array($feedbacks) ? $feedbacks : []);
+            
+            // Send notifications to students who were graded
+            foreach ($grades as $studentId => $grade) {
+                if ($grade !== null && $grade !== '') {
+                    try {
+                        $this->notificationService->notifyStudentGraded((int)$studentId, $assignmentTitle, 'assignment', true);
+                    } catch (\Throwable $e) {
+                        // Log notification error but don't fail the grading
+                        error_log("Failed to send notification to student {$studentId}: " . $e->getMessage());
+                    }
+                }
+            }
+            
             Session::flash('success', 'Grades saved successfully!');
         } catch (\Throwable $throwable) {
             Session::flash('error', 'Không thể lưu điểm. Vui lòng thử lại: ' . $throwable->getMessage());
+            
+            // Send error notifications
+            foreach ($grades as $studentId => $grade) {
+                if ($grade !== null && $grade !== '') {
+                    try {
+                        $assignmentData = $this->gradeService->getAssignmentSubmissions($assignmentId);
+                        $assignmentTitle = $assignmentData['assignment']['title'] ?? 'Assignment';
+                        $this->notificationService->notifyStudentGraded((int)$studentId, $assignmentTitle, 'assignment', false);
+                    } catch (\Throwable $e) {
+                        error_log("Failed to send error notification to student {$studentId}: " . $e->getMessage());
+                    }
+                }
+            }
         }
 
         redirect_to('/grade/assignment/' . $assignmentId);
@@ -187,6 +220,25 @@ class GradeController
 
         try {
             $this->gradeService->updateFeedback($resultId, $feedback === '' ? null : $feedback);
+            
+            // Get result details for notification
+            $resultData = $this->gradeService->getResultById($resultId);
+            if ($resultData && isset($resultData['user_id'])) {
+                $assessmentTitle = $resultData['assessment_title'] ?? 'Assessment';
+                $assessmentType = $resultData['assessment_type'] ?? 'quiz';
+                
+                try {
+                    $this->notificationService->notifyStudentGraded(
+                        (int)$resultData['user_id'], 
+                        $assessmentTitle, 
+                        $assessmentType, 
+                        true
+                    );
+                } catch (\Throwable $e) {
+                    error_log("Failed to send notification: " . $e->getMessage());
+                }
+            }
+            
             View::json(['success' => true]);
         } catch (\Throwable $throwable) {
             View::json([

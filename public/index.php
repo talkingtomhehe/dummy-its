@@ -288,5 +288,46 @@ $router->get('/grade/quiz/{id}', function($id) {
     (new \App\Controllers\GradeController())->quizGradeReport(['id' => $id]);
 });
 
+// Notification routes
+$router->get('/notifications', function() {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 401);
+        return;
+    }
+    (new \App\Controllers\NotificationController())->getNotifications();
+});
+
+$router->get('/notifications/unread-count', function() {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 401);
+        return;
+    }
+    (new \App\Controllers\NotificationController())->getUnreadCount();
+});
+
+$router->post('/notifications/{id}/read', function($id) {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 401);
+        return;
+    }
+    (new \App\Controllers\NotificationController())->markAsRead(['id' => $id]);
+});
+
+$router->post('/notifications/read-all', function() {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 401);
+        return;
+    }
+    (new \App\Controllers\NotificationController())->markAllAsRead();
+});
+
+$router->post('/notifications/{id}/delete', function($id) {
+    if (!Session::isAuthenticated()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 401);
+        return;
+    }
+    (new \App\Controllers\NotificationController())->deleteNotification(['id' => $id]);
+});
+
 // Dispatch the request
 $router->dispatch();

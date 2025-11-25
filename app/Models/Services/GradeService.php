@@ -234,6 +234,14 @@ class GradeService
     }
 
     /**
+     * Get result by ID
+     */
+    public function getResultById(int $resultId): ?array
+    {
+        return $this->resultRepo->getResultById($resultId);
+    }
+
+    /**
      * Submit assignment.
      */
     public function submitAssignment(int $assessmentId, int $userId, string $filePath): int

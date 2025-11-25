@@ -133,7 +133,8 @@ nav a:hover, nav a.active {
     color: white;
     cursor: pointer;
     transition: opacity 0.3s;
-    padding: 4px; 
+    padding: 4px;
+    position: relative;
 }
 .icon-button:hover {
     opacity: 0.8;
@@ -1156,8 +1157,8 @@ input:checked + .slider:before {
     padding: 10px;
     border-bottom: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
-    min-height: 120px;
-    max-height: 120px;
+    min-height: 150px;
+    max-height: 150px;
     overflow: hidden;
     position: relative;
 }
@@ -1219,6 +1220,22 @@ input:checked + .slider:before {
 }
 .day-event:hover {
     opacity: 0.8;
+}
+.day-event-more {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin-top: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    color: #555;
+    text-align: center;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.day-event-more:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 /* === THÊM MỚI: CSS CHO ASSIGNMENT (TRANG 13, 14) === */
@@ -1584,6 +1601,14 @@ input:checked + .slider:before {
     white-space: nowrap;
 }
 
+/* Truncate text in table cells */
+table td.truncate-cell {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* === BUTTON HOVER EFFECTS === */
 .button:hover,
 button:hover:not(:disabled) {
@@ -1729,5 +1754,253 @@ button:active:not(:disabled) {
 .footer-bottom p {
     margin: 0;
     font-size: 14px;
+}
+
+/* ========== Notification System Styles ========== */
+
+/* Notification Badge */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Notification Dropdown */
+.notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+}
+
+.notification-dropdown.show {
+    display: flex;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.mark-all-read-btn:hover {
+    background-color: rgba(13, 143, 163, 0.1);
+}
+
+.notification-list {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item.unread {
+    background-color: #f0f8ff;
+}
+
+.notification-item.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 80%;
+    background-color: var(--primary-color);
+    border-radius: 0 2px 2px 0;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-icon.success {
+    background-color: #d4edda;
+    color: #28a745;
+}
+
+.notification-icon.error {
+    background-color: #f8d7da;
+    color: #dc3545;
+}
+
+.notification-icon.warning {
+    background-color: #fff3cd;
+    color: #ffc107;
+}
+
+.notification-icon.info {
+    background-color: #d1ecf1;
+    color: #17a2b8;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.notification-delete {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    opacity: 0;
+}
+
+.notification-item:hover .notification-delete {
+    opacity: 1;
+}
+
+.notification-delete:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.notification-loading,
+.notification-empty,
+.notification-error {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+.notification-error {
+    color: #dc3545;
+}
+
+/* Toast Notifications */
+.notification-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.notification.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.notification.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+.notification.fade-out {
+    animation: slideOutRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
 }
 
