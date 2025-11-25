@@ -170,4 +170,39 @@ class ContentService {
     public function getAssessmentsWithSchedule(): array {
         return $this->contentRepo->getAssessmentsWithSchedule();
     }
+
+    /**
+     * Move topic up in display order
+     */
+    public function moveTopicUp(int $topicId): bool {
+        return $this->contentRepo->moveTopicUp($topicId);
+    }
+
+    /**
+     * Move topic down in display order
+     */
+    public function moveTopicDown(int $topicId): bool {
+        return $this->contentRepo->moveTopicDown($topicId);
+    }
+
+    /**
+     * Get student IDs for a subject
+     */
+    public function getStudentIdsBySubject(int $subjectId): array {
+        return $this->contentRepo->getStudentIdsBySubject($subjectId);
+    }
+
+    /**
+     * Get topic details for notifications
+     */
+    public function getTopicDetails(int $topicId): ?array {
+        return $this->contentRepo->getTopicById($topicId);
+    }
+
+    /**
+     * Get subject by ID
+     */
+    public function getSubjectById(int $subjectId): ?array {
+        return $this->contentRepo->getSubjectById($subjectId);
+    }
 }

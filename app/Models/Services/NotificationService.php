@@ -17,10 +17,12 @@ class NotificationService {
     /**
      * Create a grading notification for a student
      */
-    public function notifyStudentGraded(int $studentId, string $assessmentTitle, string $assessmentType, bool $success = true): void {
-        $title = $success ? "Grade Posted" : "Grading Error";
+    public function notifyStudentGraded(int $studentId, string $assessmentTitle, string $assessmentType, bool $success = true, bool $hasFeedback = false): void {
+        $title = $success ? ($hasFeedback ? "Feedback Posted" : "Grade Posted") : "Grading Error";
         $message = $success 
-            ? "Your {$assessmentType} '{$assessmentTitle}' has been graded."
+            ? ($hasFeedback 
+                ? "Your {$assessmentType} '{$assessmentTitle}' has received feedback from your instructor."
+                : "Your {$assessmentType} '{$assessmentTitle}' has been graded.")
             : "There was an error grading your {$assessmentType} '{$assessmentTitle}'.";
         
         $this->notificationRepo->createNotification([
@@ -31,6 +33,54 @@ class NotificationService {
             'related_type' => $assessmentType,
             'related_id' => null,
         ]);
+    }
+
+    /**
+     * Notify students when new topic is added
+     */
+    public function notifyStudentsNewTopic(array $studentIds, string $topicTitle, string $courseName): void {
+        foreach ($studentIds as $studentId) {
+            $this->notificationRepo->createNotification([
+                'user_id' => $studentId,
+                'title' => "New Topic Added",
+                'message' => "A new topic '{$topicTitle}' has been added to {$courseName}.",
+                'type' => 'info',
+                'related_type' => 'topic',
+                'related_id' => null,
+            ]);
+        }
+    }
+
+    /**
+     * Notify students when new content is added
+     */
+    public function notifyStudentsNewContent(array $studentIds, string $contentTitle, string $topicTitle, string $courseName): void {
+        foreach ($studentIds as $studentId) {
+            $this->notificationRepo->createNotification([
+                'user_id' => $studentId,
+                'title' => "New Content Available",
+                'message' => "New content '{$contentTitle}' has been added to {$topicTitle} in {$courseName}.",
+                'type' => 'info',
+                'related_type' => 'content',
+                'related_id' => null,
+            ]);
+        }
+    }
+
+    /**
+     * Notify students when content is modified
+     */
+    public function notifyStudentsContentModified(array $studentIds, string $contentTitle, string $courseName): void {
+        foreach ($studentIds as $studentId) {
+            $this->notificationRepo->createNotification([
+                'user_id' => $studentId,
+                'title' => "Content Updated",
+                'message' => "'{$contentTitle}' in {$courseName} has been updated.",
+                'type' => 'info',
+                'related_type' => 'content',
+                'related_id' => null,
+            ]);
+        }
     }
 
     /**

@@ -87,6 +87,12 @@ require_once __DIR__ . '/../layouts/header.php';
                                 <span class="section-title"><?= htmlspecialchars($topic['name']) ?></span>
                             </div>
                             <div class="section-actions instructor-controls item-controls" style="display: <?= \App\Core\Session::get('is_editing', false) ? 'flex' : 'none' ?>;">
+                                <button class="button button-icon" onclick="moveTopicUp(<?= $topic['id'] ?>)" title="Move Up">
+                                    <i data-feather="arrow-up"></i>
+                                </button>
+                                <button class="button button-icon" onclick="moveTopicDown(<?= $topic['id'] ?>)" title="Move Down">
+                                    <i data-feather="arrow-down"></i>
+                                </button>
                                 <button class="button button-icon button-danger" onclick="deleteTopic(<?= $topic['id'] ?>)" title="Delete Topic">
                                     <i data-feather="trash-2"></i>
                                 </button>
@@ -591,6 +597,44 @@ function submitTopicForm(e) {
                 showNotification('Error: ' + (data.error || 'Unknown error'), 'error');
             }
         });
+}
+
+function moveTopicUp(topicId) {
+    if (!confirm('Move this topic up?')) return;
+    
+    fetch(`${BASE_URL}/topic/${topicId}/move-up`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Topic moved successfully!', 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showNotification('Error: ' + (data.error || 'Cannot move topic up'), 'error');
+        }
+    })
+    .catch(err => showNotification('Error: ' + err.message, 'error'));
+}
+
+function moveTopicDown(topicId) {
+    if (!confirm('Move this topic down?')) return;
+    
+    fetch(`${BASE_URL}/topic/${topicId}/move-down`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Topic moved successfully!', 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showNotification('Error: ' + (data.error || 'Cannot move topic down'), 'error');
+        }
+    })
+    .catch(err => showNotification('Error: ' + err.message, 'error'));
 }
 
 function submitContentForm(e) {

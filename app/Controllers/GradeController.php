@@ -147,7 +147,8 @@ class GradeController
             foreach ($grades as $studentId => $grade) {
                 if ($grade !== null && $grade !== '') {
                     try {
-                        $this->notificationService->notifyStudentGraded((int)$studentId, $assignmentTitle, 'assignment', true);
+                        $hasFeedback = isset($feedbacks[$studentId]) && !empty(trim($feedbacks[$studentId]));
+                        $this->notificationService->notifyStudentGraded((int)$studentId, $assignmentTitle, 'assignment', true, $hasFeedback);
                     } catch (\Throwable $e) {
                         // Log notification error but don't fail the grading
                         error_log("Failed to send notification to student {$studentId}: " . $e->getMessage());
@@ -226,13 +227,15 @@ class GradeController
             if ($resultData && isset($resultData['user_id'])) {
                 $assessmentTitle = $resultData['assessment_title'] ?? 'Assessment';
                 $assessmentType = $resultData['assessment_type'] ?? 'quiz';
+                $hasFeedback = !empty(trim($feedback));
                 
                 try {
                     $this->notificationService->notifyStudentGraded(
                         (int)$resultData['user_id'], 
                         $assessmentTitle, 
                         $assessmentType, 
-                        true
+                        true,
+                        $hasFeedback
                     );
                 } catch (\Throwable $e) {
                     error_log("Failed to send notification: " . $e->getMessage());

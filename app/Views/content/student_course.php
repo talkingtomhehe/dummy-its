@@ -134,18 +134,23 @@ require_once __DIR__ . '/../layouts/header.php';
                         <table class="grading-table">
                             <thead>
                                 <tr>
-                                    <th>Assessment</th>
-                                    <th>Type</th>
-                                    <th>Grade</th>
-                                    <th>Feedback</th>
-                                    <th>Submitted</th>
+                                    <th style="width: 30%;">Assessment</th>
+                                    <th style="width: 12%;">Type</th>
+                                    <th style="width: 15%;">Grade</th>
+                                    <th style="width: 18%;">Actions</th>
+                                    <th style="width: 25%;">Submitted</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($grades ?? [] as $grade): ?>
                                 <tr>
-                                    <td>
-                                        <strong><?= htmlspecialchars($grade['title'] ?? 'Assessment') ?></strong>
+                                    <td class="truncate-cell" title="<?= htmlspecialchars($grade['title'] ?? 'Assessment') ?>">
+                                        <strong>
+                                            <?php 
+                                            $title = htmlspecialchars($grade['title'] ?? 'Assessment');
+                                            echo (strlen($title) > 50) ? substr($title, 0, 47) . '...' : $title;
+                                            ?>
+                                        </strong>
                                     </td>
                                     <td><?= ucfirst(htmlspecialchars($grade['type'] ?? 'N/A')) ?></td>
                                     <td>
@@ -157,7 +162,21 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <span style="color: #777;">Not graded</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?= htmlspecialchars($grade['feedback'] ?? '-') ?></td>
+                                    <td>
+                                        <?php if ($grade['type'] === 'quiz' && isset($grade['score']) && $grade['score'] !== null): ?>
+                                            <a href="<?= BASE_URL ?>/quiz/<?= $grade['assessment_id'] ?>/results" class="button button-secondary" style="font-size: 14px;">
+                                                <i data-feather="eye"></i> View Results
+                                            </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (isset($grade['score']) && $grade['score'] !== null && !empty($grade['feedback'])): ?>
+                                            <button class="button button-secondary" onclick="showFeedbackModal('<?= addslashes(htmlspecialchars($grade['title'] ?? 'Assessment', ENT_QUOTES)) ?>', '<?= addslashes(htmlspecialchars($grade['feedback'], ENT_QUOTES)) ?>')" style="font-size: 14px; <?= ($grade['type'] === 'quiz') ? 'margin-left: 5px;' : '' ?>">
+                                                <i data-feather="message-square"></i> View Feedback
+                                            </button>
+                                        <?php elseif (!isset($grade['score']) || $grade['score'] === null): ?>
+                                            <span style="color: #999;">Not graded</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <?php if (!empty($grade['submitted_at'])): ?>
                                             <?= date('M d, Y H:i', strtotime($grade['submitted_at'])) ?>
@@ -182,7 +201,45 @@ require_once __DIR__ . '/../layouts/header.php';
     <i data-feather="help-circle"></i>
 </button>
 
+<!-- Student Feedback View Modal -->
+<div id="student-feedback-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title" id="feedback-modal-title">Instructor Feedback</h2>
+            <button class="modal-close" onclick="closeStudentFeedbackModal()"><i data-feather="x"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Feedback:</label>
+                <p id="student-feedback-text" style="white-space: pre-wrap; padding: 15px; background: #f9f9f9; border-radius: 6px; border: 1px solid var(--border-color); line-height: 1.6;"></p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="button button-primary" onclick="closeStudentFeedbackModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    function showFeedbackModal(title, feedback) {
+        document.getElementById('feedback-modal-title').textContent = 'Feedback: ' + title;
+        document.getElementById('student-feedback-text').textContent = feedback;
+        document.getElementById('student-feedback-modal').style.display = 'flex';
+        feather.replace();
+    }
+
+    function closeStudentFeedbackModal() {
+        document.getElementById('student-feedback-modal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('student-feedback-modal');
+        if (event.target === modal) {
+            closeStudentFeedbackModal();
+        }
+    });
+
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', function() {

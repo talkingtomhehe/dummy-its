@@ -5,6 +5,7 @@ use App\Core\Session;
 use App\Core\View;
 use App\Models\Services\ContentService;
 use App\Models\Services\GradeService;
+use App\Models\Services\NotificationService;
 use App\Models\Repositories\ContentRepository;
 use App\Models\Repositories\ResultRepository;
 
@@ -18,11 +19,13 @@ use App\Models\Repositories\ResultRepository;
 class ContentController {
     private ContentService $contentService;
     private GradeService $gradeService;
+    private NotificationService $notificationService;
 
-    public function __construct(?ContentService $contentService = null, ?GradeService $gradeService = null) {
+    public function __construct(?ContentService $contentService = null, ?GradeService $gradeService = null, ?NotificationService $notificationService = null) {
         // SOLID: DIP - allow dependency injection, default to in-project wiring
         $this->contentService = $contentService ?? new ContentService(new ContentRepository());
         $this->gradeService = $gradeService ?? new GradeService(new ResultRepository());
+        $this->notificationService = $notificationService ?? new NotificationService();
     }
 
     /**
@@ -221,6 +224,26 @@ class ContentController {
             }
 
             $contentId = $this->contentService->createContentItem($data);
+            
+            // Send notifications to students
+            try {
+                $topic = $this->contentService->getTopicDetails($data['topic_id']);
+                if ($topic) {
+                    $subject = $this->contentService->getSubjectById($topic['subject_id']);
+                    if ($subject) {
+                        $studentIds = $this->contentService->getStudentIdsBySubject($topic['subject_id']);
+                        $this->notificationService->notifyStudentsNewContent(
+                            $studentIds,
+                            $data['title'],
+                            $topic['topic_title'],
+                            $subject['subject_name']
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                error_log("Failed to send content creation notifications: " . $e->getMessage());
+            }
+            
             View::json(['success' => true, 'content_id' => $contentId]);
         } catch (\Exception $e) {
             View::json(['error' => $e->getMessage()], 400);
@@ -361,6 +384,27 @@ class ContentController {
                 return;
             }
 
+            // Send notifications to students about content update
+            try {
+                $content = $this->contentService->getContentItem($contentId);
+                if ($content) {
+                    $topic = $this->contentService->getTopicDetails($content['topic_id']);
+                    if ($topic) {
+                        $subject = $this->contentService->getSubjectById($topic['subject_id']);
+                        if ($subject) {
+                            $studentIds = $this->contentService->getStudentIdsBySubject($topic['subject_id']);
+                            $this->notificationService->notifyStudentsContentModified(
+                                $studentIds,
+                                $updateData['title'],
+                                $subject['subject_name']
+                            );
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                error_log("Failed to send content update notifications: " . $e->getMessage());
+            }
+
             View::json(['success' => true, 'content_id' => $contentId]);
         } catch (\Throwable $throwable) {
             View::json(['error' => $throwable->getMessage()], 400);
@@ -390,6 +434,22 @@ class ContentController {
             ];
 
             $topicId = $this->contentService->createTopic($data);
+            
+            // Send notifications to students
+            try {
+                $subject = $this->contentService->getSubjectById($data['subject_id']);
+                if ($subject) {
+                    $studentIds = $this->contentService->getStudentIdsBySubject($data['subject_id']);
+                    $this->notificationService->notifyStudentsNewTopic(
+                        $studentIds,
+                        $data['topic_title'],
+                        $subject['subject_name']
+                    );
+                }
+            } catch (\Exception $e) {
+                error_log("Failed to send topic creation notifications: " . $e->getMessage());
+            }
+            
             View::json(['success' => true, 'topic_id' => $topicId]);
         } catch (\Exception $e) {
             View::json(['error' => $e->getMessage()], 400);
@@ -520,6 +580,52 @@ class ContentController {
         } catch (\Exception $e) {
             Session::flash('error', $e->getMessage());
             View::redirect('/dashboard');
+        }
+    }
+
+    /**
+     * Move topic up (Instructor only)
+     */
+    public function moveTopicUp($params): void {
+        if (!Session::isInstructor()) {
+            View::json(['error' => 'Unauthorized'], 403);
+            return;
+        }
+
+        $topicId = isset($params['id']) ? (int) $params['id'] : 0;
+        if ($topicId <= 0) {
+            View::json(['error' => 'Invalid topic ID'], 400);
+            return;
+        }
+
+        try {
+            $result = $this->contentService->moveTopicUp($topicId);
+            View::json(['success' => $result]);
+        } catch (\Exception $e) {
+            View::json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Move topic down (Instructor only)
+     */
+    public function moveTopicDown($params): void {
+        if (!Session::isInstructor()) {
+            View::json(['error' => 'Unauthorized'], 403);
+            return;
+        }
+
+        $topicId = isset($params['id']) ? (int) $params['id'] : 0;
+        if ($topicId <= 0) {
+            View::json(['error' => 'Invalid topic ID'], 400);
+            return;
+        }
+
+        try {
+            $result = $this->contentService->moveTopicDown($topicId);
+            View::json(['success' => $result]);
+        } catch (\Exception $e) {
+            View::json(['error' => $e->getMessage()], 500);
         }
     }
 }

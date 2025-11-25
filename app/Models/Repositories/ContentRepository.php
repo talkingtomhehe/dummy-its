@@ -268,4 +268,84 @@ class ContentRepository implements IContentRepository {
         
         return (int) $this->db->lastInsertId();
     }
+
+    public function moveTopicUp(int $topicId): bool {
+        $topic = $this->getTopicById($topicId);
+        if (!$topic) return false;
+
+        // Get the previous topic with lower display_order in the same subject
+        $stmt = $this->db->prepare("
+            SELECT * FROM topics 
+            WHERE subject_id = :subject_id AND display_order < :current_order
+            ORDER BY display_order DESC
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'subject_id' => $topic['subject_id'],
+            'current_order' => $topic['display_order']
+        ]);
+        $prevTopic = $stmt->fetch();
+
+        if (!$prevTopic) return false;
+
+        // Swap display_order
+        $this->db->beginTransaction();
+        try {
+            $tempOrder = -999999;
+            $update1 = $this->db->prepare("UPDATE topics SET display_order = :order WHERE topic_id = :id");
+            $update1->execute(['order' => $tempOrder, 'id' => $topicId]);
+            $update1->execute(['order' => $topic['display_order'], 'id' => $prevTopic['topic_id']]);
+            $update1->execute(['order' => $prevTopic['display_order'], 'id' => $topicId]);
+            
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+
+    public function moveTopicDown(int $topicId): bool {
+        $topic = $this->getTopicById($topicId);
+        if (!$topic) return false;
+
+        // Get the next topic with higher display_order in the same subject
+        $stmt = $this->db->prepare("
+            SELECT * FROM topics 
+            WHERE subject_id = :subject_id AND display_order > :current_order
+            ORDER BY display_order ASC
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'subject_id' => $topic['subject_id'],
+            'current_order' => $topic['display_order']
+        ]);
+        $nextTopic = $stmt->fetch();
+
+        if (!$nextTopic) return false;
+
+        // Swap display_order
+        $this->db->beginTransaction();
+        try {
+            $tempOrder = -999999;
+            $update1 = $this->db->prepare("UPDATE topics SET display_order = :order WHERE topic_id = :id");
+            $update1->execute(['order' => $tempOrder, 'id' => $topicId]);
+            $update1->execute(['order' => $topic['display_order'], 'id' => $nextTopic['topic_id']]);
+            $update1->execute(['order' => $nextTopic['display_order'], 'id' => $topicId]);
+            
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+
+    public function getStudentIdsBySubject(int $subjectId): array {
+        // For now, return all students. In a real app, this would return enrolled students
+        $stmt = $this->db->prepare("SELECT user_id FROM users WHERE role = 'student'");
+        $stmt->execute();
+        $users = $stmt->fetchAll();
+        return array_column($users, 'user_id');
+    }
 }

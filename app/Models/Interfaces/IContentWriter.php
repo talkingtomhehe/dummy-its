@@ -50,4 +50,19 @@ interface IContentWriter {
     public function createAssessment(array $data): int;
 
     public function updateAssessmentByContentId(int $contentId, array $data): bool;
+
+    /**
+     * Move topic up in display order
+     */
+    public function moveTopicUp(int $topicId): bool;
+
+    /**
+     * Move topic down in display order
+     */
+    public function moveTopicDown(int $topicId): bool;
+
+    /**
+     * Get student IDs for a subject
+     */
+    public function getStudentIdsBySubject(int $subjectId): array;
 }

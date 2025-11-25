@@ -7,21 +7,29 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
         <div class="back-to-course-box">
             <a href="<?= BASE_URL ?>/course">
                 <i data-feather="arrow-left"></i>
-                <span>Back to course</span>
+                <span>Back</span>
             </a>
         </div>
         <h1 class="course-title">Chấm điểm: <?= htmlspecialchars($assignment['title']) ?></h1>
         
         <?php if ($successMessage = \App\Core\Session::getFlash('success')): ?>
-            <div class="alert alert-success" style="margin-bottom: 20px;">
-                <?= htmlspecialchars($successMessage) ?>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof showNotification === 'function') {
+                        showNotification('<?= addslashes($successMessage) ?>', 'success');
+                    }
+                });
+            </script>
         <?php endif; ?>
         
         <?php if ($errorMessage = \App\Core\Session::getFlash('error')): ?>
-            <div class="alert alert-danger" style="margin-bottom: 20px;">
-                <?= htmlspecialchars($errorMessage) ?>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof showNotification === 'function') {
+                        showNotification('<?= addslashes($errorMessage) ?>', 'error');
+                    }
+                });
+            </script>
         <?php endif; ?>
         
         <div class="chart-container">

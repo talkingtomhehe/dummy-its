@@ -119,6 +119,12 @@ $router->post('/topic/create', 'ContentController@createTopic');
 $router->post('/topic/delete/{id}', function($id) {
     (new \App\Controllers\ContentController())->deleteTopic(['id' => (int) $id]);
 });
+$router->post('/topic/{id}/move-up', function($id) {
+    (new \App\Controllers\ContentController())->moveTopicUp(['id' => (int) $id]);
+});
+$router->post('/topic/{id}/move-down', function($id) {
+    (new \App\Controllers\ContentController())->moveTopicDown(['id' => (int) $id]);
+});
 
 // Quiz routes
 $router->get('/quiz/{id}', function($id) {
