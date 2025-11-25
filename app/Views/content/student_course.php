@@ -163,14 +163,8 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($grade['type'] === 'quiz' && isset($grade['score']) && $grade['score'] !== null): ?>
-                                            <a href="<?= BASE_URL ?>/quiz/<?= $grade['assessment_id'] ?>/results" class="button button-secondary" style="font-size: 14px;">
-                                                <i data-feather="eye"></i> View Results
-                                            </a>
-                                        <?php endif; ?>
-                                        
                                         <?php if (isset($grade['score']) && $grade['score'] !== null && !empty($grade['feedback'])): ?>
-                                            <button class="button button-secondary" onclick="showFeedbackModal('<?= addslashes(htmlspecialchars($grade['title'] ?? 'Assessment', ENT_QUOTES)) ?>', '<?= addslashes(htmlspecialchars($grade['feedback'], ENT_QUOTES)) ?>')" style="font-size: 14px; <?= ($grade['type'] === 'quiz') ? 'margin-left: 5px;' : '' ?>">
+                                            <button class="button button-secondary" onclick="showFeedbackModal('<?= addslashes(htmlspecialchars($grade['title'] ?? 'Assessment', ENT_QUOTES)) ?>', '<?= addslashes(htmlspecialchars($grade['feedback'], ENT_QUOTES)) ?>')" style="font-size: 14px;">
                                                 <i data-feather="message-square"></i> View Feedback
                                             </button>
                                         <?php elseif (!isset($grade['score']) || $grade['score'] === null): ?>

@@ -11,20 +11,20 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
             </a>
         </div>
         <h1 class="course-title" style="color: var(--primary-color); display: flex; align-items: center; gap: 10px;">
-            <i data-feather="clipboard" style="width: 28px; height: 28px;"></i>
-            <span><?= htmlspecialchars($assignment['title'] ?? 'Assignment') ?></span>
+            <i data-feather="help-circle" style="width: 28px; height: 28px;"></i>
+            <span><?= htmlspecialchars($quiz['title'] ?? 'Quiz') ?></span>
         </h1>
 
         <?php
-        $openTime = $assignment['open_time'] ?? null;
-        $dueTime = $assignment['close_time'] ?? $assignment['due_time'] ?? null;
+        $openTime = $quiz['open_time'] ?? null;
+        $dueTime = $quiz['close_time'] ?? $quiz['due_time'] ?? null;
         ?>
         <div class="submission-info-box">
             <strong>Opened:</strong> <?= $openTime ? date('l, d F Y, g:i A', strtotime($openTime)) : 'Not set' ?><br>
             <strong>Due:</strong> <?= $dueTime ? date('l, d F Y, g:i A', strtotime($dueTime)) : 'Not set' ?>
         </div>
 
-        <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-top: 30px; margin-bottom: 20px;">Submission Statistics</h2>
+        <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-top: 30px; margin-bottom: 20px;">Quiz Statistics</h2>
         
         <table class="submission-status-table">
             <tbody>
@@ -33,30 +33,37 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                     <td><?= $totalStudents ?? 0 ?></td>
                 </tr>
                 <tr>
-                    <th>Submitted</th>
-                    <td style="color: var(--success-color); font-weight: 600;"><?= $submittedCount ?? 0 ?></td>
+                    <th>Completed</th>
+                    <td style="color: var(--success-color); font-weight: 600;"><?= $completedCount ?? 0 ?></td>
                 </tr>
                 <tr>
-                    <th>Not Submitted</th>
-                    <td style="color: var(--danger-color); font-weight: 600;"><?= $notSubmittedCount ?? 0 ?></td>
+                    <th>Not Completed</th>
+                    <td style="color: var(--danger-color); font-weight: 600;"><?= $notCompletedCount ?? 0 ?></td>
                 </tr>
                 <tr>
-                    <th>Submission Rate</th>
+                    <th>Completion Rate</th>
                     <td>
                         <?php 
                         $total = $totalStudents ?? 0;
-                        $submitted = $submittedCount ?? 0;
-                        $rate = $total > 0 ? round(($submitted / $total) * 100, 1) : 0;
+                        $completed = $completedCount ?? 0;
+                        $rate = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
                         ?>
                         <span style="font-weight: 600;"><?= $rate ?>%</span>
                     </td>
+                </tr>
+                <tr>
+                    <th>Total Questions</th>
+                    <td><?= $totalQuestions ?? 0 ?></td>
                 </tr>
             </tbody>
         </table>
 
         <div class="submission-controls" style="margin-top: 30px;">
-            <button class="button button-primary button-large" onclick="window.location.href='<?= base_url('/grade/assignment/' . $assignment['id']) ?>'">
-                <i data-feather="edit"></i> Grade Submissions
+            <button class="button button-primary button-large" onclick="window.location.href='<?= base_url('/quiz/' . $quiz['id'] . '/manage') ?>'">
+                <i data-feather="edit"></i> Manage Questions
+            </button>
+            <button class="button button-secondary button-large" onclick="window.location.href='<?= base_url('/grade/quiz/' . $quiz['id']) ?>'" style="margin-left: 10px;">
+                <i data-feather="bar-chart-2"></i> View Results
             </button>
         </div>
     </main>

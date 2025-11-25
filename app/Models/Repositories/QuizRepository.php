@@ -315,4 +315,33 @@ class QuizRepository implements IQuizRepository {
 
         return true;
     }
+
+    public function getQuizStatistics(int $assessmentId): array {
+        // Get total enrolled students for the course
+        $stmt = $this->db->prepare('
+            SELECT COUNT(DISTINCT e.user_id) as total_students
+            FROM assessments a
+            JOIN topics t ON a.topic_id = t.topic_id
+            JOIN enrollments e ON e.subject_id = t.subject_id
+            WHERE a.assessment_id = :assessment_id
+        ');
+        $stmt->execute(['assessment_id' => $assessmentId]);
+        $totalStudents = (int)($stmt->fetch()['total_students'] ?? 0);
+
+        // Get number of students who completed the quiz
+        $stmt = $this->db->prepare('
+            SELECT COUNT(DISTINCT COALESCE(ar.student_id, ar.user_id)) as completed_count
+            FROM assessment_results ar
+            WHERE ar.assessment_id = :assessment_id
+            AND ar.status IN (\'completed\', \'graded\')
+        ');
+        $stmt->execute(['assessment_id' => $assessmentId]);
+        $completedCount = (int)($stmt->fetch()['completed_count'] ?? 0);
+
+        return [
+            'total_students' => $totalStudents,
+            'completed_count' => $completedCount,
+            'not_completed_count' => $totalStudents - $completedCount,
+        ];
+    }
 }

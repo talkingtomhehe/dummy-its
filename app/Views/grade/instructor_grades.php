@@ -7,7 +7,7 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
         <div class="back-to-course-box">
             <a href="<?= BASE_URL ?>/course">
                 <i data-feather="arrow-left"></i>
-                <span>Back</span>
+                <span>Back to course</span>
             </a>
         </div>
         <h1 class="course-title">Grades: <?= htmlspecialchars($courseName) ?></h1>

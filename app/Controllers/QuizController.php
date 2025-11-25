@@ -31,9 +31,9 @@ class QuizController
             return;
         }
 
-        // If instructor, redirect to manage page
+        // If instructor, redirect to instructor view page
         if (Session::isInstructor()) {
-            View::redirect('/quiz/' . $quizId . '/manage');
+            $this->instructorView($params);
             return;
         }
 
@@ -59,6 +59,42 @@ class QuizController
                 'quiz' => $quiz,
                 'hasAttempt' => false,
                 'canTake' => (bool)($overview['can_attempt'] ?? false),
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/dashboard');
+        }
+    }
+
+    public function instructorView($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+
+        if ($quizId <= 0) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        try {
+            $payload = $this->quizService->getQuizManagementData($quizId);
+            $quiz = $this->formatQuizForView($payload['quiz'] ?? []);
+            $questions = $this->formatQuestionsForView($payload['questions'] ?? []);
+            
+            // Get quiz statistics
+            $totalQuestions = count($questions);
+            
+            // TODO: Get actual student statistics from database
+            // For now, using placeholder values
+            $totalStudents = 0;
+            $completedCount = 0;
+            $notCompletedCount = 0;
+
+            View::render('quiz/instructor_view', [
+                'quiz' => $quiz,
+                'totalStudents' => $totalStudents,
+                'completedCount' => $completedCount,
+                'notCompletedCount' => $notCompletedCount,
+                'totalQuestions' => $totalQuestions,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());

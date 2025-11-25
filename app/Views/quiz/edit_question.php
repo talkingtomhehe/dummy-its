@@ -4,6 +4,12 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">
+        <div class="back-to-course-box">
+            <a href="<?= base_url('/quiz/' . $quizId . '/manage') ?>">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
+        </div>
         <h1 class="course-title"><?= isset($question) ? 'Chỉnh sửa câu hỏi' : 'Thêm câu hỏi mới' ?></h1>
 
         <form class="edit-question-form" id="edit-question-form" method="POST" action="<?= base_url('/quiz/question/' . ($question['id'] ?? 'new') . '/save') ?>">

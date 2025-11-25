@@ -876,14 +876,43 @@ function displayNotifications(notifications) {
             </button>
         `;
         
-        // Mark as read when clicked
-        if (!notification.is_read) {
-            notifElement.addEventListener('click', function(e) {
-                if (!e.target.closest('.notification-delete')) {
+        // Handle notification click to navigate to related content
+        notifElement.addEventListener('click', function(e) {
+            if (!e.target.closest('.notification-delete')) {
+                // Mark as read if not already
+                if (!notification.is_read) {
                     markNotificationAsRead(notification.notification_id);
                 }
-            });
-        }
+                
+                // Navigate to related content if available
+                if (notification.related_type && notification.related_id) {
+                    const baseUrl = document.body.dataset.baseUrl || '/its';
+                    let url = '';
+                    
+                    switch (notification.related_type) {
+                        case 'content':
+                            url = `${baseUrl}/content/${notification.related_id}/view`;
+                            break;
+                        case 'quiz':
+                            url = `${baseUrl}/quiz/${notification.related_id}`;
+                            break;
+                        case 'assignment':
+                            url = `${baseUrl}/assignment/${notification.related_id}/status`;
+                            break;
+                        case 'course':
+                            url = `${baseUrl}/course/${notification.related_id}`;
+                            break;
+                        default:
+                            // If related type is not recognized, don't navigate
+                            return;
+                    }
+                    
+                    if (url) {
+                        window.location.href = url;
+                    }
+                }
+            }
+        });
         
         notificationList.appendChild(notifElement);
     });

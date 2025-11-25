@@ -4,6 +4,12 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
 
 <div class="container">
     <main class="main">
+        <div class="back-to-course-box">
+            <a href="<?= base_url('/quiz/' . $quiz['id']) ?>">
+                <i data-feather="arrow-left"></i>
+                <span>Back to course</span>
+            </a>
+        </div>
         <h1 class="course-title">Quản lý Quiz: <?= htmlspecialchars($quiz['title']) ?></h1>
 
         <div class="page-controls">
