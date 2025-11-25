@@ -242,6 +242,19 @@ class GradeService
     }
 
     /**
+     * Delete a result/attempt
+     */
+    public function deleteResult(int $resultId): bool
+    {
+        $result = $this->resultRepo->getResultById($resultId);
+        if (!$result) {
+            throw new \InvalidArgumentException('Result not found.');
+        }
+        
+        return $this->resultRepo->deleteResult($resultId);
+    }
+
+    /**
      * Submit assignment.
      */
     public function submitAssignment(int $assessmentId, int $userId, string $filePath): int

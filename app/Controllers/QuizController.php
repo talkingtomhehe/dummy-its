@@ -184,6 +184,45 @@ class QuizController
         }
     }
 
+    public function review($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+        $studentId = (int)Session::get('user_id');
+        $requestedResultId = isset($_GET['result_id']) ? (int)$_GET['result_id'] : null;
+
+        if ($quizId <= 0 || !$studentId) {
+            View::redirect('/dashboard');
+            return;
+        }
+
+        try {
+            $payload = $this->quizService->getQuizResult($quizId, $studentId, $requestedResultId);
+            $quiz = $this->formatQuizForView($payload['quiz'] ?? []);
+            $questions = $this->formatQuestionsForView($payload['questions'] ?? []);
+            $result = $payload['result'] ?? [];
+
+            $stats = $this->calculateResultStatistics(
+                $questions,
+                $payload['answers'] ?? [],
+                (float)($result['score'] ?? 0),
+                (float)($payload['max_score'] ?? 10)
+            );
+
+            View::render('quiz/review_quiz', [
+                'quiz' => $quiz,
+                'result' => $result,
+                'questions' => $questions,
+                'answers' => $payload['answers'] ?? [],
+                'totalQuestions' => $stats['total_questions'],
+                'correctAnswers' => $stats['correct_answers'],
+                'courseId' => $quiz['subject_id'] ?? null,
+            ]);
+        } catch (\Throwable $exception) {
+            Session::flash('error', $exception->getMessage());
+            View::redirect('/quiz/' . $quizId . '/results');
+        }
+    }
+
     public function manage($params): void
     {
         $quizId = isset($params['id']) ? (int)$params['id'] : 0;

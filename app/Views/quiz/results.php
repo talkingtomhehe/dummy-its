@@ -61,7 +61,10 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                 </tr>
             </tbody>
         </table>
-        <div class="page-controls" style="justify-content: center;">
+        <div class="page-controls" style="justify-content: center; gap: 10px;">
+            <button class="button button-secondary" onclick="window.location.href='<?= base_url('/quiz/' . $quiz['id'] . '/review?result_id=' . ($result['result_id'] ?? '')) ?>'">
+                <i data-feather="eye"></i> Xem lại bài làm
+            </button>
             <button class="button button-primary" onclick="window.location.href='<?= base_url('/course/' . $courseId) ?>'">Quay về khóa học</button>
         </div>
     </main>

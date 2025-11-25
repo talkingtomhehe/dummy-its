@@ -28,12 +28,29 @@ class QuizAssessment implements IAssessment {
             if ($questionType === 'mc-multi') {
                 $studentOptions = is_array($response) ? array_map('strval', $response) : [];
                 $correctOptions = array_map('strval', (array)$expected);
-                sort($studentOptions);
-                sort($correctOptions);
-
-                if ($studentOptions === $correctOptions) {
-                    $earnedPoints += $points;
+                
+                if (empty($correctOptions)) {
+                    continue;
                 }
+                
+                // Calculate partial credit
+                $numCorrect = count($correctOptions);
+                $numCorrectSelected = 0;
+                $numIncorrectSelected = 0;
+                
+                foreach ($studentOptions as $selected) {
+                    if (in_array($selected, $correctOptions, true)) {
+                        $numCorrectSelected++;
+                    } else {
+                        $numIncorrectSelected++;
+                    }
+                }
+                
+                // Award points: each correct answer is worth 1/n of total points
+                // Subtract points for incorrect selections
+                $pointsPerCorrect = $points / $numCorrect;
+                $earnedForQuestion = ($numCorrectSelected * $pointsPerCorrect) - ($numIncorrectSelected * $pointsPerCorrect);
+                $earnedPoints += max(0, $earnedForQuestion); // Don't allow negative points
 
                 continue;
             }

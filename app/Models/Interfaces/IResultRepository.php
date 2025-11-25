@@ -29,4 +29,6 @@ interface IResultRepository
     public function getGradeStatistics(int $assessmentId): array;
 
     public function getGradesBySubject(int $subjectId, ?int $userId = null): array;
+
+    public function deleteResult(int $resultId): bool;
 }

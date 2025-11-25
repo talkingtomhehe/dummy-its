@@ -166,26 +166,49 @@ class ContentRepository implements IContentRepository {
     }
 
     public function updateContentItem(int $contentId, array $data): bool {
-        $stmt = $this->db->prepare("
-            UPDATE content_items 
-            SET title = :title,
-                content_type = :content_type,
-                content_data = :content_data,
-                file_path = :file_path,
-                is_visible = :is_visible,
-                display_order = :display_order
-            WHERE content_id = :content_id
-        ");
-        
-        return $stmt->execute([
-            'content_id' => $contentId,
-            'title' => $data['title'],
-            'content_type' => $data['content_type'],
-            'content_data' => $data['content_data'] ?? null,
-            'file_path' => $data['file_path'] ?? null,
-            'is_visible' => $data['is_visible'] ?? true,
-            'display_order' => $data['display_order'] ?? 0,
-        ]);
+        try {
+            $this->db->beginTransaction();
+            
+            $stmt = $this->db->prepare("
+                UPDATE content_items 
+                SET title = :title,
+                    content_type = :content_type,
+                    content_data = :content_data,
+                    file_path = :file_path,
+                    is_visible = :is_visible,
+                    display_order = :display_order
+                WHERE content_id = :content_id
+            ");
+            
+            $result = $stmt->execute([
+                'content_id' => $contentId,
+                'title' => $data['title'],
+                'content_type' => $data['content_type'],
+                'content_data' => $data['content_data'] ?? null,
+                'file_path' => $data['file_path'] ?? null,
+                'is_visible' => $data['is_visible'] ?? true,
+                'display_order' => $data['display_order'] ?? 0,
+            ]);
+            
+            // Also update the title in the assessment table if this is a quiz/assignment
+            if ($result && in_array($data['content_type'], ['quiz', 'assignment'], true)) {
+                $assessmentStmt = $this->db->prepare("
+                    UPDATE assessments 
+                    SET title = :title
+                    WHERE content_id = :content_id
+                ");
+                $assessmentStmt->execute([
+                    'title' => $data['title'],
+                    'content_id' => $contentId,
+                ]);
+            }
+            
+            $this->db->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     public function updateAssessmentByContentId(int $contentId, array $data): bool {

@@ -159,6 +159,14 @@ $router->get('/quiz/{id}/results', function($id) {
     (new \App\Controllers\QuizController())->results(['id' => $id]);
 });
 
+$router->get('/quiz/{id}/review', function($id) {
+    if (!Session::isAuthenticated()) {
+        header('Location: /its/');
+        exit;
+    }
+    (new \App\Controllers\QuizController())->review(['id' => $id]);
+});
+
 $router->get('/quiz/{id}/manage', function($id) {
     if (!Session::isInstructor()) {
         header('Location: /its/course');
@@ -284,6 +292,13 @@ $router->post('/grade/result/{id}/feedback', function($id) {
         \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 403);
     }
     (new \App\Controllers\GradeController())->saveResultFeedback(['id' => $id]);
+});
+
+$router->post('/grade/result/{id}/delete', function($id) {
+    if (!Session::isInstructor()) {
+        \App\Core\View::json(['success' => false, 'error' => 'Unauthorized'], 403);
+    }
+    (new \App\Controllers\GradeController())->deleteQuizAttempt(['id' => $id]);
 });
 
 $router->get('/grade/quiz/{id}', function($id) {

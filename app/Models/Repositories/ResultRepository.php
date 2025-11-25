@@ -459,4 +459,12 @@ class ResultRepository implements IResultRepository
 
         return $stmt->fetchAll();
     }
+
+    public function deleteResult(int $resultId): bool
+    {
+        $stmt = $this->db->prepare(
+            'DELETE FROM assessment_results WHERE result_id = :result_id'
+        );
+        return $stmt->execute(['result_id' => $resultId]);
+    }
 }

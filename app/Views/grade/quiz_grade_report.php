@@ -24,6 +24,7 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                     <th>Thời gian làm bài</th>
                     <th>Điểm (trên 10)</th>
                     <th>Feedback</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,6 +61,18 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                                 onclick="event.preventDefault(); event.stopPropagation(); openFeedbackModal(<?= $result['result_id'] ?? 0 ?>, '<?= htmlspecialchars($result['student_name'], ENT_QUOTES) ?>', '<?= addslashes(htmlspecialchars($result['feedback'] ?? '', ENT_QUOTES)) ?>');">
                             <i data-feather="message-square"></i>
                         </button>
+                    </td>
+                    <td>
+                        <?php if ($result['result_id']): ?>
+                        <button type="button" 
+                                class="button button-danger button-icon" 
+                                onclick="deleteQuizAttempt(<?= $result['result_id'] ?>, '<?= htmlspecialchars($result['student_name'], ENT_QUOTES) ?>')"
+                                title="Xóa bài làm">
+                            <i data-feather="trash-2"></i>
+                        </button>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -185,6 +198,28 @@ function submitFeedback(e) {
     })
     .catch(err => {
         showNotification('Error: ' + err.message, 'error');
+    });
+}
+
+function deleteQuizAttempt(resultId, studentName) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa bài làm của ${studentName}? Sinh viên sẽ có thể làm lại bài quiz.`)) {
+        return;
+    }
+    
+    fetch(`${BASE_URL}/grade/result/${resultId}/delete`, {
+        method: 'POST'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Đã xóa bài làm thành công!', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Lỗi: ' + (data.error || 'Unknown error'), 'error');
+        }
+    })
+    .catch(err => {
+        showNotification('Lỗi: ' + err.message, 'error');
     });
 }
 

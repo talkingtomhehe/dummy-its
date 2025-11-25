@@ -127,9 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let timerInterval = null;
     let timeRemaining = timeLimit * 60; // Convert to seconds
     
-    // Record start time
-    document.getElementById('started-at-input').value = startTime.toISOString();
-    
     // Start countdown timer if time limit exists
     if (timeLimit > 0) {
         startCountdown();
@@ -226,8 +223,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Record time taken on submit
     document.getElementById('quiz-form').addEventListener('submit', function() {
         const endTime = new Date();
-        const timeTaken = Math.floor((endTime - startTime) / 1000); // in seconds
-        document.getElementById('time-taken-input').value = timeTaken;
+        
+        // Calculate actual time taken based on time limit and remaining time
+        let actualTimeTaken;
+        if (timeLimit > 0) {
+            // Time taken = time limit - time remaining (in seconds)
+            actualTimeTaken = (timeLimit * 60) - timeRemaining;
+        } else {
+            // No time limit, calculate from start to end
+            actualTimeTaken = Math.floor((endTime - startTime) / 1000);
+        }
+        
+        document.getElementById('time-taken-input').value = actualTimeTaken;
+        
+        // Calculate the actual start time by subtracting time taken from current time
+        const actualStartTime = new Date(endTime.getTime() - (actualTimeTaken * 1000));
+        
+        // Format to MySQL datetime format in local timezone (same as server timezone +7)
+        const year = actualStartTime.getFullYear();
+        const month = String(actualStartTime.getMonth() + 1).padStart(2, '0');
+        const day = String(actualStartTime.getDate()).padStart(2, '0');
+        const hours = String(actualStartTime.getHours()).padStart(2, '0');
+        const minutes = String(actualStartTime.getMinutes()).padStart(2, '0');
+        const seconds = String(actualStartTime.getSeconds()).padStart(2, '0');
+        const formattedStartTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        
+        document.getElementById('started-at-input').value = formattedStartTime;
         
         if (timerInterval) {
             clearInterval(timerInterval);

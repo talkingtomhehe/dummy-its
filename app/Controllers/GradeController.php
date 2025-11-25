@@ -250,4 +250,31 @@ class GradeController
             ], 400);
         }
     }
+
+    /**
+     * Delete a quiz attempt (AJAX).
+     */
+    public function deleteQuizAttempt($params): void
+    {
+        if (!Session::isInstructor()) {
+            View::json(['success' => false, 'error' => 'Unauthorized'], 403);
+            return;
+        }
+
+        $resultId = isset($params['id']) ? (int)$params['id'] : 0;
+        if ($resultId <= 0) {
+            View::json(['success' => false, 'error' => 'Invalid result ID'], 400);
+            return;
+        }
+
+        try {
+            $this->gradeService->deleteResult($resultId);
+            View::json(['success' => true]);
+        } catch (\Throwable $throwable) {
+            View::json([
+                'success' => false,
+                'error' => $throwable->getMessage(),
+            ], 400);
+        }
+    }
 }
