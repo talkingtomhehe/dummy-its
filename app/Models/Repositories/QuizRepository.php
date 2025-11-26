@@ -143,6 +143,8 @@ class QuizRepository implements IQuizRepository {
                 open_time,
                 close_time,
                 max_score,
+                allowed_attempts,
+                grading_method,
                 is_visible,
                 display_order
             ) VALUES (
@@ -155,6 +157,8 @@ class QuizRepository implements IQuizRepository {
                 :open_time,
                 :close_time,
                 :max_score,
+                :allowed_attempts,
+                :grading_method,
                 :is_visible,
                 :display_order
             )
@@ -169,6 +173,8 @@ class QuizRepository implements IQuizRepository {
             'open_time' => $data['open_time'] ?? null,
             'close_time' => $data['close_time'] ?? null,
             'max_score' => $data['max_score'] ?? 10,
+            'allowed_attempts' => $data['allowed_attempts'] ?? 0,
+            'grading_method' => $data['grading_method'] ?? 'highest',
             'is_visible' => $data['is_visible'] ?? 1,
             'display_order' => $data['display_order'] ?? 0,
         ]);
@@ -185,6 +191,8 @@ class QuizRepository implements IQuizRepository {
                 open_time = :open_time,
                 close_time = :close_time,
                 max_score = :max_score,
+                allowed_attempts = :allowed_attempts,
+                grading_method = :grading_method,
                 is_visible = :is_visible,
                 display_order = :display_order
             WHERE assessment_id = :assessment_id AND assessment_type = "quiz"
@@ -198,6 +206,8 @@ class QuizRepository implements IQuizRepository {
             'open_time' => $data['open_time'] ?? null,
             'close_time' => $data['close_time'] ?? null,
             'max_score' => $data['max_score'] ?? 10,
+            'allowed_attempts' => $data['allowed_attempts'] ?? 0,
+            'grading_method' => $data['grading_method'] ?? 'highest',
             'is_visible' => $data['is_visible'] ?? 1,
             'display_order' => $data['display_order'] ?? 0,
         ]);

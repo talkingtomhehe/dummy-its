@@ -884,45 +884,20 @@ function displayNotifications(notifications) {
                     markNotificationAsRead(notification.notification_id);
                 }
                 
-                // Navigate to related content if available
+                // Navigate to related content using related_type and related_id
                 const baseUrl = document.body.dataset.baseUrl || '/its';
-                const message = notification.message.toLowerCase();
-                const title = notification.title.toLowerCase();
                 let url = '';
                 
-                // Check for grade/feedback notifications first
-                if (title.includes('grade') || title.includes('graded') || 
-                    title.includes('feedback') || message.includes('graded')) {
-                    // Direct to student grades page
-                    url = `${baseUrl}/grade/student`;
-                } 
-                // Check for new content notifications
-                else if (title.includes('new content') || title.includes('content added') || 
-                         message.includes('new content') || message.includes('content added')) {
-                    // Direct to content view if we have the related_id
-                    if (notification.related_type === 'content' && notification.related_id) {
-                        url = `${baseUrl}/content/${notification.related_id}/view`;
-                    }
-                }
-                // Check for content modified notifications
-                else if (title.includes('modified') || title.includes('updated') || 
-                         message.includes('modified') || message.includes('updated')) {
-                    // Direct to content view if we have the related_id
-                    if (notification.related_type === 'content' && notification.related_id) {
-                        url = `${baseUrl}/content/${notification.related_id}/view`;
-                    }
-                }
-                // Fallback to related_type based navigation
-                else if (notification.related_type && notification.related_id) {
+                if (notification.related_type && notification.related_id) {
                     switch (notification.related_type) {
-                        case 'content':
-                            url = `${baseUrl}/content/${notification.related_id}/view`;
-                            break;
                         case 'quiz':
                             url = `${baseUrl}/quiz/${notification.related_id}`;
                             break;
                         case 'assignment':
                             url = `${baseUrl}/assignment/${notification.related_id}/status`;
+                            break;
+                        case 'content':
+                            url = `${baseUrl}/content/${notification.related_id}/view`;
                             break;
                         case 'course':
                             url = `${baseUrl}/course/${notification.related_id}`;

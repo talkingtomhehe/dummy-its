@@ -78,7 +78,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 
                 <?php
-                // Check if answer is correct
+                // Calculate score for this question
                 $correctOptions = [];
                 foreach ($question['options'] as $option) {
                     if (!empty($option['is_correct'])) {
@@ -87,13 +87,52 @@ require_once __DIR__ . '/../layouts/header.php';
                 }
                 sort($correctOptions);
                 sort($userAnswers);
-                $isQuestionCorrect = $correctOptions === $userAnswers && !empty($correctOptions);
+                
+                // Check for wrong selections
+                $hasWrongOption = false;
+                foreach ($userAnswers as $selected) {
+                    if (!in_array($selected, $correctOptions, true)) {
+                        $hasWrongOption = true;
+                        break;
+                    }
+                }
+                
+                // Calculate earned points
+                $earnedPoints = 0;
+                $maxPoints = $question['points'];
+                
+                if (!$hasWrongOption && !empty($userAnswers)) {
+                    // No wrong options, calculate proportional credit
+                    $numCorrect = count($correctOptions);
+                    $numCorrectSelected = 0;
+                    foreach ($userAnswers as $selected) {
+                        if (in_array($selected, $correctOptions, true)) {
+                            $numCorrectSelected++;
+                        }
+                    }
+                    if ($numCorrect > 0) {
+                        $earnedPoints = ($numCorrectSelected / $numCorrect) * $maxPoints;
+                    }
+                }
+                
+                $isFullyCorrect = ($correctOptions === $userAnswers && !empty($correctOptions));
+                $isPartiallyCorrect = ($earnedPoints > 0 && $earnedPoints < $maxPoints);
                 ?>
                 
-                <div class="review-result" style="margin-top: 15px; padding: 10px; border-radius: 6px; <?= $isQuestionCorrect ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
+                <div class="review-result" style="margin-top: 15px; padding: 10px; border-radius: 6px; <?php 
+                    if ($isFullyCorrect) {
+                        echo 'background-color: #d4edda; color: #155724;';
+                    } elseif ($isPartiallyCorrect) {
+                        echo 'background-color: #fff3cd; color: #856404;';
+                    } else {
+                        echo 'background-color: #f8d7da; color: #721c24;';
+                    }
+                ?>">
                     <strong>
-                        <?php if ($isQuestionCorrect): ?>
-                            <i data-feather="check" style="width: 16px; height: 16px;"></i> Đúng - <?= number_format($question['points'], 1) ?> điểm
+                        <?php if ($isFullyCorrect): ?>
+                            <i data-feather="check" style="width: 16px; height: 16px;"></i> Đúng - <?= number_format($earnedPoints, 1) ?> điểm
+                        <?php elseif ($isPartiallyCorrect): ?>
+                            <i data-feather="alert-circle" style="width: 16px; height: 16px;"></i> Đúng 1 phần - <?= number_format($earnedPoints, 1) ?> điểm
                         <?php else: ?>
                             <i data-feather="x" style="width: 16px; height: 16px;"></i> Sai - 0 điểm
                         <?php endif; ?>

@@ -817,16 +817,44 @@ input:checked + .slider:before {
     min-height: 400px;
 }
 
-.quiz-main-new {
-    width: 100% !important;
-    order: 1 !important;
-    flex: none !important;
+/* Desktop layout - sidebar on the right */
+@media (min-width: 768px) {
+    .quiz-container-new {
+        flex-direction: row !important;
+    }
+    
+    .quiz-main-new {
+        width: 75% !important;
+        order: 1 !important;
+        flex: 1 !important;
+    }
+    
+    .quiz-sidebar-new {
+        width: 25% !important;
+        min-width: 250px !important;
+        order: 2 !important;
+        flex: none !important;
+        position: sticky;
+        top: 90px;
+        align-self: flex-start;
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+    }
 }
 
-.quiz-sidebar-new {
-    width: 100% !important;
-    order: 2 !important;
-    flex: none !important;
+/* Mobile layout - stacked */
+@media (max-width: 767px) {
+    .quiz-main-new {
+        width: 100% !important;
+        order: 1 !important;
+        flex: none !important;
+    }
+    
+    .quiz-sidebar-new {
+        width: 100% !important;
+        order: 2 !important;
+        flex: none !important;
+    }
 }
 
 .quiz-nav-box-new {

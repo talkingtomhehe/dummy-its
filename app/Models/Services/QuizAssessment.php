@@ -33,24 +33,36 @@ class QuizAssessment implements IAssessment {
                     continue;
                 }
                 
-                // Calculate partial credit
+                // Check if student selected any wrong option
+                $hasWrongOption = false;
+                foreach ($studentOptions as $selected) {
+                    if (!in_array($selected, $correctOptions, true)) {
+                        $hasWrongOption = true;
+                        break;
+                    }
+                }
+                
+                // If any wrong option selected, score is 0
+                if ($hasWrongOption) {
+                    continue; // No points earned
+                }
+                
+                // If only correct options selected, award proportional points
                 $numCorrect = count($correctOptions);
                 $numCorrectSelected = 0;
-                $numIncorrectSelected = 0;
                 
                 foreach ($studentOptions as $selected) {
                     if (in_array($selected, $correctOptions, true)) {
                         $numCorrectSelected++;
-                    } else {
-                        $numIncorrectSelected++;
                     }
                 }
                 
-                // Award points: each correct answer is worth 1/n of total points
-                // Subtract points for incorrect selections
-                $pointsPerCorrect = $points / $numCorrect;
-                $earnedForQuestion = ($numCorrectSelected * $pointsPerCorrect) - ($numIncorrectSelected * $pointsPerCorrect);
-                $earnedPoints += max(0, $earnedForQuestion); // Don't allow negative points
+                // Award points proportional to correct selections
+                if ($numCorrectSelected > 0) {
+                    $pointsPerCorrect = $points / $numCorrect;
+                    $earnedForQuestion = $numCorrectSelected * $pointsPerCorrect;
+                    $earnedPoints += $earnedForQuestion;
+                }
 
                 continue;
             }
