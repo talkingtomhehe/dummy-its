@@ -266,6 +266,14 @@ $router->post('/assignment/{id}/upload', function($id) {
     (new \App\Controllers\AssignmentController())->uploadSubmission(['id' => $id]);
 });
 
+$router->post('/assignment/{id}/remove', function($id) {
+    if (!Session::isAuthenticated()) {
+        header('Location: /its/');
+        exit;
+    }
+    (new \App\Controllers\AssignmentController())->removeSubmission(['id' => $id]);
+});
+
 // Grading routes
 $router->get('/grades/{id}', function($id) {
     if (!Session::isAuthenticated()) {

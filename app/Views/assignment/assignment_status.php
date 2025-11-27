@@ -48,6 +48,11 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
             <button class="button button-primary button-large" <?= $canSubmit ? "onclick=\"window.location.href='" . base_url('/assignment/' . ($assignment['assessment_id'] ?? $assignment['id']) . '/submit') . "'\"" : 'disabled' ?>>
                 <?= $submitLabel ?>
             </button>
+            <?php if ($submission && $canSubmit): ?>
+            <button class="button button-primary button-large" onclick="confirmRemoveSubmission(<?= $assignment['assessment_id'] ?? $assignment['id'] ?>)" style="margin-left: 10px;">
+                Remove submission
+            </button>
+            <?php endif; ?>
         </div>
         
         <h2 style="font-size: 22px; font-weight: 600; color: var(--accent-color); margin-top: 30px; margin-bottom: 20px;">Submission status</h2>
@@ -126,6 +131,17 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
 </div>
 
 <script>
+function confirmRemoveSubmission(assignmentId) {
+    if (confirm('Are you sure you want to remove your submission? This action cannot be undone.')) {
+        // Create a form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= BASE_URL ?>/assignment/' + assignmentId + '/remove';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
 feather.replace();
 </script>
 

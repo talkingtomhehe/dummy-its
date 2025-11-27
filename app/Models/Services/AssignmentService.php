@@ -141,7 +141,7 @@ class AssignmentService {
             throw new \RuntimeException('No valid files were uploaded.');
         }
 
-        // Delete previous files if they exist
+        // Delete previous files if they exist and are not in the new upload
         if ($previousFiles) {
             $prevFileList = is_string($previousFiles) ? json_decode($previousFiles, true) : $previousFiles;
             if (!is_array($prevFileList)) {
@@ -154,18 +154,25 @@ class AssignmentService {
             }
         }
 
+        // Return with both 'filename' and 'files' keys for backwards compatibility
         return [
+            'filename' => count($uploadedFiles) === 1 ? $uploadedFiles[0] : $uploadedFiles,
             'files' => $uploadedFiles,
+            'original_name' => count($originalNames) === 1 ? $originalNames[0] : $originalNames,
             'original_names' => $originalNames
         ];
     }
 
     public function recordSubmission(int $assignmentId, int $studentId, array $uploadResult): int {
+        // Handle both new format (files/original_names) and old format (filename/original_name)
+        $files = $uploadResult['files'] ?? (isset($uploadResult['filename']) ? (is_array($uploadResult['filename']) ? $uploadResult['filename'] : [$uploadResult['filename']]) : []);
+        $originalNames = $uploadResult['original_names'] ?? (isset($uploadResult['original_name']) ? (is_array($uploadResult['original_name']) ? $uploadResult['original_name'] : [$uploadResult['original_name']]) : []);
+        
         $payload = [
             'assessment_id' => $assignmentId,
             'user_id' => $studentId,
-            'submission_file' => json_encode($uploadResult['files']),
-            'original_filenames' => json_encode($uploadResult['original_names']),
+            'submission_file' => json_encode($files),
+            'original_filenames' => json_encode($originalNames),
             'status' => 'submitted',
         ];
 
@@ -186,6 +193,33 @@ class AssignmentService {
             'not_submitted_count' => $stats['not_submitted_count'],
             'total_students' => $stats['total_students'],
         ];
+    }
+
+    public function deleteSubmission(int $assignmentId, int $studentId): void {
+        $submission = $this->assignmentRepo->getStudentSubmission($assignmentId, $studentId);
+        
+        if (!$submission) {
+            throw new \RuntimeException('No submission found to delete.');
+        }
+
+        // Delete uploaded files
+        $submissionFile = $submission['submission_file'] ?? null;
+        if ($submissionFile) {
+            // Decode JSON if it's an array
+            if ($submissionFile[0] === '[') {
+                $submissionFile = json_decode($submissionFile, true);
+            } else {
+                $submissionFile = [$submissionFile];
+            }
+            
+            foreach ($submissionFile as $file) {
+                $this->deleteExistingFile($file);
+            }
+        }
+
+        // Delete the submission record
+        $resultId = (int)$submission['result_id'];
+        $this->resultRepo->deleteResult($resultId);
     }
 
     private function getAssignmentOrFail(int $assignmentId): array {

@@ -13,6 +13,8 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
         <?php endif; ?>
 
         <form id="submission-form" method="POST" action="<?= base_url('/assignment/' . $assignment['id'] . '/upload') ?>" enctype="multipart/form-data">
+            <input type="hidden" name="existing_files" id="existing-files-input" value="">
+            
             <div class="drop-zone-container">
                 <input type="file" id="file-input" name="submission_file[]" accept=".pdf,.doc,.docx,.zip,.rar" multiple>
                 
@@ -34,12 +36,12 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                         foreach ($files as $idx => $file):
                             $displayName = $originals[$idx] ?? $file;
                     ?>
-                    <div class="file-preview-item">
+                    <div class="file-preview-item" data-existing-file="<?= htmlspecialchars($file) ?>">
                         <i data-feather="file"></i>
                         <span><?= htmlspecialchars($displayName) ?></span>
-                        <a href="<?= base_url('/uploads/assignments/' . $file) ?>" target="_blank" class="button button-icon">
-                            <i data-feather="download"></i>
-                        </a>
+                        <button type="button" class="button button-icon button-danger" onclick="removeExistingFile(this, '<?= htmlspecialchars($file, ENT_QUOTES) ?>')">
+                            <i data-feather="x"></i>
+                        </button>
                     </div>
                     <?php 
                         endforeach;
@@ -60,6 +62,16 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
 const dropZone = document.getElementById('drop-zone-box');
 const fileInput = document.getElementById('file-input');
 const filePreviewList = document.getElementById('file-preview-list');
+const existingFilesInput = document.getElementById('existing-files-input');
+
+// Track existing files that should be kept
+let existingFiles = [];
+
+// Initialize existing files from the DOM
+document.querySelectorAll('[data-existing-file]').forEach(elem => {
+    existingFiles.push(elem.getAttribute('data-existing-file'));
+});
+updateExistingFilesInput();
 
 dropZone.addEventListener('click', () => fileInput.click());
 
@@ -80,24 +92,46 @@ dropZone.addEventListener('drop', (e) => {
     dropZone.style.backgroundColor = 'transparent';
     
     const files = e.dataTransfer.files;
-    fileInput.files = files;
-    displayFiles(files);
+    addFilesToInput(files);
 });
 
 fileInput.addEventListener('change', (e) => {
-    displayFiles(e.target.files);
+    displayNewFiles();
 });
 
-function displayFiles(files) {
-    filePreviewList.innerHTML = '';
+function addFilesToInput(newFiles) {
+    // Create a new DataTransfer to combine existing and new files
+    const dt = new DataTransfer();
     
-    Array.from(files).forEach((file, index) => {
+    // Add existing files from input
+    if (fileInput.files) {
+        Array.from(fileInput.files).forEach(file => dt.items.add(file));
+    }
+    
+    // Add new files
+    Array.from(newFiles).forEach(file => dt.items.add(file));
+    
+    // Update the file input
+    fileInput.files = dt.files;
+    
+    // Display all files
+    displayNewFiles();
+}
+
+function displayNewFiles() {
+    // Remove only the new file previews (not existing ones)
+    const newFilePreviews = filePreviewList.querySelectorAll('.file-preview-item:not([data-existing-file])');
+    newFilePreviews.forEach(elem => elem.remove());
+    
+    // Display new files from input
+    Array.from(fileInput.files).forEach((file, index) => {
         const item = document.createElement('div');
         item.className = 'file-preview-item';
+        item.setAttribute('data-new-file-index', index);
         item.innerHTML = `
             <i data-feather="file"></i>
             <span>${file.name}</span>
-            <button type="button" class="button button-icon button-danger" onclick="removeFile()">
+            <button type="button" class="button button-icon button-danger" onclick="removeNewFile(${index})">
                 <i data-feather="x"></i>
             </button>
         `;
@@ -107,9 +141,35 @@ function displayFiles(files) {
     feather.replace();
 }
 
-function removeFile() {
-    fileInput.value = '';
-    filePreviewList.innerHTML = '';
+function removeExistingFile(button, filename) {
+    // Remove from existing files array
+    existingFiles = existingFiles.filter(f => f !== filename);
+    updateExistingFilesInput();
+    
+    // Remove the preview element
+    button.closest('.file-preview-item').remove();
+}
+
+function removeNewFile(index) {
+    // Create a new DataTransfer without the file at the specified index
+    const dt = new DataTransfer();
+    const files = Array.from(fileInput.files);
+    
+    files.forEach((file, i) => {
+        if (i !== index) {
+            dt.items.add(file);
+        }
+    });
+    
+    // Update the file input
+    fileInput.files = dt.files;
+    
+    // Re-display files
+    displayNewFiles();
+}
+
+function updateExistingFilesInput() {
+    existingFilesInput.value = JSON.stringify(existingFiles);
 }
 
 feather.replace();
