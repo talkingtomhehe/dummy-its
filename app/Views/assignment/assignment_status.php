@@ -16,15 +16,19 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
         </h1>
         
         <?php if (!empty($successMessage)): ?>
-            <div class="alert alert-success" style="margin-top: 15px;">
-                <?= htmlspecialchars($successMessage) ?>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showNotification('<?= addslashes($successMessage) ?>', 'success');
+                });
+            </script>
         <?php endif; ?>
 
         <?php if (!empty($errorMessage)): ?>
-            <div class="alert alert-danger" style="margin-top: 15px;">
-                <?= htmlspecialchars($errorMessage) ?>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showNotification('<?= addslashes($errorMessage) ?>', 'error');
+                });
+            </script>
         <?php endif; ?>
 
         <?php
