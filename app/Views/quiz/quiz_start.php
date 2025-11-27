@@ -32,12 +32,11 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                     <th>Trạng thái</th>
                     <td><?= $hasAttempt ? 'Đã làm bài' : 'Chưa làm bài' ?></td>
                 </tr>
-                <?php if ($hasAttempt): ?>
                 <tr>
-                    <th>Số lần đã làm</th>
-                    <td><?= $attemptCount ?> / <?= $maxAttempts == 0 ? 'Không giới hạn' : $maxAttempts ?></td>
+                    <th><?= $hasAttempt ? 'Số lần đã làm' : 'Số lần cho phép' ?></th>
+                    <td><?= $hasAttempt ? ($attemptCount . ' / ' . ($maxAttempts == 0 ? 'Không giới hạn' : $maxAttempts)) : ($maxAttempts == 0 ? 'Không giới hạn' : $maxAttempts) ?></td>
                 </tr>
-                <?php if ($maxAttempts > 0): ?>
+                <?php if ($hasAttempt && $maxAttempts > 0): ?>
                 <tr>
                     <th>Số lần còn lại</th>
                     <td style="<?= $remainingAttempts == 0 ? 'color: var(--danger-color); font-weight: 600;' : '' ?>">
@@ -56,7 +55,6 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                     <th>Điểm cuối cùng (<?= $gradingMethodText[$gradingMethod] ?? $gradingMethod ?>)</th>
                     <td style="font-weight: 600; color: var(--primary-color);"><?= number_format($finalGrade, 2) ?> / <?= $quiz['max_score'] ?? 10 ?></td>
                 </tr>
-                <?php endif; ?>
                 <?php endif; ?>
                 <tr>
                     <th>Thời gian cho phép</th>

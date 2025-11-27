@@ -6,7 +6,7 @@ require_once __DIR__ . '/../layouts/header.php';
 <div class="container">
     <main class="main">
         <div class="back-to-course-box">
-            <a href="<?= BASE_URL ?>/quiz/<?= $quiz['id'] ?>/results?result_id=<?= $result['result_id'] ?? '' ?>">
+            <a href="<?= BASE_URL ?>/quiz/<?= $quiz['id'] ?>">
                 <i data-feather="arrow-left"></i>
                 <span>Quay lại kết quả</span>
             </a>
@@ -78,7 +78,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 
                 <?php
-                // Check if answer is correct
+                // Check if answer is correct and calculate partial credit
                 $correctOptions = [];
                 foreach ($question['options'] as $option) {
                     if (!empty($option['is_correct'])) {
@@ -88,12 +88,40 @@ require_once __DIR__ . '/../layouts/header.php';
                 sort($correctOptions);
                 sort($userAnswers);
                 $isQuestionCorrect = $correctOptions === $userAnswers && !empty($correctOptions);
+                
+                // Calculate partial credit for multiple-choice questions
+                $earnedPoints = 0;
+                $isPartiallyCorrect = false;
+                
+                if ($question['question_type'] === 'mc-multi' && !empty($correctOptions)) {
+                    $numCorrect = count($correctOptions);
+                    $numCorrectSelected = 0;
+                    $numIncorrectSelected = 0;
+                    
+                    foreach ($userAnswers as $selected) {
+                        if (in_array($selected, $correctOptions, true)) {
+                            $numCorrectSelected++;
+                        } else {
+                            $numIncorrectSelected++;
+                        }
+                    }
+                    
+                    // Calculate partial points
+                    $pointsPerCorrect = $question['points'] / $numCorrect;
+                    $earnedPoints = max(0, ($numCorrectSelected * $pointsPerCorrect) - ($numIncorrectSelected * $pointsPerCorrect));
+                    
+                    $isPartiallyCorrect = $earnedPoints > 0 && !$isQuestionCorrect;
+                } elseif ($isQuestionCorrect) {
+                    $earnedPoints = $question['points'];
+                }
                 ?>
                 
-                <div class="review-result" style="margin-top: 15px; padding: 10px; border-radius: 6px; <?= $isQuestionCorrect ? 'background-color: #d4edda; color: #155724;' : 'background-color: #f8d7da; color: #721c24;' ?>">
+                <div class="review-result" style="margin-top: 15px; padding: 10px; border-radius: 6px; <?= $isQuestionCorrect ? 'background-color: #d4edda; color: #155724;' : ($isPartiallyCorrect ? 'background-color: #fff3cd; color: #856404;' : 'background-color: #f8d7da; color: #721c24;') ?>">
                     <strong>
                         <?php if ($isQuestionCorrect): ?>
                             <i data-feather="check" style="width: 16px; height: 16px;"></i> Đúng - <?= number_format($question['points'], 1) ?> điểm
+                        <?php elseif ($isPartiallyCorrect): ?>
+                            <i data-feather="check-circle" style="width: 16px; height: 16px;"></i> Đúng một phần - <?= number_format($earnedPoints, 1) ?> điểm
                         <?php else: ?>
                             <i data-feather="x" style="width: 16px; height: 16px;"></i> Sai - 0 điểm
                         <?php endif; ?>
@@ -104,7 +132,7 @@ require_once __DIR__ . '/../layouts/header.php';
         </div>
         
         <div class="page-controls" style="justify-content: center; margin-top: 30px;">
-            <button class="button button-primary" onclick="window.location.href='<?= base_url('/quiz/' . $quiz['id'] . '/results?result_id=' . ($result['result_id'] ?? '')) ?>'">
+            <button class="button button-primary" onclick="window.location.href='<?= base_url('/quiz/' . $quiz['id']) ?>'">
                 Quay lại kết quả
             </button>
         </div>
