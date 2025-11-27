@@ -63,6 +63,7 @@ class QuizController
                 'finalGrade' => $overview['final_grade'] ?? null,
                 'latestScore' => $latestResult['score'] ?? null,
                 'allAttempts' => $allAttempts,
+                'courseId' => $quiz['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -94,6 +95,7 @@ class QuizController
                 'completedCount' => $statistics['completed_count'],
                 'notCompletedCount' => $statistics['not_completed_count'],
                 'totalQuestions' => $totalQuestions,
+                'courseId' => $quiz['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -119,6 +121,7 @@ class QuizController
             View::render('quiz/take_quiz', [
                 'quiz' => $quiz,
                 'questions' => $questions,
+                'courseId' => $quiz['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -250,6 +253,7 @@ class QuizController
             View::render('quiz/manage_quiz', [
                 'quiz' => $quiz,
                 'questions' => $questions,
+                'courseId' => $quiz['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -285,6 +289,7 @@ class QuizController
         View::render('quiz/edit_question', [
             'question' => $question,
             'quizId' => $quizId,
+            'courseId' => null, // Can be fetched from quiz if needed
         ]);
     }
 

@@ -53,6 +53,7 @@ class AssignmentController
                 'canSubmit' => $status['can_submit'],
                 'successMessage' => Session::getFlash('success'),
                 'errorMessage' => Session::getFlash('error'),
+                'courseId' => $status['assignment']['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -151,6 +152,7 @@ class AssignmentController
                 'submittedCount' => $assignmentData['submitted_count'],
                 'notSubmittedCount' => $assignmentData['not_submitted_count'],
                 'totalStudents' => $assignmentData['total_students'],
+                'courseId' => $assignmentData['assignment']['subject_id'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());

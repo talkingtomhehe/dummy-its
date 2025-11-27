@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 27, 2025 lúc 05:16 PM
+-- Thời gian đã tạo: Th10 27, 2025 lúc 06:06 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -56,7 +56,16 @@ INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `
 (9, 6, 22, 'Quiz 1', 'quiz', '', 25, '2025-11-26 15:51:00', '2025-11-28 15:51:00', 10.00, 1, 0, 2, 'average', '2025-11-27 08:51:21', '2025-11-27 10:01:10'),
 (10, 6, 23, 'Quiz 2', 'quiz', '', 30, '2025-11-26 16:12:00', '2025-11-28 16:12:00', 10.00, 1, 0, 2, 'highest', '2025-11-27 09:12:42', '2025-11-27 09:30:00'),
 (11, 6, 24, 'Assignment 1', 'assignment', '', 0, '2025-11-26 16:55:00', '2025-11-29 16:55:00', 10.00, 1, 0, 1, 'last', '2025-11-27 09:55:34', '2025-11-27 09:55:34'),
-(12, 6, 25, 'Quiz 3', 'quiz', '', 30, '2025-11-26 23:04:00', '2025-11-29 23:04:00', 10.00, 1, 0, 1, 'last', '2025-11-27 16:05:03', '2025-11-27 16:05:03');
+(12, 6, 25, 'Quiz 3', 'quiz', '', 30, '2025-11-26 23:04:00', '2025-11-29 23:04:00', 10.00, 1, 0, 1, 'last', '2025-11-27 16:05:03', '2025-11-27 16:05:03'),
+(13, 8, 31, '1.4 Quiz: HTML & CSS Basics', 'quiz', 'Test your knowledge of HTML and CSS fundamentals', 20, '2025-11-27 08:00:00', '2025-12-10 23:59:00', 10.00, 1, 0, 3, 'highest', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(14, 9, 34, '2.3 Quiz: JavaScript Fundamentals', 'quiz', 'Quiz on JavaScript basics', 25, '2025-12-01 08:00:00', '2025-12-15 23:59:00', 10.00, 1, 0, 2, 'highest', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(15, 10, 37, '3.3 Quiz: Responsive Design', 'quiz', 'Test your responsive design knowledge', 20, '2025-12-05 08:00:00', '2025-12-20 23:59:00', 10.00, 1, 0, 2, 'last', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(16, 11, 39, 'Submit Final Project', 'assignment', 'Upload your final web development project', 0, '2025-12-01 00:00:00', '2025-12-28 23:59:00', 10.00, 1, 0, 1, 'last', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(17, 13, 44, '1.3 Quiz: Database Fundamentals', 'quiz', 'Quiz on database concepts', 15, '2025-11-27 08:00:00', '2025-12-08 23:59:00', 10.00, 1, 0, 2, 'highest', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(18, 14, 48, '2.4 Quiz: SQL Basics', 'quiz', 'Test your SQL knowledge', 30, '2025-12-02 08:00:00', '2025-12-16 23:59:00', 10.00, 1, 0, 3, 'highest', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(19, 15, 51, '3.3 Assignment: Design a Database', 'assignment', 'Submit your database design document', 0, '2025-12-05 00:00:00', '2025-12-22 23:59:00', 10.00, 1, 0, 1, 'last', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(20, 16, 54, '4.3 Quiz: Advanced SQL', 'quiz', 'Advanced SQL concepts quiz', 40, '2025-12-10 08:00:00', '2025-12-25 23:59:00', 10.00, 1, 0, 2, 'average', '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(21, 17, 56, 'Final Exam', 'quiz', 'Comprehensive database management final exam', 90, '2025-12-20 09:00:00', '2025-12-20 12:00:00', 10.00, 1, 0, 1, 'last', '2025-11-27 17:05:00', '2025-11-27 17:05:00');
 
 -- --------------------------------------------------------
 
@@ -132,7 +141,38 @@ INSERT INTO `content_items` (`content_id`, `topic_id`, `title`, `content_type`, 
 (22, 6, 'Quiz 1', 'quiz', '', NULL, 1, 0, '2025-11-27 08:51:21', '2025-11-27 08:51:21'),
 (23, 6, 'Quiz 2', 'quiz', '', NULL, 1, 0, '2025-11-27 09:12:42', '2025-11-27 09:12:42'),
 (24, 6, 'Assignment 1', 'assignment', '', NULL, 1, 0, '2025-11-27 09:55:34', '2025-11-27 09:55:34'),
-(25, 6, 'Quiz 3', 'quiz', '', NULL, 1, 0, '2025-11-27 16:05:03', '2025-11-27 16:05:03');
+(25, 6, 'Quiz 3', 'quiz', '', NULL, 1, 0, '2025-11-27 16:05:03', '2025-11-27 16:05:03'),
+(26, 7, 'Welcome to Web Development', 'page', '<h2>Course Welcome</h2><p>Welcome to Web Development! In this course, you will learn modern web development techniques.</p><h3>Course Objectives:</h3><ul><li>Master HTML5 and CSS3</li><li>Learn JavaScript programming</li><li>Build responsive websites</li><li>Create interactive web applications</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(27, 7, 'Course Syllabus', 'page', '<h2>Course Syllabus</h2><p><strong>Week 1-3:</strong> HTML & CSS Fundamentals</p><p><strong>Week 4-6:</strong> JavaScript Basics</p><p><strong>Week 7-9:</strong> Responsive Design</p><p><strong>Week 10-14:</strong> Final Project Development</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(28, 8, '1.1 Introduction to HTML5', 'page', '<h2>HTML5 Basics</h2><p>HTML (HyperText Markup Language) is the standard markup language for creating web pages.</p><h3>Key Concepts:</h3><ul><li>Document structure</li><li>Semantic elements</li><li>Forms and input types</li><li>Multimedia elements</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(29, 8, '1.2 CSS3 Styling', 'page', '<h2>CSS3 Fundamentals</h2><p>CSS (Cascading Style Sheets) is used to style and layout web pages.</p><h3>Topics Covered:</h3><ul><li>Selectors and properties</li><li>Box model</li><li>Flexbox and Grid</li><li>Animations and transitions</li></ul>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(30, 8, '1.3 Video: HTML & CSS Tutorial', 'video', 'https://www.youtube.com/embed/G3e-cpL7ofc', NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(31, 8, '1.4 Quiz: HTML & CSS Basics', 'quiz', NULL, NULL, 1, 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(32, 9, '2.1 JavaScript Introduction', 'page', '<h2>JavaScript Basics</h2><p>JavaScript is a programming language that enables interactive web pages.</p><h3>Core Concepts:</h3><ul><li>Variables and data types</li><li>Functions and scope</li><li>DOM manipulation</li><li>Events and event handling</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(33, 9, '2.2 JavaScript Functions', 'page', '<h2>Functions in JavaScript</h2><p>Functions are reusable blocks of code that perform specific tasks.</p><pre><code>function greet(name) {\n  return \"Hello, \" + name;\n}</code></pre>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(34, 9, '2.3 Quiz: JavaScript Fundamentals', 'quiz', NULL, NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(35, 10, '3.1 Responsive Design Principles', 'page', '<h2>Creating Responsive Websites</h2><p>Responsive web design ensures your site looks good on all devices.</p><h3>Key Techniques:</h3><ul><li>Media queries</li><li>Flexible grids</li><li>Responsive images</li><li>Mobile-first approach</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(36, 10, '3.2 CSS Grid Layout', 'page', '<h2>CSS Grid</h2><p>CSS Grid is a powerful layout system for creating complex responsive layouts.</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(37, 10, '3.3 Quiz: Responsive Design', 'quiz', NULL, NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(38, 11, 'Final Project Guidelines', 'page', '<h2>Final Project</h2><p>Create a fully responsive website using HTML, CSS, and JavaScript.</p><h3>Requirements:</h3><ul><li>At least 3 pages</li><li>Responsive design</li><li>Interactive elements with JavaScript</li><li>Modern CSS styling</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(39, 11, 'Submit Final Project', 'assignment', '<p>Upload your final project files (HTML, CSS, JS) as a ZIP file.</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(40, 12, 'Course Overview', 'page', '<h2>Database Management Systems</h2><p>This course covers the fundamentals of database systems and SQL.</p><h3>Learning Outcomes:</h3><ul><li>Understand database concepts</li><li>Design relational databases</li><li>Write SQL queries</li><li>Implement database applications</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(41, 12, 'Course Schedule', 'page', '<h2>Course Schedule</h2><p><strong>Weeks 1-2:</strong> Database Fundamentals</p><p><strong>Weeks 3-5:</strong> SQL Basics</p><p><strong>Weeks 6-8:</strong> Database Design</p><p><strong>Weeks 9-12:</strong> Advanced Topics</p><p><strong>Week 14:</strong> Final Exam</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(42, 13, '1.1 What is a Database?', 'page', '<h2>Introduction to Databases</h2><p>A database is an organized collection of structured information or data.</p><h3>Key Concepts:</h3><ul><li>Data vs Information</li><li>Database Management Systems</li><li>Types of databases</li><li>Database users and administrators</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(43, 13, '1.2 DBMS Architecture', 'page', '<h2>Database System Architecture</h2><p>Understanding the three-tier architecture of modern database systems.</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(44, 13, '1.3 Quiz: Database Fundamentals', 'quiz', NULL, NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(45, 14, '2.1 Relational Model', 'page', '<h2>The Relational Model</h2><p>The relational model organizes data into relations (tables).</p><h3>Components:</h3><ul><li>Relations and tuples</li><li>Attributes and domains</li><li>Keys: Primary, Foreign, Candidate</li><li>Relational algebra operations</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(46, 14, '2.2 SQL Basics', 'page', '<h2>Introduction to SQL</h2><p>SQL (Structured Query Language) is the standard language for database operations.</p><h3>Basic Commands:</h3><ul><li>SELECT, FROM, WHERE</li><li>INSERT, UPDATE, DELETE</li><li>JOIN operations</li><li>Aggregate functions</li></ul>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(47, 14, '2.3 SQL Practice Lab', 'link', 'https://www.w3schools.com/sql/', NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(48, 14, '2.4 Quiz: SQL Basics', 'quiz', NULL, NULL, 1, 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(49, 15, '3.1 ER Modeling', 'page', '<h2>Entity-Relationship Modeling</h2><p>ER diagrams are used to design database schemas.</p><h3>ER Components:</h3><ul><li>Entities and attributes</li><li>Relationships and cardinality</li><li>Weak entities</li><li>Converting ER to relations</li></ul>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(50, 15, '3.2 Normalization', 'page', '<h2>Database Normalization</h2><p>Normalization is the process of organizing data to reduce redundancy.</p><h3>Normal Forms:</h3><ul><li>1NF: First Normal Form</li><li>2NF: Second Normal Form</li><li>3NF: Third Normal Form</li><li>BCNF: Boyce-Codd Normal Form</li></ul>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(51, 15, '3.3 Assignment: Design a Database', 'assignment', '<p>Design an ER diagram and normalized schema for a library management system.</p>', NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(52, 16, '4.1 Complex Queries', 'page', '<h2>Advanced SQL Queries</h2><p>Learn to write complex queries using subqueries and joins.</p>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(53, 16, '4.2 Stored Procedures', 'page', '<h2>Stored Procedures and Triggers</h2><p>Automate database operations with stored procedures and triggers.</p>', NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(54, 16, '4.3 Quiz: Advanced SQL', 'quiz', NULL, NULL, 1, 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(55, 17, 'Final Exam Information', 'page', '<h2>Final Exam</h2><p>Comprehensive exam covering all course topics.</p><p><strong>Format:</strong> Multiple choice and practical SQL problems</p><p><strong>Duration:</strong> 90 minutes</p>', NULL, 1, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(56, 17, 'Final Exam', 'quiz', NULL, NULL, 1, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00');
 
 -- --------------------------------------------------------
 
@@ -237,7 +277,42 @@ INSERT INTO `quiz_options` (`option_id`, `question_id`, `option_text`, `is_corre
 (54, 15, 'Sai', 1, 1),
 (58, 16, 'hi', 1, 0),
 (59, 16, 'hello', 1, 1),
-(60, 16, 'bye', 0, 2);
+(60, 16, 'bye', 0, 2),
+(61, 17, 'Hyper Text Markup Language', 1, 0),
+(62, 17, 'High Tech Modern Language', 0, 1),
+(63, 17, 'Home Tool Markup Language', 0, 2),
+(64, 18, 'background-color', 1, 0),
+(65, 18, 'bgcolor', 0, 1),
+(66, 18, 'color-background', 0, 2),
+(67, 19, '<h1>', 1, 0),
+(68, 19, '<heading>', 0, 1),
+(69, 19, '<h6>', 0, 2),
+(70, 20, 'var', 1, 0),
+(71, 20, 'let', 1, 1),
+(72, 20, 'const', 1, 2),
+(73, 20, 'variable', 0, 3),
+(74, 21, 'Đúng', 1, 0),
+(75, 21, 'Sai', 0, 1),
+(76, 22, '//', 1, 0),
+(77, 22, '/* */', 0, 1),
+(78, 22, '#', 0, 2),
+(79, 23, 'Database Management System', 1, 0),
+(80, 23, 'Data Base Manipulation System', 0, 1),
+(81, 23, 'Digital Basic Management System', 0, 2),
+(82, 24, 'Đúng', 1, 0),
+(83, 24, 'Sai', 0, 1),
+(84, 25, 'Relational', 1, 0),
+(85, 25, 'NoSQL', 1, 1),
+(86, 25, 'Hierarchical', 1, 2),
+(87, 25, 'Sequential', 0, 3),
+(88, 26, 'SELECT', 1, 0),
+(89, 26, 'GET', 0, 1),
+(90, 26, 'RETRIEVE', 0, 2),
+(91, 27, 'Đúng', 1, 0),
+(92, 27, 'Sai', 0, 1),
+(93, 28, 'ORDER BY', 1, 0),
+(94, 28, 'SORT BY', 0, 1),
+(95, 28, 'GROUP BY', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -272,7 +347,19 @@ INSERT INTO `quiz_questions` (`question_id`, `assessment_id`, `question_text`, `
 (13, 9, 'what is a dog?', 'mc-single', 1.00, 0, '2025-11-27 10:01:37', '2025-11-27 10:01:37'),
 (14, 9, 'similar to hello?', 'mc-multi', 1.00, 0, '2025-11-27 10:02:04', '2025-11-27 10:02:04'),
 (15, 9, 'dog is a cat?', 'tf', 1.00, 0, '2025-11-27 10:02:19', '2025-11-27 10:02:19'),
-(16, 12, 'similar to hello?', 'mc-multi', 1.00, 0, '2025-11-27 16:05:49', '2025-11-27 16:08:45');
+(16, 12, 'similar to hello?', 'mc-multi', 1.00, 0, '2025-11-27 16:05:49', '2025-11-27 16:08:45'),
+(17, 13, 'What does HTML stand for?', 'mc-single', 1.00, 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(18, 13, 'Which CSS property is used to change the background color?', 'mc-single', 1.00, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(19, 13, 'Which HTML element is used for the largest heading?', 'mc-single', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(20, 14, 'Which keyword is used to declare a variable in JavaScript?', 'mc-multi', 1.00, 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(21, 14, 'JavaScript is case-sensitive.', 'tf', 1.00, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(22, 14, 'Which symbol is used for single-line comments in JavaScript?', 'mc-single', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(23, 17, 'What does DBMS stand for?', 'mc-single', 1.00, 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(24, 17, 'A database is a collection of organized data.', 'tf', 1.00, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(25, 17, 'Which of the following are types of databases?', 'mc-multi', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(26, 18, 'Which SQL command is used to retrieve data from a database?', 'mc-single', 1.00, 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(27, 18, 'The WHERE clause is used to filter records.', 'tf', 1.00, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(28, 18, 'Which SQL keywords are used to sort the result set?', 'mc-single', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00');
 
 -- --------------------------------------------------------
 
@@ -296,8 +383,8 @@ CREATE TABLE `subjects` (
 
 INSERT INTO `subjects` (`subject_id`, `subject_name`, `subject_code`, `description`, `instructor_id`, `created_at`, `updated_at`) VALUES
 (1, 'Software Testing', 'CO3015', 'Comprehensive course on Software Testing methodologies and practices', 4, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(2, 'Web Development', 'CO3013', 'Comprehensive course on modern web development technologies including HTML, CSS, JavaScript, and frameworks', 4, '2025-11-27 16:14:17', '2025-11-27 16:14:17'),
-(3, 'Database Management Systems', 'CO2013', 'Introduction to database design, SQL, and database management concepts', 4, '2025-11-27 16:14:17', '2025-11-27 16:14:17');
+(4, 'Web Development', 'CO3013', 'Comprehensive course on modern web development technologies including HTML, CSS, JavaScript, and frameworks', 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(5, 'Database Management Systems', 'CO2013', 'Introduction to database design, SQL, and database management concepts', 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00');
 
 -- --------------------------------------------------------
 
@@ -323,7 +410,18 @@ INSERT INTO `topics` (`topic_id`, `subject_id`, `topic_title`, `description`, `d
 (1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 0, '2025-11-15 02:27:14', '2025-11-27 08:40:27'),
 (3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(6, 1, 'Topic 2', '', 1, '2025-11-27 08:40:20', '2025-11-27 08:40:27');
+(6, 1, 'Topic 2', '', 1, '2025-11-27 08:40:20', '2025-11-27 08:40:27'),
+(7, 4, 'Course Information', 'General information and announcements', 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(8, 4, 'Module 1: HTML & CSS Fundamentals', 'Introduction to HTML5 and CSS3', 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(9, 4, 'Module 2: JavaScript Basics', 'JavaScript programming fundamentals', 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(10, 4, 'Module 3: Responsive Design', 'Creating responsive and mobile-friendly websites', 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(11, 4, 'Module 4: Final Project', 'Web development final project', 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(12, 5, 'Course Information', 'General information and syllabus', 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(13, 5, 'Module 1: Introduction to Databases', 'Database concepts and DBMS overview', 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(14, 5, 'Module 2: Relational Model & SQL', 'Relational database theory and SQL basics', 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(15, 5, 'Module 3: Database Design', 'ER modeling and normalization', 3, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(16, 5, 'Module 4: Advanced SQL', 'Complex queries, triggers, and stored procedures', 4, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(17, 5, 'Final Exam', 'Database course final assessment', 5, '2025-11-27 17:05:00', '2025-11-27 17:05:00');
 
 -- --------------------------------------------------------
 
@@ -349,7 +447,7 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `full_name`, `email
 (1, 'student1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Phan Khánh Nhân', 'nhan.phan@student.edu.vn', 'student', '2025-11-15 02:27:14'),
 (2, 'student2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Võ Huỳnh Khánh Vy', 'vy.vo@student.edu.vn', 'student', '2025-11-15 02:27:14'),
 (3, 'student3', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nguyễn Văn A', 'a.nguyen@student.edu.vn', 'student', '2025-11-15 02:27:14'),
-(4, 'instructor1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bộ Hoài Thắng', 'thang.bo@instructor.edu.vn', 'instructor', '2025-11-15 02:27:14');
+(4, 'instructor1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Võ Trung Sơn', 'son.vo@instructor.edu.vn', 'instructor', '2025-11-15 02:27:14');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -451,7 +549,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT cho bảng `assessment_results`
@@ -463,7 +561,7 @@ ALTER TABLE `assessment_results`
 -- AUTO_INCREMENT cho bảng `content_items`
 --
 ALTER TABLE `content_items`
-  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT cho bảng `notifications`
@@ -475,25 +573,25 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT cho bảng `quiz_options`
 --
 ALTER TABLE `quiz_options`
-  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
+  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT cho bảng `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `subject_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `topics`
 --
 ALTER TABLE `topics`
-  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT cho bảng `users`

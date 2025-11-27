@@ -7,7 +7,7 @@ $timeLimit = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time
 <div class="container">
     <main class="main">
         <div class="back-to-course-box">
-            <a href="<?= BASE_URL ?>/course">
+            <a href="<?= BASE_URL ?>/course/<?= $courseId ?? 1 ?>">
                 <i data-feather="arrow-left"></i>
                 <span>Back to course</span>
             </a>

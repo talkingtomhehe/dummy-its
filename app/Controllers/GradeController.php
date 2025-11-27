@@ -112,6 +112,9 @@ class GradeController
 
         $submissions = $data['submissions'] ?? [];
 
+        // Get courseId from assignment
+        $courseId = $assignment['subject_id'] ?? null;
+
         include_once __DIR__ . '/../Views/grade/grade_item.php';
     }
 
@@ -199,6 +202,9 @@ class GradeController
         }
 
         $results = $data['results'] ?? [];
+
+        // Get courseId from quiz
+        $courseId = $quiz['subject_id'] ?? null;
 
         include_once __DIR__ . '/../Views/grade/quiz_grade_report.php';
     }
