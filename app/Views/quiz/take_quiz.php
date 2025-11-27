@@ -22,11 +22,11 @@ $timeLimit = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time
             <?php endif; ?>
         </div>
         
-        <div class="quiz-container-new">
-            <form id="quiz-form" method="POST" action="<?= base_url('/quiz/' . $quiz['id'] . '/submit') ?>">
-                <input type="hidden" name="time_taken" id="time-taken-input" value="0">
-                <input type="hidden" name="started_at" id="started-at-input" value="">
-                
+        <form id="quiz-form" method="POST" action="<?= base_url('/quiz/' . $quiz['id'] . '/submit') ?>">
+            <input type="hidden" name="time_taken" id="time-taken-input" value="0">
+            <input type="hidden" name="started_at" id="started-at-input" value="">
+            
+            <div class="quiz-container-new">
                 <div class="quiz-main-new">
                     <?php foreach ($questions as $index => $question): ?>
                     <div id="quiz-q-<?= $index + 1 ?>" class="quiz-question-new <?= $index === 0 ? 'active' : '' ?>" data-question-num="<?= $index + 1 ?>">
@@ -113,8 +113,8 @@ $timeLimit = isset($quiz['time_limit']) && $quiz['time_limit'] > 0 ? $quiz['time
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </main>
 </div>
 
