@@ -268,7 +268,17 @@ class GradeController
         }
 
         try {
+            // Get result info before deleting to recalculate final grade
+            $resultData = $this->gradeService->getResultById($resultId);
+            $assessmentId = $resultData['assessment_id'] ?? null;
+            $userId = $resultData['user_id'] ?? null;
+            
+            // Delete the result
             $this->gradeService->deleteResult($resultId);
+            
+            // The final grade will be automatically recalculated when viewing grades
+            // because the calculateFinalGrade method is called dynamically
+            
             View::json(['success' => true]);
         } catch (\Throwable $throwable) {
             View::json([

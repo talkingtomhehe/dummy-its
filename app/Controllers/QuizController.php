@@ -48,6 +48,9 @@ class QuizController
             $overview = $this->quizService->getQuizOverview($quizId, $studentId);
             $quiz = $this->formatQuizForView($overview['quiz'] ?? []);
             $latestResult = $overview['latest_result'] ?? null;
+            
+            // Get all attempts for the student
+            $allAttempts = $this->quizService->getAllStudentAttempts($quizId, $studentId);
 
             View::render('quiz/quiz_start', [
                 'quiz' => $quiz,
@@ -59,6 +62,7 @@ class QuizController
                 'gradingMethod' => $overview['grading_method'] ?? 'last',
                 'finalGrade' => $overview['final_grade'] ?? null,
                 'latestScore' => $latestResult['score'] ?? null,
+                'allAttempts' => $allAttempts,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());

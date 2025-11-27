@@ -20,7 +20,7 @@ class ResultRepository implements IResultRepository
         $stmt = $this->db->prepare(
             'SELECT a.assessment_id, 
                     COALESCE(ci.title, a.title) as title,
-                    a.assessment_type, a.max_score,
+                    a.assessment_type, a.max_score, a.grading_method,
                     t.subject_id, s.subject_name,
                     ar.score, ar.feedback, ar.status, ar.submitted_at,
                     ar.submission_file, ar.original_filenames
@@ -48,7 +48,24 @@ class ResultRepository implements IResultRepository
             'user_id2' => $studentId,
         ]);
 
-        return $stmt->fetchAll();
+        $results = $stmt->fetchAll();
+        
+        // For quizzes, calculate final grade based on grading method
+        foreach ($results as &$result) {
+            if ($result['assessment_type'] === 'quiz') {
+                $gradingMethod = $result['grading_method'] ?? 'last';
+                $finalGrade = $this->calculateFinalGrade(
+                    $result['assessment_id'],
+                    $studentId,
+                    $gradingMethod
+                );
+                if ($finalGrade !== null) {
+                    $result['score'] = $finalGrade;
+                }
+            }
+        }
+
+        return $results;
     }
 
     public function getInstructorGrades(int $courseId): array
@@ -122,22 +139,52 @@ class ResultRepository implements IResultRepository
         $quizStmt->execute(['assessment_id' => $assessmentId]);
         $quiz = $quizStmt->fetch();
 
-        $resultsStmt = $this->db->prepare(
-            'SELECT ar.result_id,
-                    COALESCE(ar.student_id, ar.user_id) AS student_id,
-                    u.full_name AS student_name,
-                    ar.score,
-                    ar.feedback,
-                    ar.started_at,
-                    ar.completed_at,
-                    ar.status
+        // Get list of unique students who have attempted the quiz
+        $studentsStmt = $this->db->prepare(
+            'SELECT DISTINCT COALESCE(ar.student_id, ar.user_id) AS student_id,
+                    u.full_name AS student_name
              FROM assessment_results ar
              LEFT JOIN users u ON u.user_id = COALESCE(ar.student_id, ar.user_id)
              WHERE ar.assessment_id = :assessment_id
-             ORDER BY ar.completed_at IS NULL, ar.completed_at DESC, ar.started_at DESC'
+             ORDER BY u.full_name'
         );
-        $resultsStmt->execute(['assessment_id' => $assessmentId]);
-        $results = $resultsStmt->fetchAll();
+        $studentsStmt->execute(['assessment_id' => $assessmentId]);
+        $students = $studentsStmt->fetchAll();
+        
+        $gradingMethod = $quiz['grading_method'] ?? 'last';
+        $results = [];
+        
+        // Calculate final grade for each student
+        foreach ($students as $student) {
+            $studentId = $student['student_id'];
+            $finalGrade = $this->calculateFinalGrade($assessmentId, $studentId, $gradingMethod);
+            
+            // Get the latest attempt details for display
+            $latestStmt = $this->db->prepare(
+                'SELECT ar.result_id, ar.score, ar.feedback, ar.started_at, ar.completed_at, ar.status
+                 FROM assessment_results ar
+                 WHERE ar.assessment_id = :assessment_id
+                 AND COALESCE(ar.student_id, ar.user_id) = :student_id
+                 ORDER BY ar.submitted_at DESC
+                 LIMIT 1'
+            );
+            $latestStmt->execute([
+                'assessment_id' => $assessmentId,
+                'student_id' => $studentId,
+            ]);
+            $latestAttempt = $latestStmt->fetch();
+            
+            $results[] = [
+                'result_id' => $latestAttempt['result_id'] ?? null,
+                'student_id' => $studentId,
+                'student_name' => $student['student_name'],
+                'score' => $finalGrade,
+                'feedback' => $latestAttempt['feedback'] ?? null,
+                'started_at' => $latestAttempt['started_at'] ?? null,
+                'completed_at' => $latestAttempt['completed_at'] ?? null,
+                'status' => $latestAttempt['status'] ?? null,
+            ];
+        }
 
         return [
             'quiz' => $quiz ?: [],
@@ -482,5 +529,43 @@ class ResultRepository implements IResultRepository
             'DELETE FROM assessment_results WHERE result_id = :result_id'
         );
         return $stmt->execute(['result_id' => $resultId]);
+    }
+
+    /**
+     * Calculate final grade for a quiz based on grading method
+     */
+    private function calculateFinalGrade(int $assessmentId, int $userId, string $gradingMethod): ?float
+    {
+        $stmt = $this->db->prepare('
+            SELECT score
+            FROM assessment_results
+            WHERE assessment_id = :assessment_id
+            AND user_id = :user_id
+            AND status IN ("completed", "graded")
+            ORDER BY attempt_number ASC
+        ');
+        $stmt->execute([
+            'assessment_id' => $assessmentId,
+            'user_id' => $userId,
+        ]);
+        $attempts = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        if (empty($attempts)) {
+            return null;
+        }
+        
+        $scores = array_map('floatval', $attempts);
+        
+        switch ($gradingMethod) {
+            case 'highest':
+                return max($scores);
+            case 'average':
+                return array_sum($scores) / count($scores);
+            case 'first':
+                return $scores[0];
+            case 'last':
+            default:
+                return end($scores);
+        }
     }
 }

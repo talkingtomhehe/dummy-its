@@ -300,6 +300,10 @@ class QuizService {
         return $this->quizRepo->getQuizStatistics($assessmentId);
     }
 
+    public function getAllStudentAttempts(int $assessmentId, int $userId): array {
+        return $this->quizRepo->getAllAttempts($assessmentId, $userId);
+    }
+
     private function getLatestResultForUser(int $assessmentId, int $userId): ?array {
         $results = $this->resultRepo->getResultsByStudent($userId, $assessmentId);
         return $results[0] ?? null;
