@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 27, 2025 lúc 06:06 PM
+-- Thời gian đã tạo: Th10 27, 2025 lúc 08:15 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -101,9 +101,10 @@ INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `stud
 (2, 1, 2, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', 1, '2025-11-14 12:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332),
 (4, 2, 1, 1, NULL, NULL, NULL, 'assignment_2_student_1_20251123090239.pdf', NULL, 'submitted', 1, '2025-11-23 08:02:39', NULL, NULL, NULL, NULL),
 (6, 10, 1, 1, 8.33, '{\"10\":\"40\",\"11\":[\"44\"],\"12\":\"47\"}', 'hay qua', NULL, NULL, 'graded', 1, '2025-11-27 09:33:29', '2025-11-27 16:33:15', '2025-11-27 16:33:29', '2025-11-27 09:51:30', 13),
-(8, 11, 1, 1, NULL, NULL, NULL, '[\"assignment_11_student_1_20251127165610_0.pdf\",\"assignment_11_student_1_20251127165610_1.pdf\"]', '[\"WorkSummary.pdf\",\"EERD.pdf\"]', 'submitted', 1, '2025-11-27 09:56:10', NULL, NULL, NULL, NULL),
-(14, 9, 1, 1, 10.00, '{\"13\":\"48\",\"14\":[\"50\",\"51\"],\"15\":\"54\"}', NULL, NULL, NULL, 'completed', 1, '2025-11-27 16:02:45', '2025-11-27 23:02:26', '2025-11-27 23:02:45', NULL, 18),
-(16, 12, 1, 1, 5.00, '{\"16\":[\"59\"]}', NULL, NULL, NULL, 'completed', 1, '2025-11-27 16:09:04', '2025-11-27 23:09:00', '2025-11-27 23:09:04', NULL, 3);
+(16, 12, 1, 1, 5.00, '{\"16\":[\"59\"]}', NULL, NULL, NULL, 'completed', 1, '2025-11-27 16:09:04', '2025-11-27 23:09:00', '2025-11-27 23:09:04', NULL, 3),
+(19, 10, 1, 1, 8.33, '{\"10\":\"40\",\"11\":[\"43\"],\"12\":\"47\"}', NULL, NULL, NULL, 'completed', 2, '2025-11-27 17:35:56', '2025-11-28 00:35:33', '2025-11-28 00:35:56', NULL, 22),
+(23, 9, 1, 1, 7.50, '{\"13\":\"48\",\"14\":[\"50\"],\"15\":\"54\",\"29\":\"96\",\"30\":\"98\",\"31\":\"101\"}', NULL, NULL, NULL, 'completed', 1, '2025-11-27 18:30:09', '2025-11-28 01:29:14', '2025-11-28 01:30:09', NULL, 54),
+(24, 11, 1, 1, NULL, NULL, NULL, '[\"assignment_11_student_1_20251128013719_0.pdf\",\"assignment_11_student_1_20251128013719_1.pdf\",\"assignment_11_student_1_20251128013719_2.pdf\"]', '[\"Sprint 4 Note.pdf\",\"WorkSummary.pdf\",\"EERD.pdf\"]', 'submitted', 1, '2025-11-27 18:37:19', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -212,15 +213,10 @@ INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `
 (20, 3, 'New Content Available', 'New content \'Quiz 2\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:12:42'),
 (22, 2, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:30:00'),
 (23, 3, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:30:00'),
-(24, 1, 'Feedback Posted', 'Your quiz \'Quiz 2\' has received feedback from your instructor.', 'success', 'quiz', NULL, 0, NULL, '2025-11-27 09:51:30'),
-(25, 1, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:53:03'),
 (26, 2, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:53:03'),
 (27, 3, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:53:03'),
-(28, 1, 'New Content Available', 'New content \'Assignment 1\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:55:34'),
 (29, 2, 'New Content Available', 'New content \'Assignment 1\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:55:34'),
 (30, 3, 'New Content Available', 'New content \'Assignment 1\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:55:34'),
-(31, 1, 'Feedback Posted', 'Your quiz \'Quiz 1\' has received feedback from your instructor.', 'success', 'quiz', NULL, 0, NULL, '2025-11-27 10:36:12'),
-(32, 1, 'New Content Available', 'New content \'Quiz 3\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 16:05:03'),
 (33, 2, 'New Content Available', 'New content \'Quiz 3\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 16:05:03'),
 (34, 3, 'New Content Available', 'New content \'Quiz 3\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 16:05:03');
 
@@ -312,7 +308,13 @@ INSERT INTO `quiz_options` (`option_id`, `question_id`, `option_text`, `is_corre
 (92, 27, 'Sai', 0, 1),
 (93, 28, 'ORDER BY', 1, 0),
 (94, 28, 'SORT BY', 0, 1),
-(95, 28, 'GROUP BY', 0, 2);
+(95, 28, 'GROUP BY', 0, 2),
+(96, 29, 'abc', 1, 0),
+(97, 29, 'abcd', 0, 1),
+(98, 30, 'Đúng', 1, 0),
+(99, 30, 'Sai', 0, 1),
+(100, 31, 'Đúng', 1, 0),
+(101, 31, 'Sai', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -359,7 +361,10 @@ INSERT INTO `quiz_questions` (`question_id`, `assessment_id`, `question_text`, `
 (25, 17, 'Which of the following are types of databases?', 'mc-multi', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
 (26, 18, 'Which SQL command is used to retrieve data from a database?', 'mc-single', 1.00, 0, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
 (27, 18, 'The WHERE clause is used to filter records.', 'tf', 1.00, 1, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
-(28, 18, 'Which SQL keywords are used to sort the result set?', 'mc-single', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00');
+(28, 18, 'Which SQL keywords are used to sort the result set?', 'mc-single', 1.00, 2, '2025-11-27 17:05:00', '2025-11-27 17:05:00'),
+(29, 9, 'abc', 'mc-single', 1.00, 0, '2025-11-27 18:21:32', '2025-11-27 18:21:32'),
+(30, 9, 'abc', 'tf', 1.00, 0, '2025-11-27 18:21:39', '2025-11-27 18:21:39'),
+(31, 9, 'abcd', 'tf', 1.00, 0, '2025-11-27 18:21:49', '2025-11-27 18:21:49');
 
 -- --------------------------------------------------------
 
@@ -555,7 +560,7 @@ ALTER TABLE `assessments`
 -- AUTO_INCREMENT cho bảng `assessment_results`
 --
 ALTER TABLE `assessment_results`
-  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT cho bảng `content_items`
@@ -567,19 +572,19 @@ ALTER TABLE `content_items`
 -- AUTO_INCREMENT cho bảng `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_options`
 --
 ALTER TABLE `quiz_options`
-  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
+  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT cho bảng `subjects`
