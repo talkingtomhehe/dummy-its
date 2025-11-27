@@ -30,13 +30,23 @@ class DashboardController {
         }
 
         $calendarEvents = $this->getCalendarEvents();
+        
+        // Get all subjects for the sidebar
+        $allSubjects = $this->contentService->getAllSubjects();
+        $courses = array_map(function($subject) {
+            return [
+                'id' => $subject['subject_id'],
+                'name' => $subject['subject_name'],
+                'code' => $subject['subject_code'] ?? '',
+            ];
+        }, $allSubjects);
 
         $data = [
             'userId' => Session::getUserId(),
             'userRole' => Session::getUserRole(),
             'userName' => Session::get('full_name'),
             'isInstructor' => Session::isInstructor(),
-            'courses' => [], // TODO: Fetch from ContentService
+            'courses' => $courses,
             'quizEvents' => $calendarEvents,
             'calendarEventsUrl' => BASE_URL . '/dashboard/events',
         ];

@@ -55,6 +55,14 @@ require_once __DIR__ . '/../layouts/header.php'; ?>
                     <th>Total Questions</th>
                     <td><?= $totalQuestions ?? 0 ?></td>
                 </tr>
+                <tr>
+                    <th>Max Attempts</th>
+                    <td><?= ($quiz['max_attempts'] ?? 1) == 0 ? 'Unlimited' : ($quiz['max_attempts'] ?? 1) ?></td>
+                </tr>
+                <tr>
+                    <th>Grading Method</th>
+                    <td><?= ucfirst($quiz['grading_method'] ?? 'last') ?></td>
+                </tr>
             </tbody>
         </table>
 

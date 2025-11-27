@@ -78,7 +78,7 @@ class ContentRepository implements IContentRepository {
 
     public function getContentItemById(int $contentId): ?array {
         $stmt = $this->db->prepare("
-            SELECT ci.*, a.assessment_id, a.assessment_type, a.open_time, a.close_time, a.time_limit
+            SELECT ci.*, a.assessment_id, a.assessment_type, a.open_time, a.close_time, a.time_limit, a.max_attempts, a.grading_method
             FROM content_items ci
             LEFT JOIN assessments a ON a.content_id = ci.content_id
             WHERE ci.content_id = :content_id
@@ -228,6 +228,14 @@ class ContentRepository implements IContentRepository {
             $fields[] = 'time_limit = :time_limit';
             $params['time_limit'] = $data['time_limit'];
         }
+        if (isset($data['max_attempts'])) {
+            $fields[] = 'max_attempts = :max_attempts';
+            $params['max_attempts'] = $data['max_attempts'];
+        }
+        if (isset($data['grading_method'])) {
+            $fields[] = 'grading_method = :grading_method';
+            $params['grading_method'] = $data['grading_method'];
+        }
         
         if (empty($fields)) {
             return true; // Nothing to update
@@ -270,9 +278,9 @@ class ContentRepository implements IContentRepository {
     public function createAssessment(array $data): int {
         $stmt = $this->db->prepare("
             INSERT INTO assessments 
-            (topic_id, content_id, title, assessment_type, description, time_limit, open_time, close_time, max_score, is_visible, display_order)
+            (topic_id, content_id, title, assessment_type, description, time_limit, open_time, close_time, max_score, is_visible, display_order, max_attempts, grading_method)
             VALUES 
-            (:topic_id, :content_id, :title, :assessment_type, :description, :time_limit, :open_time, :close_time, :max_score, :is_visible, :display_order)
+            (:topic_id, :content_id, :title, :assessment_type, :description, :time_limit, :open_time, :close_time, :max_score, :is_visible, :display_order, :max_attempts, :grading_method)
         ");
         
         $stmt->execute([
@@ -287,6 +295,8 @@ class ContentRepository implements IContentRepository {
             'max_score' => $data['max_score'] ?? 10.00,
             'is_visible' => $data['is_visible'] ?? 1,
             'display_order' => $data['display_order'] ?? 0,
+            'max_attempts' => $data['max_attempts'] ?? 1,
+            'grading_method' => $data['grading_method'] ?? 'last',
         ]);
         
         return (int) $this->db->lastInsertId();
@@ -370,5 +380,24 @@ class ContentRepository implements IContentRepository {
         $stmt->execute();
         $users = $stmt->fetchAll();
         return array_column($users, 'user_id');
+    }
+
+    public function getTopicCountBySubject(int $subjectId): int {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM topics WHERE subject_id = :subject_id");
+        $stmt->execute(['subject_id' => $subjectId]);
+        $result = $stmt->fetch();
+        return (int)($result['count'] ?? 0);
+    }
+
+    public function getContentCountBySubject(int $subjectId): int {
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as count 
+            FROM content_items ci
+            JOIN topics t ON ci.topic_id = t.topic_id
+            WHERE t.subject_id = :subject_id
+        ");
+        $stmt->execute(['subject_id' => $subjectId]);
+        $result = $stmt->fetch();
+        return (int)($result['count'] ?? 0);
     }
 }

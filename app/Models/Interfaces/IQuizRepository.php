@@ -67,4 +67,19 @@ interface IQuizRepository {
      * Get quiz statistics (total students, completed count, etc.)
      */
     public function getQuizStatistics(int $assessmentId): array;
+
+    /**
+     * Get the number of attempts a user has made for a quiz
+     */
+    public function getAttemptCount(int $assessmentId, int $userId): int;
+
+    /**
+     * Get all attempts for a quiz by a user
+     */
+    public function getAllAttempts(int $assessmentId, int $userId): array;
+
+    /**
+     * Calculate final grade based on grading method (highest, average, first, last)
+     */
+    public function calculateFinalGrade(int $assessmentId, int $userId, string $gradingMethod): ?float;
 }

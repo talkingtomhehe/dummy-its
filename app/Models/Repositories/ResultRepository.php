@@ -196,6 +196,19 @@ class ResultRepository implements IResultRepository
             throw new \InvalidArgumentException('assessment_id, user_id, and score are required to record a quiz result.');
         }
 
+        // Get the next attempt number
+        $attemptStmt = $this->db->prepare(
+            'SELECT COALESCE(MAX(attempt_number), 0) + 1 as next_attempt
+             FROM assessment_results
+             WHERE assessment_id = :assessment_id
+             AND user_id = :user_id'
+        );
+        $attemptStmt->execute([
+            'assessment_id' => $data['assessment_id'],
+            'user_id' => $data['user_id'],
+        ]);
+        $nextAttempt = (int)($attemptStmt->fetch()['next_attempt'] ?? 1);
+
         $stmt = $this->db->prepare(
             'INSERT INTO assessment_results (
                  assessment_id,
@@ -206,6 +219,7 @@ class ResultRepository implements IResultRepository
                  time_taken,
                  started_at,
                  status,
+                 attempt_number,
                  submitted_at,
                  completed_at
              ) VALUES (
@@ -217,6 +231,7 @@ class ResultRepository implements IResultRepository
                  :time_taken,
                  :started_at,
                  :status,
+                 :attempt_number,
                  NOW(),
                  NOW()
              )'
@@ -241,6 +256,7 @@ class ResultRepository implements IResultRepository
             'time_taken' => $data['time_taken'] ?? null,
             'started_at' => $startedAt,
             'status' => $data['status'] ?? 'completed',
+            'attempt_number' => $nextAttempt,
         ]);
 
         return (int)$this->db->lastInsertId();

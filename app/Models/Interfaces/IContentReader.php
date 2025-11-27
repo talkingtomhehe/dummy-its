@@ -43,4 +43,14 @@ interface IContentReader {
      * Get assessments that have scheduling information
      */
     public function getAssessmentsWithSchedule(): array;
+
+    /**
+     * Get topic count for a subject
+     */
+    public function getTopicCountBySubject(int $subjectId): int;
+
+    /**
+     * Get content count for a subject
+     */
+    public function getContentCountBySubject(int $subjectId): int;
 }

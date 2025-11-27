@@ -143,10 +143,10 @@ class QuizRepository implements IQuizRepository {
                 open_time,
                 close_time,
                 max_score,
-                allowed_attempts,
-                grading_method,
                 is_visible,
-                display_order
+                display_order,
+                max_attempts,
+                grading_method
             ) VALUES (
                 :topic_id,
                 :content_id,
@@ -157,10 +157,10 @@ class QuizRepository implements IQuizRepository {
                 :open_time,
                 :close_time,
                 :max_score,
-                :allowed_attempts,
-                :grading_method,
                 :is_visible,
-                :display_order
+                :display_order,
+                :max_attempts,
+                :grading_method
             )
         ');
 
@@ -173,10 +173,10 @@ class QuizRepository implements IQuizRepository {
             'open_time' => $data['open_time'] ?? null,
             'close_time' => $data['close_time'] ?? null,
             'max_score' => $data['max_score'] ?? 10,
-            'allowed_attempts' => $data['allowed_attempts'] ?? 0,
-            'grading_method' => $data['grading_method'] ?? 'highest',
             'is_visible' => $data['is_visible'] ?? 1,
             'display_order' => $data['display_order'] ?? 0,
+            'max_attempts' => $data['max_attempts'] ?? 1,
+            'grading_method' => $data['grading_method'] ?? 'last',
         ]);
 
         return (int)$this->db->lastInsertId();
@@ -191,10 +191,10 @@ class QuizRepository implements IQuizRepository {
                 open_time = :open_time,
                 close_time = :close_time,
                 max_score = :max_score,
-                allowed_attempts = :allowed_attempts,
-                grading_method = :grading_method,
                 is_visible = :is_visible,
-                display_order = :display_order
+                display_order = :display_order,
+                max_attempts = :max_attempts,
+                grading_method = :grading_method
             WHERE assessment_id = :assessment_id AND assessment_type = "quiz"
         ');
 
@@ -206,10 +206,10 @@ class QuizRepository implements IQuizRepository {
             'open_time' => $data['open_time'] ?? null,
             'close_time' => $data['close_time'] ?? null,
             'max_score' => $data['max_score'] ?? 10,
-            'allowed_attempts' => $data['allowed_attempts'] ?? 0,
-            'grading_method' => $data['grading_method'] ?? 'highest',
             'is_visible' => $data['is_visible'] ?? 1,
             'display_order' => $data['display_order'] ?? 0,
+            'max_attempts' => $data['max_attempts'] ?? 1,
+            'grading_method' => $data['grading_method'] ?? 'last',
         ]);
     }
 
@@ -358,4 +358,60 @@ class QuizRepository implements IQuizRepository {
             'not_completed_count' => $totalStudents - $completedCount,
         ];
     }
+
+    public function getAttemptCount(int $assessmentId, int $userId): int {
+        $stmt = $this->db->prepare('
+            SELECT COUNT(*) as attempt_count
+            FROM assessment_results
+            WHERE assessment_id = :assessment_id
+            AND user_id = :user_id
+            AND status IN (\'completed\', \'graded\')
+        ');
+        $stmt->execute([
+            'assessment_id' => $assessmentId,
+            'user_id' => $userId,
+        ]);
+        return (int)($stmt->fetch()['attempt_count'] ?? 0);
+    }
+
+    public function getAllAttempts(int $assessmentId, int $userId): array {
+        $stmt = $this->db->prepare('
+            SELECT *
+            FROM assessment_results
+            WHERE assessment_id = :assessment_id
+            AND user_id = :user_id
+            AND status IN (\'completed\', \'graded\')
+            ORDER BY attempt_number ASC
+        ');
+        $stmt->execute([
+            'assessment_id' => $assessmentId,
+            'user_id' => $userId,
+        ]);
+        return $stmt->fetchAll();
+    }
+
+    public function calculateFinalGrade(int $assessmentId, int $userId, string $gradingMethod): ?float {
+        $attempts = $this->getAllAttempts($assessmentId, $userId);
+        
+        if (empty($attempts)) {
+            return null;
+        }
+
+        $scores = array_map(function($attempt) {
+            return (float)($attempt['score'] ?? 0);
+        }, $attempts);
+
+        switch ($gradingMethod) {
+            case 'highest':
+                return max($scores);
+            case 'average':
+                return array_sum($scores) / count($scores);
+            case 'first':
+                return $scores[0];
+            case 'last':
+            default:
+                return end($scores);
+        }
+    }
 }
+

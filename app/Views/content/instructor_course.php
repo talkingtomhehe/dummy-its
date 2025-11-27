@@ -387,26 +387,27 @@ require_once __DIR__ . '/../layouts/header.php';
                         <small>0 = no time limit</small>
                     </div>
                     <div class="form-group">
-                        <label for="quiz-allowed-attempts">Allowed Attempts:</label>
-                        <input type="number" name="quiz-allowed-attempts" id="quiz-allowed-attempts" value="0" min="0">
-                        <small>0 = unlimited attempts</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="quiz-grading-method">Grading Method:</label>
-                        <select name="quiz-grading-method" id="quiz-grading-method">
-                            <option value="highest">Highest Score</option>
-                            <option value="average">Average Score</option>
-                            <option value="last">Last Attempt</option>
-                        </select>
-                        <small>How to calculate grade from multiple attempts</small>
-                    </div>
-                    <div class="form-group">
                         <label for="quiz-open-time">Open time:</label>
                         <input type="datetime-local" name="quiz-open-time" id="quiz-open-time">
                     </div>
                     <div class="form-group">
                         <label for="quiz-close-time">Close time:</label>
                         <input type="datetime-local" name="quiz-close-time" id="quiz-close-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-max-attempts">Max Attempts:</label>
+                        <input type="number" name="quiz-max-attempts" id="quiz-max-attempts" value="1" min="0">
+                        <small>0 = unlimited attempts</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-grading-method">Grading Method:</label>
+                        <select name="quiz-grading-method" id="quiz-grading-method">
+                            <option value="last">Last Attempt</option>
+                            <option value="highest">Highest Score</option>
+                            <option value="average">Average Score</option>
+                            <option value="first">First Attempt</option>
+                        </select>
+                        <small>How to calculate final grade from multiple attempts</small>
                     </div>
                 </div>
                 
@@ -495,8 +496,8 @@ function populateContentForm(content) {
     } else if (normalizedType === 'quiz') {
         // Populate quiz specific fields
         document.getElementById('quiz-time-limit').value = content.time_limit || 30;
-        document.getElementById('quiz-allowed-attempts').value = content.allowed_attempts || 0;
-        document.getElementById('quiz-grading-method').value = content.grading_method || 'highest';
+        document.getElementById('quiz-max-attempts').value = content.max_attempts || 1;
+        document.getElementById('quiz-grading-method').value = content.grading_method || 'last';
         if (content.open_time) {
             const openTime = formatDateTimeForInput(content.open_time);
             document.getElementById('quiz-open-time').value = openTime;
@@ -684,13 +685,13 @@ function submitContentForm(e) {
         const openTime = form.querySelector('#quiz-open-time');
         const closeTime = form.querySelector('#quiz-close-time');
         const timeLimit = form.querySelector('#quiz-time-limit');
-        const allowedAttempts = form.querySelector('#quiz-allowed-attempts');
+        const maxAttempts = form.querySelector('#quiz-max-attempts');
         const gradingMethod = form.querySelector('#quiz-grading-method');
         if (openTime && openTime.value) formData.append('quiz-open-time', openTime.value);
         if (closeTime && closeTime.value) formData.append('quiz-close-time', closeTime.value);
         if (timeLimit) formData.append('quiz-time-limit', timeLimit.value || 0);
-        if (allowedAttempts) formData.append('quiz-allowed-attempts', allowedAttempts.value || 0);
-        if (gradingMethod) formData.append('quiz-grading-method', gradingMethod.value || 'highest');
+        if (maxAttempts) formData.append('quiz-max-attempts', maxAttempts.value || 1);
+        if (gradingMethod) formData.append('quiz-grading-method', gradingMethod.value || 'last');
     } else if (type === 'assignment') {
         const openTime = form.querySelector('#assignment-open-time');
         const closeTime = form.querySelector('#assignment-close-time');

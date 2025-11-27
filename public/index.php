@@ -85,7 +85,7 @@ $router->get('/course', function() {
         header('Location: /its/');
         exit;
     }
-    (new \App\Controllers\ContentController())->showCourse();
+    (new \App\Controllers\ContentController())->listCourses();
 });
 
 $router->get('/course/{id}', function($id) {
@@ -214,6 +214,14 @@ $router->post('/quiz/question/{id}/delete', function($id) {
         exit;
     }
     (new \App\Controllers\QuizController())->deleteQuestion(['id' => $id]);
+});
+
+$router->post('/quiz/{id}/update-settings', function($id) {
+    if (!Session::isInstructor()) {
+        header('Location: /its/course');
+        exit;
+    }
+    (new \App\Controllers\QuizController())->updateSettings(['id' => $id]);
 });
 
 // Content viewing route

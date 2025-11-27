@@ -49,16 +49,16 @@ class QuizController
             $quiz = $this->formatQuizForView($overview['quiz'] ?? []);
             $latestResult = $overview['latest_result'] ?? null;
 
-            // If student has completed the quiz, show results instead
-            if (!empty($latestResult)) {
-                View::redirect('/quiz/' . $quizId . '/results');
-                return;
-            }
-
             View::render('quiz/quiz_start', [
                 'quiz' => $quiz,
-                'hasAttempt' => false,
+                'hasAttempt' => !empty($latestResult),
                 'canTake' => (bool)($overview['can_attempt'] ?? false),
+                'attemptCount' => $overview['attempt_count'] ?? 0,
+                'maxAttempts' => $overview['max_attempts'] ?? 1,
+                'remainingAttempts' => $overview['remaining_attempts'] ?? 0,
+                'gradingMethod' => $overview['grading_method'] ?? 'last',
+                'finalGrade' => $overview['final_grade'] ?? null,
+                'latestScore' => $latestResult['score'] ?? null,
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -177,6 +177,9 @@ class QuizController
                 'totalQuestions' => $stats['total_questions'],
                 'correctAnswers' => $stats['correct_answers'],
                 'courseId' => $quiz['subject_id'] ?? null,
+                'allAttempts' => $payload['all_attempts'] ?? [],
+                'finalGrade' => $payload['final_grade'] ?? null,
+                'gradingMethod' => $payload['grading_method'] ?? 'last',
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -216,6 +219,9 @@ class QuizController
                 'totalQuestions' => $stats['total_questions'],
                 'correctAnswers' => $stats['correct_answers'],
                 'courseId' => $quiz['subject_id'] ?? null,
+                'allAttempts' => $payload['all_attempts'] ?? [],
+                'finalGrade' => $payload['final_grade'] ?? null,
+                'gradingMethod' => $payload['grading_method'] ?? 'last',
             ]);
         } catch (\Throwable $exception) {
             Session::flash('error', $exception->getMessage());
@@ -320,6 +326,41 @@ class QuizController
 
         try {
             $this->quizService->deleteQuestion($questionId);
+            View::json(['success' => true]);
+        } catch (\Throwable $exception) {
+            View::json(['success' => false, 'message' => $exception->getMessage()], 500);
+        }
+    }
+
+    public function updateSettings($params): void
+    {
+        $quizId = isset($params['id']) ? (int)$params['id'] : 0;
+
+        if ($quizId <= 0) {
+            View::json(['success' => false, 'message' => 'Invalid quiz id'], 400);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $maxAttempts = isset($input['max_attempts']) ? (int)$input['max_attempts'] : 1;
+        $gradingMethod = $input['grading_method'] ?? 'last';
+
+        try {
+            $quiz = $this->quizService->getQuizWithQuestions($quizId);
+            $updateData = [
+                'title' => $quiz['title'],
+                'description' => $quiz['description'] ?? '',
+                'time_limit' => $quiz['time_limit'] ?? 0,
+                'open_time' => $quiz['open_time'],
+                'close_time' => $quiz['close_time'],
+                'max_score' => $quiz['max_score'] ?? 10,
+                'is_visible' => $quiz['is_visible'] ?? 1,
+                'display_order' => $quiz['display_order'] ?? 0,
+                'max_attempts' => $maxAttempts,
+                'grading_method' => $gradingMethod,
+            ];
+
+            $this->quizService->updateQuiz($quizId, $updateData);
             View::json(['success' => true]);
         } catch (\Throwable $exception) {
             View::json(['success' => false, 'message' => $exception->getMessage()], 500);

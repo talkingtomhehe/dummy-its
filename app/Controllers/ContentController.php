@@ -29,6 +29,48 @@ class ContentController {
     }
 
     /**
+     * Show all courses list
+     */
+    public function listCourses(): void {
+        if (!Session::isAuthenticated()) {
+            View::redirect('/');
+            return;
+        }
+
+        try {
+            $allSubjects = $this->contentService->getAllSubjects();
+            
+            // Get topic and content counts for each subject
+            $courses = [];
+            foreach ($allSubjects as $subject) {
+                $topicCount = $this->contentService->getTopicCountBySubject($subject['subject_id']);
+                $contentCount = $this->contentService->getContentCountBySubject($subject['subject_id']);
+                
+                $courses[] = [
+                    'subject_id' => $subject['subject_id'],
+                    'subject_name' => $subject['subject_name'],
+                    'subject_code' => $subject['subject_code'] ?? '',
+                    'description' => $subject['description'] ?? '',
+                    'topic_count' => $topicCount,
+                    'content_count' => $contentCount,
+                ];
+            }
+            
+            $data = [
+                'courses' => $courses,
+                'isInstructor' => Session::isInstructor(),
+                'userRole' => Session::getUserRole(),
+                'userName' => Session::get('full_name'),
+            ];
+            
+            View::render('content/courses_list', $data);
+        } catch (\Exception $e) {
+            Session::flash('error', $e->getMessage());
+            View::redirect('/dashboard');
+        }
+    }
+
+    /**
      * Show course page
      */
     public function showCourse(int $subjectId = 1): void {
@@ -209,6 +251,8 @@ class ContentController {
                 $data['open_time'] = !empty($_POST['quiz-open-time']) ? str_replace('T', ' ', $_POST['quiz-open-time']) . ':00' : null;
                 $data['close_time'] = !empty($_POST['quiz-close-time']) ? str_replace('T', ' ', $_POST['quiz-close-time']) . ':00' : null;
                 $data['time_limit'] = isset($_POST['quiz-time-limit']) ? (int)$_POST['quiz-time-limit'] : 0;
+                $data['max_attempts'] = isset($_POST['quiz-max-attempts']) ? (int)$_POST['quiz-max-attempts'] : 1;
+                $data['grading_method'] = $_POST['quiz-grading-method'] ?? 'last';
             } elseif ($contentType === 'assignment') {
                 $data['open_time'] = !empty($_POST['assignment-open-time']) ? str_replace('T', ' ', $_POST['assignment-open-time']) . ':00' : null;
                 $data['close_time'] = !empty($_POST['assignment-close-time']) ? str_replace('T', ' ', $_POST['assignment-close-time']) . ':00' : null;
@@ -372,6 +416,8 @@ class ContentController {
                 $updateData['open_time'] = !empty($_POST['quiz-open-time']) ? str_replace('T', ' ', $_POST['quiz-open-time']) . ':00' : null;
                 $updateData['close_time'] = !empty($_POST['quiz-close-time']) ? str_replace('T', ' ', $_POST['quiz-close-time']) . ':00' : null;
                 $updateData['time_limit'] = isset($_POST['quiz-time-limit']) ? (int)$_POST['quiz-time-limit'] : 0;
+                $updateData['max_attempts'] = isset($_POST['quiz-max-attempts']) ? (int)$_POST['quiz-max-attempts'] : 1;
+                $updateData['grading_method'] = $_POST['quiz-grading-method'] ?? 'last';
             } elseif ($contentType === 'assignment') {
                 $updateData['open_time'] = !empty($_POST['assignment-open-time']) ? str_replace('T', ' ', $_POST['assignment-open-time']) . ':00' : null;
                 $updateData['close_time'] = !empty($_POST['assignment-close-time']) ? str_replace('T', ' ', $_POST['assignment-close-time']) . ':00' : null;

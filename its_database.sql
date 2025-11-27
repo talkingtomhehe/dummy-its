@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 26, 2025 lúc 05:50 PM
+-- Thời gian đã tạo: Th10 27, 2025 lúc 10:37 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -38,10 +38,10 @@ CREATE TABLE `assessments` (
   `open_time` datetime DEFAULT NULL,
   `close_time` datetime DEFAULT NULL,
   `max_score` decimal(5,2) DEFAULT 10.00,
-  `allowed_attempts` int(11) DEFAULT 0 COMMENT 'Number of allowed attempts, 0 = unlimited',
-  `grading_method` enum('highest','average','last') DEFAULT 'highest' COMMENT 'Method used to calculate final grade from multiple attempts',
   `is_visible` tinyint(1) DEFAULT 1,
   `display_order` int(11) DEFAULT 0,
+  `max_attempts` int(11) DEFAULT 1 COMMENT 'Maximum number of attempts allowed, 0 = unlimited',
+  `grading_method` enum('highest','average','first','last') DEFAULT 'last' COMMENT 'Method to calculate final grade from multiple attempts',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -50,15 +50,15 @@ CREATE TABLE `assessments` (
 -- Đang đổ dữ liệu cho bảng `assessments`
 --
 
-INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `assessment_type`, `description`, `time_limit`, `open_time`, `close_time`, `max_score`, `allowed_attempts`, `grading_method`, `is_visible`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 2, 7, '1.3 Quiz: Introduction Concepts', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 0, 'highest', 1, 0, '2025-11-15 02:27:14', '2025-11-25 13:30:49'),
-(2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 0, 'highest', 1, 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(7, 1, 19, 'abc', 'quiz', '', 30, '2025-11-25 11:31:00', '2025-11-27 11:31:00', 10.00, 0, 'highest', 1, 0, '2025-11-25 04:31:28', '2025-11-25 12:06:59'),
-(9, 1, 30, 'Assignment 1', 'assignment', '', 0, '2025-11-24 19:02:00', '2025-11-27 19:02:00', 10.00, 0, 'highest', 1, 0, '2025-11-25 12:02:55', '2025-11-25 12:13:08'),
-(10, 1, 32, 'Quiz 1', 'quiz', '', 30, '2025-11-25 19:55:00', '2025-11-27 19:55:00', 10.00, 0, 'highest', 1, 0, '2025-11-25 12:55:41', '2025-11-26 15:51:41'),
-(11, 1, 34, 'Quiz 2', 'quiz', '', 1, '2025-11-24 20:34:00', '2025-11-26 20:34:00', 10.00, 0, 'highest', 1, 0, '2025-11-25 13:34:55', '2025-11-25 13:34:55'),
-(12, 1, 35, 'Quiz 4', 'quiz', '', 30, '2025-11-24 20:39:00', '2025-11-26 20:39:00', 10.00, 0, 'highest', 1, 0, '2025-11-25 13:39:39', '2025-11-25 13:39:39'),
-(13, 1, 36, 'Quiz 5', 'quiz', '', 5, '2025-11-25 23:45:00', '2025-11-27 23:45:00', 10.00, 0, 'highest', 1, 0, '2025-11-26 16:45:23', '2025-11-26 16:45:23');
+INSERT INTO `assessments` (`assessment_id`, `topic_id`, `content_id`, `title`, `assessment_type`, `description`, `time_limit`, `open_time`, `close_time`, `max_score`, `is_visible`, `display_order`, `max_attempts`, `grading_method`, `created_at`, `updated_at`) VALUES
+(1, 2, 7, '1.3 Quiz: Introduction Concepts aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'quiz', 'Quiz on basic testing concepts', 30, '2025-11-14 08:00:00', '2025-11-17 23:59:00', 10.00, 1, 0, 1, 'last', '2025-11-15 02:27:14', '2025-11-16 17:34:45'),
+(2, 3, 8, 'Nộp bài Assignment', 'assignment', 'Submit your final project assignment', 0, '2025-11-15 00:00:00', '2025-11-26 23:00:00', 10.00, 1, 0, 1, 'last', '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(5, 2, 16, 'abc', 'assignment', '', 0, NULL, NULL, 10.00, 1, 0, 1, 'last', '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
+(6, 2, 17, 'abc', 'quiz', '', 0, NULL, NULL, 10.00, 1, 0, 1, 'last', '2025-11-16 19:16:22', '2025-11-16 19:16:22'),
+(7, 1, 19, 'abc', 'quiz', '', 30, '2025-11-25 11:31:00', '2025-11-26 11:31:00', 10.00, 1, 0, 1, 'last', '2025-11-25 04:31:28', '2025-11-25 04:31:28'),
+(8, 1, 20, 'abc', 'assignment', '', 0, '2025-11-25 11:31:00', '2025-11-26 11:31:00', 10.00, 1, 0, 1, 'last', '2025-11-25 04:31:49', '2025-11-25 04:31:49'),
+(9, 6, 22, 'Quiz 1', 'quiz', '', 25, '2025-11-26 15:51:00', '2025-11-28 15:51:00', 10.00, 1, 0, 1, 'last', '2025-11-27 08:51:21', '2025-11-27 08:51:21'),
+(10, 6, 23, 'Quiz 2', 'quiz', '', 30, '2025-11-26 16:12:00', '2025-11-28 16:12:00', 10.00, 1, 0, 2, 'highest', '2025-11-27 09:12:42', '2025-11-27 09:30:00');
 
 -- --------------------------------------------------------
 
@@ -77,6 +77,7 @@ CREATE TABLE `assessment_results` (
   `submission_file` text DEFAULT NULL COMMENT 'JSON array of uploaded file paths',
   `original_filenames` text DEFAULT NULL COMMENT 'JSON array of original filenames',
   `status` enum('pending','in_progress','submitted','graded','completed') DEFAULT 'submitted',
+  `attempt_number` int(11) DEFAULT 1 COMMENT 'Attempt number for this submission',
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `started_at` datetime DEFAULT NULL,
   `completed_at` datetime DEFAULT NULL,
@@ -88,15 +89,14 @@ CREATE TABLE `assessment_results` (
 -- Đang đổ dữ liệu cho bảng `assessment_results`
 --
 
-INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `original_filenames`, `status`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
-(1, 1, 1, 1, 6.67, '{\"1\":\"c\",\"2\":\"a\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 11:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
-(2, 1, 2, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', '2025-11-14 12:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332),
-(4, 2, 1, 1, NULL, NULL, NULL, 'assignment_2_student_1_20251123090239.pdf', NULL, 'submitted', '2025-11-23 08:02:39', NULL, NULL, NULL, NULL),
-(6, 7, 1, 1, 3.33, '{\"10\":\"43\",\"11\":[\"46\"],\"12\":[\"48\"]}', 'hoc ngu qua', NULL, NULL, 'graded', '2025-11-25 12:10:24', NULL, '2025-11-25 19:10:24', '2025-11-25 12:10:53', NULL),
-(7, 9, 1, 1, 9.00, NULL, 'Lam tot lam', '[\"assignment_9_student_1_20251125131448_0.pdf\",\"assignment_9_student_1_20251125131448_1.pdf\"]', '[\"WorkSummary.pdf\",\"EERD.pdf\"]', 'graded', '2025-11-25 12:14:48', NULL, NULL, '2025-11-26 16:37:11', NULL),
-(11, 12, 1, 1, 10.00, '{\"19\":\"66\"}', NULL, NULL, NULL, 'completed', '2025-11-25 13:59:37', '2025-11-25 20:59:30', '2025-11-25 20:59:37', NULL, 7),
-(14, 11, 1, 1, 1.67, '{\"16\":\"59\",\"17\":[\"62\"],\"18\":\"64\"}', NULL, NULL, NULL, 'completed', '2025-11-25 14:05:17', '2025-11-25 21:05:05', '2025-11-25 21:05:17', NULL, 12),
-(17, 10, 1, 1, 6.67, '{\"13\":\"51\",\"14\":\"52\",\"15\":[\"55\",\"56\",\"57\"]}', NULL, NULL, NULL, 'completed', '2025-11-26 16:48:40', '2025-11-26 23:48:21', '2025-11-26 23:48:40', NULL, 19);
+INSERT INTO `assessment_results` (`result_id`, `assessment_id`, `user_id`, `student_id`, `score`, `answers`, `feedback`, `submission_file`, `original_filenames`, `status`, `attempt_number`, `submitted_at`, `started_at`, `completed_at`, `graded_at`, `time_taken`) VALUES
+(1, 1, 1, 1, 6.67, '{\"1\":\"c\",\"2\":\"a\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', 1, '2025-11-14 11:02:00', '2025-11-14 17:59:50', '2025-11-14 18:02:00', NULL, 130),
+(2, 1, 2, 2, 10.00, '{\"1\":\"c\",\"2\":\"c\",\"3\":[\"a\",\"b\"]}', NULL, NULL, NULL, 'completed', 1, '2025-11-14 12:15:00', '2025-11-14 19:09:28', '2025-11-14 19:15:00', NULL, 332),
+(3, 6, 1, 1, 0.00, '{\"7\":\"34\",\"8\":[\"37\"],\"9\":[\"39\"]}', 'hoc ngu qua', NULL, NULL, 'graded', 1, '2025-11-16 21:26:45', NULL, '2025-11-17 04:26:45', '2025-11-25 08:08:25', NULL),
+(4, 2, 1, 1, NULL, NULL, NULL, 'assignment_2_student_1_20251123090239.pdf', NULL, 'submitted', 1, '2025-11-23 08:02:39', NULL, NULL, NULL, NULL),
+(5, 5, 1, 1, 9.00, NULL, 'hay qua em oi', '[\"assignment_5_student_1_20251123095346_0.pdf\",\"assignment_5_student_1_20251123095346_1.pdf\"]', '[\"Book1.pdf\",\"abc.pdf\"]', 'graded', 1, '2025-11-23 08:53:46', NULL, NULL, '2025-11-25 08:09:03', NULL),
+(6, 10, 1, 1, 8.33, '{\"10\":\"40\",\"11\":[\"44\"],\"12\":\"47\"}', NULL, NULL, NULL, 'completed', 1, '2025-11-27 09:33:29', '2025-11-27 16:33:15', '2025-11-27 16:33:29', NULL, 13),
+(7, 10, 1, 1, 3.33, '{\"10\":\"42\",\"11\":[\"45\"],\"12\":\"47\"}', NULL, NULL, NULL, 'completed', 2, '2025-11-27 09:36:16', '2025-11-27 16:36:01', '2025-11-27 16:36:16', NULL, 15);
 
 -- --------------------------------------------------------
 
@@ -108,7 +108,7 @@ CREATE TABLE `content_items` (
   `content_id` int(11) NOT NULL,
   `topic_id` int(11) NOT NULL,
   `title` varchar(200) NOT NULL,
-  `content_type` enum('text','video','link','page','file','quiz','assignment','announcement') NOT NULL,
+  `content_type` enum('text','video','link','page','file','quiz','assignment') NOT NULL,
   `content_data` text DEFAULT NULL,
   `file_path` varchar(500) DEFAULT NULL,
   `is_visible` tinyint(1) DEFAULT 1,
@@ -128,17 +128,15 @@ INSERT INTO `content_items` (`content_id`, `topic_id`, `title`, `content_type`, 
 (4, 2, '1.2 Video: What is Testing?', 'video', 'https://www.youtube.com/embed/example', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (5, 2, '1.2.1 External Link: Introduction to Testing', 'link', 'https://www.guru99.com/software-testing-introduction-importance.html', NULL, 1, 3, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (6, 3, 'Assignment Specification', 'page', '<h2>Final Project Assignment</h2><p>Develop a comprehensive test plan for a given software system.</p><p><strong>Requirements:</strong></p><ul><li>Test case design</li><li>Test execution plan</li><li>Bug report documentation</li></ul>', NULL, 1, 1, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', '', NULL, 1, 4, '2025-11-15 02:27:14', '2025-11-25 13:30:49'),
+(7, 2, '1.3 Quiz: Introduction Concepts', 'quiz', NULL, NULL, 1, 4, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
 (8, 3, 'Final Project Submission', 'assignment', '<p>Upload your completed project deliverables.</p>', NULL, 1, 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
-(19, 1, 'Quiz 3', 'quiz', '', NULL, 1, 0, '2025-11-25 04:31:28', '2025-11-25 13:11:24'),
-(21, 6, 'video hay', 'video', 'https://www.youtube.com/watch?v=UrU3JQvpP60', NULL, 1, 0, '2025-11-25 08:50:07', '2025-11-25 10:53:28'),
-(22, 6, 'abc', 'link', 'https://www.youtube.com/watch?v=UrU3JQvpP60', NULL, 1, 0, '2025-11-25 09:37:32', '2025-11-25 09:37:32'),
-(30, 1, 'Assignment 1', 'assignment', '', NULL, 1, 0, '2025-11-25 12:02:55', '2025-11-25 12:02:55'),
-(32, 1, 'Quiz 1', 'quiz', '', NULL, 1, 0, '2025-11-25 12:55:41', '2025-11-25 12:55:41'),
-(33, 6, 'video hay nua', 'video', 'https://www.youtube.com/watch?v=RCPaonINEjo&list=PLKvoOwlacRoLUIt3JfQU90uGxTo_qu8IN&index=30', NULL, 1, 0, '2025-11-25 13:02:00', '2025-11-25 13:02:00'),
-(34, 1, 'Quiz 2', 'quiz', '', NULL, 1, 0, '2025-11-25 13:34:55', '2025-11-25 13:34:55'),
-(35, 1, 'Quiz 4', 'quiz', '', NULL, 1, 0, '2025-11-25 13:39:39', '2025-11-25 13:39:39'),
-(36, 1, 'Quiz 5', 'quiz', '', NULL, 1, 0, '2025-11-26 16:45:23', '2025-11-26 16:45:23');
+(16, 2, 'abc', 'assignment', '', NULL, 1, 0, '2025-11-16 19:16:06', '2025-11-16 19:16:06'),
+(17, 2, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-16 19:16:22', '2025-11-16 19:16:22'),
+(19, 1, 'abc', 'quiz', '', NULL, 1, 0, '2025-11-25 04:31:28', '2025-11-25 04:31:28'),
+(20, 1, 'abc', 'assignment', '', NULL, 1, 0, '2025-11-25 04:31:49', '2025-11-25 04:31:49'),
+(21, 6, 'Video hay', 'video', 'https://www.youtube.com/watch?v=M-uUFLU9IFU', NULL, 1, 0, '2025-11-27 08:50:13', '2025-11-27 08:50:13'),
+(22, 6, 'Quiz 1', 'quiz', '', NULL, 1, 0, '2025-11-27 08:51:21', '2025-11-27 08:51:21'),
+(23, 6, 'Quiz 2', 'quiz', '', NULL, 1, 0, '2025-11-27 09:12:42', '2025-11-27 09:12:42');
 
 -- --------------------------------------------------------
 
@@ -164,79 +162,20 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`notification_id`, `user_id`, `title`, `message`, `type`, `related_type`, `related_id`, `is_read`, `read_at`, `created_at`) VALUES
-(7, 2, 'New Topic Added', 'A new topic \'Topic 2\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-25 08:45:57'),
-(8, 3, 'New Topic Added', 'A new topic \'Topic 2\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-25 08:45:57'),
-(10, 2, 'New Content Available', 'New content \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 08:50:07'),
-(11, 3, 'New Content Available', 'New content \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 08:50:07'),
-(16, 2, 'New Content Available', 'New content \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 22, 0, NULL, '2025-11-25 09:37:32'),
-(17, 3, 'New Content Available', 'New content \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 22, 0, NULL, '2025-11-25 09:37:32'),
-(19, 2, 'Content Updated', '\'hehe\' in Software Testing has been updated.', 'info', 'content', 21, 0, NULL, '2025-11-25 09:38:23'),
-(20, 3, 'Content Updated', '\'hehe\' in Software Testing has been updated.', 'info', 'content', 21, 0, NULL, '2025-11-25 09:38:23'),
-(22, 2, 'New Content Available', 'New content \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', 23, 0, NULL, '2025-11-25 09:39:53'),
-(23, 3, 'New Content Available', 'New content \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', 23, 0, NULL, '2025-11-25 09:39:53'),
-(25, 2, 'New Content Available', 'New document \'bai hoc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 24, 0, NULL, '2025-11-25 09:41:39'),
-(26, 3, 'New Content Available', 'New document \'bai hoc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 24, 0, NULL, '2025-11-25 09:41:39'),
-(28, 2, 'New Content Available', 'New page \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', 25, 0, NULL, '2025-11-25 10:10:05'),
-(29, 3, 'New Content Available', 'New page \'hello\' has been added to Topic 2 in Software Testing.', 'info', 'content', 25, 0, NULL, '2025-11-25 10:10:05'),
-(33, 2, 'New Content Available', 'New page \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 26, 0, NULL, '2025-11-25 10:20:49'),
-(34, 3, 'New Content Available', 'New page \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 26, 0, NULL, '2025-11-25 10:20:49'),
-(39, 2, 'New Content Available', 'New document \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 27, 0, NULL, '2025-11-25 10:42:18'),
-(40, 3, 'New Content Available', 'New document \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', 27, 0, NULL, '2025-11-25 10:42:18'),
-(42, 2, 'New Content Available', 'New content \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:48:32'),
-(43, 3, 'New Content Available', 'New content \'abc\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:48:32'),
-(47, 2, 'Content Updated', '\'video hay\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:53:28'),
-(48, 3, 'Content Updated', '\'video hay\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:53:28'),
-(50, 2, 'New Content Available', 'New content \'sdad\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:54:04'),
-(51, 3, 'New Content Available', 'New content \'sdad\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 10:54:04'),
-(53, 2, 'Content Updated', '\'abc\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 11:58:21'),
-(54, 3, 'Content Updated', '\'abc\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 11:58:21'),
-(56, 2, 'Content Updated', '\'abc\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 11:58:33'),
-(57, 3, 'Content Updated', '\'abc\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 11:58:33'),
-(59, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:01:54'),
-(60, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:01:54'),
-(62, 2, 'New Content Available', 'New content \'Assignment 1\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:02:55'),
-(63, 3, 'New Content Available', 'New content \'Assignment 1\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:02:55'),
-(65, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:06:59'),
-(66, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:06:59'),
-(69, 2, 'Content Updated', '\'Assignment 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:12:32'),
-(70, 3, 'Content Updated', '\'Assignment 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:12:32'),
-(72, 2, 'Content Updated', '\'Assignment 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:13:08'),
-(73, 3, 'Content Updated', '\'Assignment 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:13:08'),
-(76, 2, 'New Content Available', 'New content \'video hay nua\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:53:56'),
-(77, 3, 'New Content Available', 'New content \'video hay nua\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:53:56'),
-(79, 2, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:54:44'),
-(80, 3, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:54:44'),
-(82, 2, 'New Content Available', 'New content \'Quiz 1\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:55:41'),
-(83, 3, 'New Content Available', 'New content \'Quiz 1\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 12:55:41'),
-(85, 2, 'New Content Available', 'New content \'video hay nua\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:02:00'),
-(86, 3, 'New Content Available', 'New content \'video hay nua\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:02:00'),
-(89, 2, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:10:34'),
-(90, 3, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:10:34'),
-(92, 2, 'Content Updated', '\'Quiz 3\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:11:24'),
-(93, 3, 'Content Updated', '\'Quiz 3\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:11:24'),
-(95, 2, 'Content Updated', '\'1.3 Quiz: Introduction Concept\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:11:45'),
-(96, 3, 'Content Updated', '\'1.3 Quiz: Introduction Concept\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:11:45'),
-(98, 2, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:30:49'),
-(99, 3, 'Content Updated', '\'1.3 Quiz: Introduction Concepts\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:30:49'),
-(101, 2, 'New Content Available', 'New content \'Quiz 2\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:34:55'),
-(102, 3, 'New Content Available', 'New content \'Quiz 2\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:34:55'),
-(104, 2, 'New Content Available', 'New content \'Quiz 4\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:39:39'),
-(105, 3, 'New Content Available', 'New content \'Quiz 4\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-25 13:39:39'),
-(107, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 15:51:41'),
-(108, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 15:51:41'),
-(109, 1, 'Feedback Posted', 'Your assignment \'Assignment 1\' has received feedback from your instructor.', 'success', 'assignment', NULL, 1, '2025-11-26 16:37:22', '2025-11-26 16:37:11'),
-(110, 1, 'New Topic Added', 'A new topic \'Topic 3\' has been added to Software Testing.', 'info', 'topic', NULL, 1, '2025-11-26 16:38:01', '2025-11-26 16:37:48'),
-(111, 2, 'New Topic Added', 'A new topic \'Topic 3\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-26 16:37:48'),
-(112, 3, 'New Topic Added', 'A new topic \'Topic 3\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-26 16:37:48'),
-(113, 1, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 1, '2025-11-26 16:43:48', '2025-11-26 16:43:23'),
-(114, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:43:23'),
-(115, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:43:23'),
-(116, 1, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:44:41'),
-(117, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:44:41'),
-(118, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:44:41'),
-(119, 1, 'New Content Available', 'New content \'Quiz 5\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:45:23'),
-(120, 2, 'New Content Available', 'New content \'Quiz 5\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:45:23'),
-(121, 3, 'New Content Available', 'New content \'Quiz 5\' has been added to General in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-26 16:45:23');
+(4, 2, 'New Topic Added', 'A new topic \'Topic 2\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-27 08:40:21'),
+(5, 3, 'New Topic Added', 'A new topic \'Topic 2\' has been added to Software Testing.', 'info', 'topic', NULL, 0, NULL, '2025-11-27 08:40:21'),
+(7, 2, 'New Content Available', 'New content \'Video hay\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:50:13'),
+(8, 3, 'New Content Available', 'New content \'Video hay\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:50:13'),
+(10, 2, 'New Content Available', 'New content \'Quiz 1\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:51:21'),
+(11, 3, 'New Content Available', 'New content \'Quiz 1\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:51:21'),
+(13, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:52:44'),
+(14, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 08:52:44'),
+(16, 2, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:08:16'),
+(17, 3, 'Content Updated', '\'Quiz 1\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:08:16'),
+(19, 2, 'New Content Available', 'New content \'Quiz 2\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:12:42'),
+(20, 3, 'New Content Available', 'New content \'Quiz 2\' has been added to Topic 2 in Software Testing.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:12:42'),
+(22, 2, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:30:00'),
+(23, 3, 'Content Updated', '\'Quiz 2\' in Software Testing has been updated.', 'info', 'content', NULL, 0, NULL, '2025-11-27 09:30:00');
 
 -- --------------------------------------------------------
 
@@ -274,31 +213,21 @@ INSERT INTO `quiz_options` (`option_id`, `question_id`, `option_text`, `is_corre
 (30, 6, 'cu', 1, 0),
 (31, 6, 'cac', 1, 1),
 (32, 6, 'chim', 1, 2),
-(43, 10, 'Exam', 1, 0),
-(44, 10, 'Dog', 0, 1),
-(45, 10, 'Cat', 0, 2),
-(46, 11, 'Hi', 1, 0),
-(47, 11, 'Halo', 1, 1),
-(48, 12, 'Đúng', 0, 0),
-(49, 12, 'Sai', 1, 1),
-(50, 13, 'Đúng', 0, 0),
-(51, 13, 'Sai', 1, 1),
-(52, 14, 'hi', 1, 0),
-(53, 14, 'bye', 0, 1),
-(54, 14, 'goodbye', 0, 2),
-(55, 15, 'hi', 1, 0),
-(56, 15, 'hallo', 1, 1),
-(57, 15, 'bye', 0, 2),
-(58, 16, 'bye', 0, 0),
-(59, 16, 'hi', 0, 1),
-(60, 16, 'halo', 0, 2),
-(61, 17, 'hi', 1, 0),
-(62, 17, 'halo', 1, 1),
-(63, 17, 'bye', 0, 2),
-(64, 18, 'Đúng', 0, 0),
-(65, 18, 'Sai', 1, 1),
-(66, 19, 'hi', 1, 0),
-(67, 19, 'bye', 0, 1);
+(33, 7, 'cu', 0, 0),
+(34, 7, 'cac', 0, 1),
+(35, 7, 'chim', 1, 2),
+(36, 8, 'cu', 1, 0),
+(37, 8, 'cac', 1, 1),
+(38, 9, 'Đúng', 1, 0),
+(39, 9, 'Sai', 0, 1),
+(40, 10, 'Dog', 1, 0),
+(41, 10, 'Cat', 0, 1),
+(42, 10, 'Ant', 0, 2),
+(43, 11, 'hi', 1, 0),
+(44, 11, 'hello', 1, 1),
+(45, 11, 'bye', 0, 2),
+(46, 12, 'Đúng', 0, 0),
+(47, 12, 'Sai', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -327,16 +256,12 @@ INSERT INTO `quiz_questions` (`question_id`, `assessment_id`, `question_text`, `
 (4, 1, 'dung hay sai', 'tf', 1.00, 0, '2025-11-16 19:11:49', '2025-11-16 19:11:49'),
 (5, 1, 'con kec la gi', 'mc-single', 1.00, 0, '2025-11-16 19:12:29', '2025-11-16 19:12:29'),
 (6, 1, 'con kec la gi', 'mc-multi', 1.00, 0, '2025-11-16 19:12:49', '2025-11-16 19:12:49'),
-(10, 7, 'What is a quiz?', 'mc-single', 1.00, 0, '2025-11-25 12:04:04', '2025-11-25 12:04:04'),
-(11, 7, 'Similar to Hello?', 'mc-multi', 1.00, 0, '2025-11-25 12:05:20', '2025-11-25 12:05:20'),
-(12, 7, 'A dog is a cat?', 'tf', 1.00, 0, '2025-11-25 12:05:36', '2025-11-25 12:05:36'),
-(13, 10, 'dog is a cat?', 'tf', 1.00, 0, '2025-11-25 13:04:38', '2025-11-25 13:04:38'),
-(14, 10, 'Similar to hello?', 'mc-single', 1.00, 0, '2025-11-25 13:05:04', '2025-11-25 13:05:04'),
-(15, 10, 'Similar to hello?', 'mc-multi', 1.00, 0, '2025-11-25 13:33:05', '2025-11-25 13:33:05'),
-(16, 11, 'Similar to hello?', 'mc-single', 1.00, 0, '2025-11-25 13:35:35', '2025-11-25 13:35:35'),
-(17, 11, 'similar to hello?', 'mc-multi', 1.00, 0, '2025-11-25 13:35:56', '2025-11-25 13:35:56'),
-(18, 11, 'Dog is a cat?', 'tf', 1.00, 0, '2025-11-25 13:36:47', '2025-11-25 13:36:47'),
-(19, 12, 'similar to hello?', 'mc-single', 1.00, 0, '2025-11-25 13:40:20', '2025-11-25 13:40:20');
+(7, 6, 'con kec la gi?', 'mc-single', 1.00, 0, '2025-11-16 21:25:29', '2025-11-16 21:25:29'),
+(8, 6, 'con kec la gi', 'mc-multi', 1.00, 0, '2025-11-16 21:25:47', '2025-11-16 21:25:47'),
+(9, 6, 'con kec la gi', 'tf', 1.00, 0, '2025-11-16 21:25:59', '2025-11-16 21:25:59'),
+(10, 10, 'Dog is a cat?', 'mc-single', 1.00, 0, '2025-11-27 09:31:33', '2025-11-27 09:31:33'),
+(11, 10, 'similar to hi?', 'mc-multi', 1.00, 0, '2025-11-27 09:31:58', '2025-11-27 09:31:58'),
+(12, 10, 'dog is a cat?', 'tf', 1.00, 0, '2025-11-27 09:32:13', '2025-11-27 09:32:13');
 
 -- --------------------------------------------------------
 
@@ -382,11 +307,10 @@ CREATE TABLE `topics` (
 --
 
 INSERT INTO `topics` (`topic_id`, `subject_id`, `topic_title`, `description`, `display_order`, `created_at`, `updated_at`) VALUES
-(1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 02:27:14', '2025-11-25 10:25:49'),
-(2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 0, '2025-11-15 02:27:14', '2025-11-25 09:26:45'),
-(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-25 10:52:53'),
-(6, 1, 'Topic 2', '', 0, '2025-11-25 08:45:57', '2025-11-25 10:52:53'),
-(7, 1, 'Topic 3', '', 0, '2025-11-26 16:37:48', '2025-11-26 16:37:48');
+(1, 1, 'General', 'General course materials and announcements', 0, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(2, 1, 'Topic 1: Introduction to Software Testing', 'Introduction to fundamental concepts of software testing', 0, '2025-11-15 02:27:14', '2025-11-27 08:40:27'),
+(3, 1, 'Project', 'Course project and assignments', 2, '2025-11-15 02:27:14', '2025-11-15 02:27:14'),
+(6, 1, 'Topic 2', '', 1, '2025-11-27 08:40:20', '2025-11-27 08:40:27');
 
 -- --------------------------------------------------------
 
@@ -514,37 +438,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `assessments`
 --
 ALTER TABLE `assessments`
-  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `assessment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT cho bảng `assessment_results`
 --
 ALTER TABLE `assessment_results`
-  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `result_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `content_items`
 --
 ALTER TABLE `content_items`
-  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `content_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT cho bảng `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_options`
 --
 ALTER TABLE `quiz_options`
-  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `option_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT cho bảng `quiz_questions`
 --
 ALTER TABLE `quiz_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `subjects`
@@ -556,7 +480,7 @@ ALTER TABLE `subjects`
 -- AUTO_INCREMENT cho bảng `topics`
 --
 ALTER TABLE `topics`
-  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `topic_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `users`

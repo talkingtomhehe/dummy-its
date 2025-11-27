@@ -97,7 +97,7 @@ class ContentService {
         
         // If creating a quiz or assignment, also create the assessment record
         if (in_array($data['content_type'], ['quiz', 'assignment'])) {
-            $this->contentRepo->createAssessment([
+            $assessmentData = [
                 'topic_id' => $data['topic_id'],
                 'content_id' => $contentId,
                 'title' => $data['title'],
@@ -109,7 +109,15 @@ class ContentService {
                 'max_score' => 10.00,
                 'is_visible' => $data['is_visible'] ?? 1,
                 'display_order' => $data['display_order'] ?? 0,
-            ]);
+            ];
+            
+            // Add quiz-specific fields
+            if ($data['content_type'] === 'quiz') {
+                $assessmentData['max_attempts'] = $data['max_attempts'] ?? 1;
+                $assessmentData['grading_method'] = $data['grading_method'] ?? 'last';
+            }
+            
+            $this->contentRepo->createAssessment($assessmentData);
         }
         
         return $contentId;
@@ -132,6 +140,16 @@ class ContentService {
             }
             if (isset($data['time_limit'])) {
                 $assessmentData['time_limit'] = $data['time_limit'];
+            }
+            
+            // Add quiz-specific fields
+            if ($data['content_type'] === 'quiz') {
+                if (isset($data['max_attempts'])) {
+                    $assessmentData['max_attempts'] = $data['max_attempts'];
+                }
+                if (isset($data['grading_method'])) {
+                    $assessmentData['grading_method'] = $data['grading_method'];
+                }
             }
             
             // Only update assessment if there's data to update
@@ -204,5 +222,19 @@ class ContentService {
      */
     public function getSubjectById(int $subjectId): ?array {
         return $this->contentRepo->getSubjectById($subjectId);
+    }
+
+    /**
+     * Get topic count by subject
+     */
+    public function getTopicCountBySubject(int $subjectId): int {
+        return $this->contentRepo->getTopicCountBySubject($subjectId);
+    }
+
+    /**
+     * Get content count by subject
+     */
+    public function getContentCountBySubject(int $subjectId): int {
+        return $this->contentRepo->getContentCountBySubject($subjectId);
     }
 }

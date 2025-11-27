@@ -15,6 +15,8 @@ class Quiz {
     private ?string $closeTime;
     private float $maxScore;
     private bool $isVisible;
+    private int $maxAttempts;
+    private string $gradingMethod;
 
     public function __construct(array $data = []) {
         if (!empty($data)) {
@@ -27,6 +29,8 @@ class Quiz {
             $this->closeTime = $data['close_time'] ?? null;
             $this->maxScore = $data['max_score'] ?? 10.0;
             $this->isVisible = $data['is_visible'] ?? true;
+            $this->maxAttempts = $data['max_attempts'] ?? 1;
+            $this->gradingMethod = $data['grading_method'] ?? 'last';
         }
     }
 
@@ -40,6 +44,8 @@ class Quiz {
     public function getCloseTime(): ?string { return $this->closeTime; }
     public function getMaxScore(): float { return $this->maxScore; }
     public function isVisible(): bool { return $this->isVisible; }
+    public function getMaxAttempts(): int { return $this->maxAttempts; }
+    public function getGradingMethod(): string { return $this->gradingMethod; }
 
     public function toArray(): array {
         return [
@@ -52,6 +58,8 @@ class Quiz {
             'close_time' => $this->closeTime,
             'max_score' => $this->maxScore,
             'is_visible' => $this->isVisible,
+            'max_attempts' => $this->maxAttempts,
+            'grading_method' => $this->gradingMethod,
         ];
     }
 }

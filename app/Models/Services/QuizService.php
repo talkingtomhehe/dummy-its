@@ -33,6 +33,9 @@ class QuizService {
         }, 0.0);
 
         $latestResult = $this->getLatestResultForUser($assessmentId, $userId);
+        $attemptCount = $this->quizRepo->getAttemptCount($assessmentId, $userId);
+        $maxAttempts = (int)($quiz['max_attempts'] ?? 1);
+        $gradingMethod = $quiz['grading_method'] ?? 'last';
 
         $now = new \DateTimeImmutable('now');
         $openTime = $quiz['open_time'] ? new \DateTimeImmutable($quiz['open_time']) : null;
@@ -45,6 +48,17 @@ class QuizService {
         if ($closeTime && $now > $closeTime) {
             $canAttempt = false;
         }
+        
+        // Check if student has reached max attempts (0 = unlimited)
+        if ($maxAttempts > 0 && $attemptCount >= $maxAttempts) {
+            $canAttempt = false;
+        }
+
+        // Calculate final grade based on grading method
+        $finalGrade = null;
+        if ($attemptCount > 0) {
+            $finalGrade = $this->quizRepo->calculateFinalGrade($assessmentId, $userId, $gradingMethod);
+        }
 
         return [
             'quiz' => $quiz,
@@ -55,6 +69,11 @@ class QuizService {
             'open_time' => $openTime,
             'close_time' => $closeTime,
             'max_score' => (float)($quiz['max_score'] ?? 10),
+            'attempt_count' => $attemptCount,
+            'max_attempts' => $maxAttempts,
+            'remaining_attempts' => $maxAttempts > 0 ? max(0, $maxAttempts - $attemptCount) : -1,
+            'grading_method' => $gradingMethod,
+            'final_grade' => $finalGrade,
         ];
     }
 
@@ -174,6 +193,11 @@ class QuizService {
             return $carry + (float)$item['points'];
         }, 0.0);
 
+        // Get all attempts and calculate final grade
+        $allAttempts = $this->quizRepo->getAllAttempts($assessmentId, $userId);
+        $gradingMethod = $quiz['grading_method'] ?? 'last';
+        $finalGrade = $this->quizRepo->calculateFinalGrade($assessmentId, $userId, $gradingMethod);
+
         return [
             'quiz' => $quiz,
             'result' => $result,
@@ -181,6 +205,9 @@ class QuizService {
             'answers' => $answers,
             'total_points' => $totalPoints,
             'max_score' => (float)($quiz['max_score'] ?? 10),
+            'all_attempts' => $allAttempts,
+            'final_grade' => $finalGrade,
+            'grading_method' => $gradingMethod,
         ];
     }
 
@@ -228,6 +255,14 @@ class QuizService {
         }
 
         return $this->quizRepo->createQuiz($data);
+    }
+
+    public function updateQuiz(int $assessmentId, array $data): bool {
+        if (!empty($data['open_time']) && !empty($data['close_time']) && strtotime($data['close_time']) < strtotime($data['open_time'])) {
+            throw new \InvalidArgumentException('Close time must be after open time');
+        }
+
+        return $this->quizRepo->updateQuiz($assessmentId, $data);
     }
 
     public function createQuestion(int $assessmentId, array $questionData, array $options): int {
