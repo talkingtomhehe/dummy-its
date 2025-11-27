@@ -26,7 +26,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 </div>
                 <div class="sidebar-nav-item active">
                     <i data-feather="book"></i>
-                    <span><?= htmlspecialchars($courseName ?? 'Course') ?></span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlspecialchars($courseName ?? 'Course') ?>"><?= htmlspecialchars($courseName ?? 'Course') ?></span>
                 </div>
                 
                 <div class="sidebar-nav-item category">
@@ -36,7 +36,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 <?php foreach ($topics ?? [] as $topic): ?>
                 <div class="sidebar-nav-item sub-item" onclick="scrollToSection('topic-<?= $topic['id'] ?>')">
                     <i data-feather="folder"></i>
-                    <span><?= htmlspecialchars($topic['name']) ?></span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="<?= htmlspecialchars($topic['name']) ?>"><?= htmlspecialchars($topic['name']) ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -121,7 +121,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                         ?>
                                         <i data-feather="<?= $icon ?>"></i>
                                     </div>
-                                    <div class="item-text" onclick="viewContent(<?= $item['id'] ?>, '<?= $item['type'] ?>', <?= $item['assessment_id'] !== null ? (int)$item['assessment_id'] : 'null' ?>)">
+                                    <div class="item-text" onclick="viewContent(<?= $item['id'] ?>, '<?= $item['type'] ?>', <?= $item['assessment_id'] !== null ? (int)$item['assessment_id'] : 'null' ?>)" title="<?= htmlspecialchars($item['title']) ?>">
                                         <?= htmlspecialchars($item['title']) ?>
                                         <?php if (!$item['is_visible']): ?>
                                         <span style="color: #999; font-size: 12px;">(Hidden)</span>

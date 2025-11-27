@@ -93,7 +93,7 @@ require_once __DIR__ . '/../layouts/header.php';
                 $earnedPoints = 0;
                 $isPartiallyCorrect = false;
                 
-                if ($question['question_type'] === 'mc-multi' && !empty($correctOptions)) {
+                if ($question['question_type'] === 'multiple_answer' && !empty($correctOptions)) {
                     $numCorrect = count($correctOptions);
                     $numCorrectSelected = 0;
                     $numIncorrectSelected = 0;
@@ -121,7 +121,7 @@ require_once __DIR__ . '/../layouts/header.php';
                         <?php if ($isQuestionCorrect): ?>
                             <i data-feather="check" style="width: 16px; height: 16px;"></i> Đúng - <?= number_format($question['points'], 1) ?> điểm
                         <?php elseif ($isPartiallyCorrect): ?>
-                            <i data-feather="check-circle" style="width: 16px; height: 16px;"></i> Đúng một phần - <?= number_format($earnedPoints, 1) ?> điểm
+                            <i data-feather="check-circle" style="width: 16px; height: 16px;"></i> Đúng 1 phần - <?= number_format($earnedPoints, 1) ?> điểm
                         <?php else: ?>
                             <i data-feather="x" style="width: 16px; height: 16px;"></i> Sai - 0 điểm
                         <?php endif; ?>

@@ -501,7 +501,10 @@ input:checked + .slider:before {
     font-size: 14px;
     font-weight: 500;
     flex: 1;
-    cursor: pointer; 
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .item-controls {
     display: flex;
@@ -821,13 +824,13 @@ input:checked + .slider:before {
 .quiz-main-new {
     width: 850px !important;
     flex: 0 0 850px !important;
-    order: 1 !important;
+    order: 2 !important;
 }
 
 .quiz-sidebar-new {
     width: 350px !important;
     flex: 0 0 350px !important;
-    order: 2 !important;
+    order: 1 !important;
     position: sticky;
     top: 90px;
 }
