@@ -21,6 +21,15 @@
                         "display": ["Roboto", "sans-serif"]
                     },
                     borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    keyframes: {
+                        'slide-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    },
+                    animation: {
+                        'slide-up': 'slide-up 0.3s ease-out'
+                    }
                 },
             },
         }
@@ -59,12 +68,11 @@
 </header>
 <div class="bg-white border-b border-[#e0e2e6] px-4 py-3 flex flex-col sm:flex-row gap-4 items-center justify-between shrink-0 z-10 shadow-sm">
 <div class="flex flex-1 w-full sm:w-auto items-center gap-4">
-    <a href="create-project.html">
-<button
+<button id="new-project-btn"
     class="bg-white hover:bg-[#0175C8] hover:text-white text-[#0175C8] text-sm border border-[#0175C8] font-medium px-4 py-2 rounded shadow-sm flex items-center gap-2 transition-colors">
     <span class="material-symbols-outlined text-[18px] font-bold">add</span>
     <span>New</span>
-</button></a>
+</button>
 <div class="flex-1 w-full md:max-w-xl mx-4">
     <div class="relative group">
         <div
@@ -72,7 +80,7 @@
             <div class="pl-2 pr-1 text-gray-400 flex items-center justify-center">
                 <span class="material-symbols-outlined text-[20px]">search</span>
             </div>
-            <input
+            <input id="project-search"
                 class="w-full border-none focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 h-full pl-2"
                 placeholder="Search..." type="text" />
             <button class="pr-2 text-gray-400 hover:text-gray-600">
@@ -109,7 +117,7 @@
 </div>
 </div>
 <main class="flex-1 overflow-y-auto bg-white p-6">
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-[1600px] mx-auto">
+<div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-[1600px] mx-auto">
 <a href="project-task.html">
 <div class="group bg-white border border-gray-200 rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-primary/30 transition-all cursor-pointer flex flex-col h-full min-h-[180px]">
 <div class="p-4 flex flex-col flex-1 gap-3">
@@ -285,5 +293,6 @@
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/layout.js"></script>
+<script src="../js/projects.js"></script>
 <script src="../js/app.js"></script>
 </body></html>
