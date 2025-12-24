@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Discuss</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0014A8",
+              "primary-dark": "#000f7d",
+              "background-light": "#f5f6f8",
+              "background-dark": "#0f1123",
+            },
+            fontFamily: {
+              "display": ["Roboto", "sans-serif"],
+              "sans": ["Inter", "sans-serif"],
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md h-[46px]">
+<div class="flex items-center gap-4 text-white">
+<button class="flex items-center justify-center text-white/70 p-1 hover:text-white rounded">
+<span class="material-symbols-outlined text-[24px]">apps</span>
+</button>
+<div class="flex flex-col">
+<h2 class="text-white text-base font-bold leading-tight tracking-tight">DISCUSS</h2>
+</div>
+<div class="hidden md:flex gap-6 ml-4 text-sm font-medium text-white/70">
+<a class="hover:text-white" href="#">Configuration</a>
+</div>
+</div>
+<div class="flex items-center gap-3">
+  <button class="text-white/80 hover:text-white p-1 relative">
+    <span class="material-symbols-outlined text-[20px]">schedule</span>
+  </button>
+  <button class="text-white/80 hover:text-white p-1 relative">
+    <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+    <span class="absolute top-0 right-0 size-2 bg-[#E53835] rounded-full border border-primary"></span>
+  </button>
+  <div class="size-8 rounded-full bg-white/20 overflow-hidden ml-2 cursor-pointer border border-white/30">
+    <img class="w-full h-full object-cover" data-alt="User profile avatar"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtLPoctX8BjJQdmoGiR7oxZnEMkJ4X6GajFyBZQw8NmrB75O_ICMDGudNyRqbr-xgB4T6n0aFvRkgbTQ97JwxHE7qoWveguu6Tp-neBxVCwoq82UL7WL8Unz_EH_bJrXseW1znXjOn1hNSniBevf613YxdXrMy-EVttCR_wzsa-dsx4eudABL144FWfIEvJ1XNHhKbK-mSMgVBRxd2AA3xcnqgdXzBT7Gg5DNnQBDrke9-Buo2GgSBF2EiRG4724oxUi-2ExE5qv4" />
+  </div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-[260px] lg:w-1/5 bg-white border-r border-gray-200 flex flex-col shrink-0">
+<div class="p-3">
+<button class="w-full bg-white hover:bg-primary text-[#0175C8] border border-[#0175C8] rounded py-1.5 px-3 flex items-center justify-center gap-2 text-sm font-medium shadow-sm transition-colors mb-4">
+<span class="material-symbols-outlined text-[20px]">videocam</span>
+                    Start a meeting
+                </button>
+<nav class="flex flex-col gap-0.5 text-sm text-gray-700">
+<a class="flex items-center gap-3 px-3 py-1.5 rounded hover:bg-gray-100 group" href="#">
+<span class="material-symbols-outlined text-[20px] text-gray-400 group-hover:text-gray-600">inbox</span>
+<span class="font-medium">Inbox</span>
+<span class="ml-auto bg-[#0175C8] text-white text-[10px] font-bold px-1.5 rounded-full">4</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 rounded hover:bg-gray-100 group" href="#">
+<span class="material-symbols-outlined text-[20px] text-gray-400 group-hover:text-gray-600">star</span>
+<span class="font-medium">Starred</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 rounded hover:bg-gray-100 group" href="#">
+<span class="material-symbols-outlined text-[20px] text-gray-400 group-hover:text-gray-600">history</span>
+<span class="font-medium">History</span>
+</a>
+</nav>
+<div class="mt-6">
+<div class="flex items-center justify-between px-3 mb-1 group cursor-pointer">
+<h3 class="text-xs font-bold text-gray-500 uppercase">Channels</h3>
+<span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600">add</span>
+</div>
+<nav class="flex flex-col gap-0.5 text-sm text-gray-700">
+<a class="flex items-center gap-3 px-3 py-1.5 rounded hover:bg-gray-100 text-gray-600" href="#">
+<span class="text-lg leading-none text-gray-400">#</span>
+<span class="truncate">Administrators</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 rounded bg-gray-200 text-gray-900 font-medium" href="#">
+<span class="text-lg leading-none text-gray-500">#</span>
+<span class="truncate">general</span>
+</a>
+</nav>
+</div>
+<div class="mt-6">
+<div class="flex items-center justify-between px-3 mb-1 group cursor-pointer">
+<h3 class="text-xs font-bold text-gray-500 uppercase">Direct Messages</h3>
+<span class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100 hover:text-gray-600">add</span>
+</div>
+<nav class="flex flex-col gap-0.5 text-sm text-gray-700">
+<a class="flex items-center gap-3 px-3 py-1.5 rounded hover:bg-gray-100 group" href="#">
+<div class="relative">
+<div class="w-4 h-4 rounded bg-primary/20 text-primary flex items-center justify-center text-[10px] font-bold">O</div>
+<span class="absolute -bottom-0.5 -right-0.5 block h-2 w-2 rounded-full bg-green-500 ring-2 ring-white"></span>
+</div>
+<span class="truncate">OnfisBot</span>
+</a>
+</nav>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 bg-white">
+<div class="h-14 border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h2 class="text-gray-800 font-bold text-base leading-none"># general</h2>
+<span class="text-xs text-gray-400 border border-gray-200 rounded px-1 hidden sm:inline-block">Channel</span>
+</div>
+<p class="text-sm text-gray-500 truncate max-w-md">General announcements and discussions</p>
+</div>
+<div class="flex items-center gap-3 text-gray-400">
+<button class="hover:text-primary hover:bg-gray-100 p-2 rounded-full transition-colors"><span class="material-symbols-outlined text-[20px]">call</span></button>
+<button class="hover:text-primary hover:bg-gray-100 p-2 rounded-full transition-colors"><span class="material-symbols-outlined text-[20px]">videocam</span></button>
+<div class="h-4 w-px bg-gray-300 mx-1"></div>
+<button class="hover:text-primary hover:bg-gray-100 p-2 rounded-full transition-colors"><span class="material-symbols-outlined text-[20px]">search</span></button>
+<button class="hover:text-primary hover:bg-gray-100 p-2 rounded-full transition-colors xl:hidden"><span class="material-symbols-outlined text-[20px]">group</span></button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-6">
+<div class="flex items-center justify-center">
+<span class="bg-white px-2 text-xs font-bold text-gray-400 border border-gray-200 rounded-full py-0.5 shadow-sm">Today</span>
+</div>
+<div class="flex gap-4">
+<div class="w-9 h-9 rounded bg-primary/20 text-primary flex items-center justify-center text-[20px] font-bold">O
+</div>
+
+<div class="flex-1 min-w-0">
+<div class="flex items-baseline gap-2 mb-0.5">
+<span class="font-bold text-gray-900 text-sm">OnfisBot</span>
+<span class="text-xs text-gray-400">09:00 AM</span>
+</div>
+<div class="bg-blue-50/50 border border-blue-100 rounded-lg p-4 text-sm text-gray-800">
+<h4 class="font-bold text-primary mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">waving_hand</span>
+                                Welcome to Onfis!
+                            </h4>
+<p class="mb-2">This channel is for general announcements and company-wide discussions.</p>
+<p>Feel free to introduce yourself!</p>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="shrink-0 pt-1">
+<div class="bg-center bg-no-repeat bg-cover rounded h-9 w-9 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNvzmR2QaPryImJ6Eef1iIYM0QQU3MaUifxAWnO8Usf3XrtFHkd-josMO4s-7RBpjcvGGaR3rDVNORCNHWBvfbYM8vEH26sPNRYeIkYPZ8EV1-uI3yEQAGIFuPjpgdgFH-Baq18XKcinP1K8ZqRbj9GRtGQCIsNvEvM1z4q7GOCyQOkRMJcHnPCZb0j8gUMfjQs01QlHmCidDJ-Ti0SKcafXxew3dCjc8H4RbjKzMb1paF5OWux2ean-31V-WHuCiRa9ai2YTNup4");'></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-baseline gap-2 mb-0.5">
+<span class="font-bold text-gray-900 text-sm">Marc Demo</span>
+<span class="text-xs text-gray-400">10:32 AM</span>
+</div>
+<div class="text-sm text-gray-800 leading-relaxed">
+<p>Great news! Our company has received the Deloitte Fast 50 award. 🎉</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-gray-200 bg-white">
+<div class="relative flex items-center">
+<input class="w-full pl-4 pr-32 py-3 bg-gray-100 border-none rounded-lg focus:bg-white focus:ring-1 focus:ring-primary focus:shadow-sm text-sm transition-all placeholder:text-gray-500" placeholder="Message #general..." type="text"/>
+<div class="absolute right-2 flex items-center gap-1">
+<button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span></button>
+<button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">attach_file</span></button>
+<button class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"><span class="material-symbols-outlined text-[20px]">mic</span></button>
+<button class="p-1.5 text-primary hover:text-primary-dark hover:bg-blue-50 rounded transition-colors ml-1"><span class="material-symbols-outlined text-[20px] fill-current" style="font-variation-settings: 'FILL' 1;">send</span></button>
+</div>
+</div>
+<div class="text-[10px] text-gray-400 mt-1 pl-1">
+<span class="font-semibold">Enter</span> to send, <span class="font-semibold">Shift + Enter</span> for new line
+                </div>
+</div>
+</main>
+<aside class="w-[260px] hidden xl:flex lg:w-1/5 bg-[#F9FAFB] border-l border-gray-200 flex-col shrink-0">
+<div class="p-4">
+<h3 class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-wide">Members</h3>
+<button class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded py-1.5 px-3 flex items-center justify-center gap-2 text-xs font-medium shadow-sm transition-colors mb-6">
+<span class="material-symbols-outlined text-[16px]">person_add</span>
+                    Invite a User
+                </button>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 group cursor-pointer p-1 rounded hover:bg-gray-200/50">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded h-8 w-8 shadow-sm border border-gray-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZ9IwqZLMVyFuvjD48r6YmxNecS2IrNMxG2dFNdOE52RuIygLm-jHTDoZtgyBLmLKKdD-TTsuUZVou2vdbxd0D9QR6pC_XY_z2cK-Ec_i7mICjIvR4YPbKET2bazHwZFPJKC_OyGs2Us9f1RopSTgaqSV7l4gG5EcUzhWMP3Azd4xOdVEL64x6f7WLJRJvnmpLmkD5Y63-k_4Z7bhbwIrH61E8LwjgddbaPgANhGtx_Tjkt5DESNWq0Mj89htAHSboNhEooCbGTMI");'></div>
+<span class="absolute -bottom-0.5 -right-0.5 block h-2.5 w-2.5 rounded-full bg-yellow-400 ring-2 ring-white" title="Online"></span>
+</div>
+<div class="min-w-0">
+<h4 class="text-sm font-medium text-gray-700 truncate">Mitchell Admin</h4>
+<p class="text-xs text-gray-400 truncate">Administrator</p>
+</div>
+</div>
+<div class="flex items-center gap-3 group cursor-pointer p-1 rounded hover:bg-gray-200/50">
+<div class="relative shrink-0">
+<div class="bg-center bg-no-repeat bg-cover rounded h-8 w-8 shadow-sm border border-gray-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNvzmR2QaPryImJ6Eef1iIYM0QQU3MaUifxAWnO8Usf3XrtFHkd-josMO4s-7RBpjcvGGaR3rDVNORCNHWBvfbYM8vEH26sPNRYeIkYPZ8EV1-uI3yEQAGIFuPjpgdgFH-Baq18XKcinP1K8ZqRbj9GRtGQCIsNvEvM1z4q7GOCyQOkRMJcHnPCZb0j8gUMfjQs01QlHmCidDJ-Ti0SKcafXxew3dCjc8H4RbjKzMb1paF5OWux2ean-31V-WHuCiRa9ai2YTNup4");'></div>
+<span class="absolute -bottom-0.5 -right-0.5 block h-2.5 w-2.5 rounded-full border-2 border-gray-300 bg-white ring-2 ring-white" title="Offline"></span>
+</div>
+<div class="min-w-0">
+<h4 class="text-sm font-medium text-gray-700 truncate">Marc Demo</h4>
+<p class="text-xs text-gray-400 truncate">User</p>
+</div>
+</div>
+<div class="flex items-center gap-3 group cursor-pointer p-1 rounded hover:bg-gray-200/50 opacity-75">
+<div class="relative shrink-0">
+<div class="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold border border-transparent">
+<div class="bg-center bg-no-repeat bg-cover rounded w-full h-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRqRHWuVwXt44GojFVKS0kYj7ux1sQhotSt9UaJu5rzvS1oUbJntgQ64ps8BOL3tT8IRXLlKvZGwTKTtKtwn1p4iAMjpnO_Db6zYTrJUHqu_GbCv0jrOz1Gl0C5khWEW3OtotB1H-Qyw3O9JqAX1v4T9JBoJTnxoz2b7_HO_gJmzu5PKvckk4zpVr51zocwqzl0uoXt81VnImSzy8InMKPWPYfBsEkDZu4wE-zrqVp5lcrhU34L1xvgZ8f5Anz6J6POSyiUUrYmeE");'></div>
+</div>
+<span class="absolute -bottom-0.5 -right-0.5 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white" title="Online"></span>
+</div>
+<div class="min-w-0">
+<h4 class="text-sm font-medium text-gray-700 truncate">OdooBot</h4>
+<p class="text-xs text-gray-400 truncate">System</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+
+<!-- JavaScript Files -->
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/app.js"></script>
+</body></html>

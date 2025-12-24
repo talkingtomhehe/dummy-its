@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<title>Company Workspace</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0014a8",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1123",
+                    },
+                    fontFamily: {
+                        "display": ["Roboto", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-background-dark text-[#101118] dark:text-white font-display">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap bg-primary px-8 py-2.5 shadow-sm sticky top-0 z-50">
+<!-- Left Side: Brand/Logo (Optional based on description, but good for balance) -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-white font-bold text-lg cursor-pointer">
+<span class="material-symbols-outlined !text-3xl">branding_watermark</span>
+<span>Company Workspace</span>
+</div>
+</div>
+<!-- Right Side: Navigation Items -->
+<div class="flex flex-1 justify-end gap-6 items-center">
+<!-- Icons Group -->
+<div class="flex items-center gap-2">
+<button aria-label="Chat" class="flex items-center justify-center rounded-lg size-10 hover:text-white text-white/80 transition-colors cursor-pointer">
+<span class="material-symbols-outlined !text-[24px]">chat_bubble</span>
+</button>
+<button aria-label="Activities" class="flex items-center justify-center rounded-lg size-10 hover:text-white text-white/80 transition-colors cursor-pointer">
+<span class="material-symbols-outlined !text-[24px]">schedule</span>
+</button>
+</div>
+<!-- Divider -->
+<div class="h-6 w-px bg-white/20"></div>
+<!-- Company & Profile -->
+<div class="flex items-center gap-4">
+<button class="relative group cursor-pointer focus:outline-none">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-9 border-2 border-white/30 group-hover:border-white transition-colors" data-alt="Professional user avatar portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBDrokhHu3fVRJQTh6rNsP8q4h7sHiJkTpbtFPuu_xRU2f7Q0m5ggPE6iYRXDt6CJ0zTzvmuA7JxqeE883-reimsz5xQ7POwis__V4l1M3fKE8rBVlfZXBRavNX-sjQ39YeWuXym5BzXSU3-BbjpupS1ruGERrCkPv7sD4WpIUDgLrJ7069RZ-ebm4HR1-U2HEBdTtCxIWhaFkIXIkLKiygxZI_oBvJoVufFwjUsVy44sia-PjgSMD7Os1sOc3lfX1jzBlAD2Vkm_E");'>
+</div>
+<!-- Online Status Indicator -->
+<div class="absolute bottom-0 right-0 size-2.5 bg-green-400 border-2 border-primary rounded-full"></div>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col items-center justify-start pt-16 pb-10 px-6 sm:px-10 bg-white dark:bg-background-dark">
+<div class="w-full max-w-5xl">
+<!-- Dashboard Welcome/Context (Optional but adds polish) -->
+<div class="mb-10 text-center sm:text-left">
+<h1 class="text-3xl font-bold text-primary dark:text-white mb-2">Apps</h1>
+<p class="text-gray-500 dark:text-gray-400">Select an application to start working</p>
+</div>
+<!-- App Grid -->
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
+    <!-- App Item: Projects -->
+    <a class="group flex flex-col items-center gap-3 cursor-pointer transition-transform hover:-translate-y-1" href="projects/project.html">
+        <div
+            class="flex items-center justify-center size-20 rounded-lg bg-primary shadow-md group-hover:shadow-xl group-hover:bg-primary/90 transition-all duration-300">
+            <span class="material-symbols-outlined text-white !text-[40px]">assignment</span>
+        </div>
+        <span
+            class="text-primary dark:text-blue-300 font-semibold text-sm sm:text-base text-center group-hover:text-primary/80 dark:group-hover:text-white transition-colors">Projects</span>
+    </a>
+<!-- App Item: Tasks -->
+<a class="group flex flex-col items-center gap-3 cursor-pointer transition-transform hover:-translate-y-1" href="tasks/my-task.html">
+<div class="flex items-center justify-center size-20 rounded-lg bg-primary shadow-md group-hover:shadow-xl group-hover:bg-primary/90 transition-all duration-300">
+<span class="material-symbols-outlined text-white !text-[40px]">task_alt</span>
+</div>
+<span class="text-primary dark:text-blue-300 font-semibold text-sm sm:text-base text-center group-hover:text-primary/80 dark:group-hover:text-white transition-colors">Tasks</span>
+</a>
+<!-- App Item: Discuss -->
+<a class="group flex flex-col items-center gap-3 cursor-pointer transition-transform hover:-translate-y-1" href="discuss/chat.html">
+<div class="flex items-center justify-center size-20 rounded-lg bg-primary shadow-md group-hover:shadow-xl group-hover:bg-primary/90 transition-all duration-300">
+<span class="material-symbols-outlined text-white !text-[40px]">forum</span>
+</div>
+<span class="text-primary dark:text-blue-300 font-semibold text-sm sm:text-base text-center group-hover:text-primary/80 dark:group-hover:text-white transition-colors">Discuss</span>
+</a>
+<!-- App Item: Positions -->
+<a class="group flex flex-col items-center gap-3 cursor-pointer transition-transform hover:-translate-y-1" href="positions/position-list.html">
+<div class="flex items-center justify-center size-20 rounded-lg bg-primary shadow-md group-hover:shadow-xl group-hover:bg-primary/90 transition-all duration-300">
+<span class="material-symbols-outlined text-white !text-[40px]">badge</span>
+</div>
+<span class="text-primary dark:text-blue-300 font-semibold text-sm sm:text-base text-center group-hover:text-primary/80 dark:group-hover:text-white transition-colors">Positions</span>
+</a>
+<!-- App Item: Announcements -->
+<a class="group flex flex-col items-center gap-3 cursor-pointer transition-transform hover:-translate-y-1" href="announcements/announcement.html">
+<div class="flex items-center justify-center size-20 rounded-lg bg-primary shadow-md group-hover:shadow-xl group-hover:bg-primary/90 transition-all duration-300">
+<span class="material-symbols-outlined text-white !text-[40px]">campaign</span>
+</div>
+<span class="text-primary dark:text-blue-300 font-semibold text-sm sm:text-base text-center group-hover:text-primary/80 dark:group-hover:text-white transition-colors">Announcements</span>
+</a>
+<!-- Placeholder: Add New / More Apps (Visual Filler for Grid feel) -->
+<div class="group flex flex-col items-center gap-3 cursor-pointer opacity-40 hover:opacity-100 transition-opacity">
+<div class="flex items-center justify-center size-20 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 group-hover:border-primary group-hover:bg-primary/5 transition-all duration-300">
+<span class="material-symbols-outlined text-gray-400 group-hover:text-primary !text-[32px]">add</span>
+</div>
+<span class="text-gray-400 font-medium text-sm sm:text-base text-center group-hover:text-primary transition-colors">Add apps</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- JavaScript Files -->
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/app.js"></script>
+</body></html>

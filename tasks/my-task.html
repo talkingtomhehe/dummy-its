@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Tasks</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0014A8",
+              "background-light": "#f5f6f8",
+              "background-dark": "#0f1123",
+            },
+            fontFamily: {
+              "display": ["Roboto", "sans-serif"],
+              "sans": ["Roboto", "sans-serif"],
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md">
+<div class="flex items-center gap-4 text-white">
+<button class="flex items-center justify-center p-1 text-white/80 hover:bg-white/10 rounded">
+<span class="material-symbols-outlined text-[24px]">apps</span>
+</button>
+<div class="flex flex-col">
+<h2 class="text-white text-base font-bold leading-tight tracking-tight">TASKS</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6 ml-4 text-sm font-medium text-white/80">
+  <a class="hover:text-white" href="#">Projects</a>
+  <a class="text-white :text-white" href="#">Tasks</a>
+  <a class="hover:text-white" href="#">Reporting</a>
+  <a class="hover:text-white" href="#">Configuration</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-white/80 hover:text-white relative">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+</button>
+<button class="text-white/80 hover:text-white relative">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-[#E53835] ring-2 ring-primary transform translate-x-1/2 -translate-y-1/2"></span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8 border border-white/20 cursor-pointer" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrtHkvelBpaYarklRLynYIvwiKO3PJoyX61M9rEfSXCefo80fsa24kkZfg0DWV3dgz6nUbD6jh364tBk1jBdLormL1jkK3HL4EslM15x_1sQpy4l08JfymGvkmu1Jy3gAZz1RbErA5boAfvUEtckyMrukmyRJbDqA03kxyyXNSwB0J0NYb0A7S64rVTRGAGhznKLolcDxtoXziN8SVIDhrTsqOXAhbNhJim9zonklO3A8RW7pU_vxfJ17SJltMnsn_5b6ZLZkOgyQ");'></div>
+</div>
+</header>
+<div class="bg-white border-b border-[#E7E9ED] px-4 py-2 flex flex-col md:flex-row gap-4 items-center justify-between shrink-0 z-10 shadow-sm">
+<div class="flex items-center gap-4 w-full md:w-auto">
+<button
+  class="bg-white hover:bg-[#0175C8] text-[#0175C8] text-sm border border-[#0175C8] font-medium px-4 py-2 rounded shadow-sm flex items-center gap-2 transition-colors">
+  <span class="material-symbols-outlined text-[18px] font-bold">add</span>
+  <span>New</span>
+</button>
+<div class="flex items-center gap-2">
+<h1 class="text-gray-800 text-sm">My Tasks</h1>
+<button class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
+<span class="material-symbols-outlined text-[16px]">settings</span>
+</button>
+</div>
+</div>
+<div class="flex-1 w-full md:max-w-xl mx-4">
+<div class="relative group">
+<div class="flex items-center w-full border border-gray-300 rounded focus-within:ring-1 focus-within:ring-primary focus-within:border-primary overflow-hidden bg-white h-9">
+<div class="pl-2 pr-1 text-gray-400 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<div class="flex items-center gap-1 bg-[#0175C8]/10 text-[#0175C8] border border-[#0175C8]/20 rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap mr-2 select-none">
+<span>Open Tasks</span>
+<button class="hover:bg-primary/20 rounded-full p-0.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</div>
+<input class="w-full border-none focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 h-full" placeholder="Search..." type="text"/>
+<button class="pr-2 text-gray-400 hover:text-gray-600">
+<span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end w-full md:w-auto">
+<div class="flex bg-gray-100 p-0.5 rounded-md border border-gray-200">
+<button class="p-1.5 rounded-sm bg-white text-[#0175C8] shadow-sm ring-1 ring-black/5" title="Kanban View">
+<span class="material-symbols-outlined text-[18px] block">view_kanban</span>
+</button>
+<button class="p-1.5 rounded-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors" title="List View">
+<span class="material-symbols-outlined text-[18px] block">format_list_bulleted</span>
+</button>
+<button class="p-1.5 rounded-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors" title="Calendar View">
+<span class="material-symbols-outlined text-[18px] block">calendar_month</span>
+</button>
+<button class="p-1.5 rounded-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 transition-colors" title="Graph View">
+<span class="material-symbols-outlined text-[18px] block">monitoring</span>
+</button>
+</div>
+</div>
+</div>
+<main class="flex-1 overflow-x-auto overflow-y-hidden p-4 md:p-6 bg-[#F9FAFB] min-w-0">
+<div class="flex h-full gap-4 items-start min-w-max">
+<div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
+<div class="flex items-center justify-between pb-2 group cursor-pointer">
+<h3 class="text-gray-800 font-bold text-base">Today</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded p-0.5"><span class="material-symbols-outlined text-[20px]">add</span></button>
+<span class="text-gray-600 font-semibold text-sm">2</span>
+</div>
+</div>
+<div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
+<div class="h-full bg-green-500 w-full"></div>
+</div>
+<div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 pb-4 scrollbar-hide">
+<div class="group relative bg-white rounded shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<h4 class="text-gray-900 font-medium text-sm leading-snug">Review and reply to emails</h4>
+</div>
+<div class="flex flex-wrap gap-1">
+<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Office</span>
+</div>
+<div class="flex items-center justify-between mt-1 pt-2 border-t border-transparent group-hover:border-gray-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-gray-400 hover:text-yellow-400">star</span>
+<span class="material-symbols-outlined text-[16px] text-red-500">mail</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">lock</span>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full h-6 w-6 border border-white shrink-0" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrtHkvelBpaYarklRLynYIvwiKO3PJoyX61M9rEfSXCefo80fsa24kkZfg0DWV3dgz6nUbD6jh364tBk1jBdLormL1jkK3HL4EslM15x_1sQpy4l08JfymGvkmu1Jy3gAZz1RbErA5boAfvUEtckyMrukmyRJbDqA03kxyyXNSwB0J0NYb0A7S64rVTRGAGhznKLolcDxtoXziN8SVIDhrTsqOXAhbNhJim9zonklO3A8RW7pU_vxfJ17SJltMnsn_5b6ZLZkOgyQ");'></div>
+</div>
+</div>
+<div class="group relative bg-white rounded shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<h4 class="text-gray-900 font-medium text-sm leading-snug">Room 1: Decoration</h4>
+</div>
+<p class="text-xs text-gray-500">Office Design</p>
+<div class="flex flex-wrap gap-1">
+<span class="bg-pink-100 text-pink-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">New Feature</span>
+</div>
+<div class="text-red-600 font-bold text-xs">
+                            49 days ago
+                        </div>
+<div class="flex items-center justify-between mt-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-gray-400 hover:text-yellow-400">star</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">call</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
+<div class="flex items-center justify-between pb-2 group cursor-pointer">
+<h3 class="text-gray-800 font-bold text-base">This Week</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded p-0.5"><span class="material-symbols-outlined text-[20px]">add</span></button>
+<span class="text-gray-600 font-semibold text-sm">1</span>
+</div>
+</div>
+<div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
+<div class="h-full bg-green-500 w-full"></div>
+</div>
+<div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 pb-4 scrollbar-hide">
+<div class="group relative bg-white rounded shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<h4 class="text-gray-900 font-medium text-sm leading-snug">Empty Trash Bins</h4>
+</div>
+<div class="flex flex-wrap gap-1">
+<span class="bg-yellow-100 text-yellow-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">Work</span>
+</div>
+<div class="flex items-center justify-between mt-1 pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-gray-400 hover:text-yellow-400">star</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">schedule</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">lock</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
+<div class="flex items-center justify-between pb-2 group cursor-pointer">
+<h3 class="text-gray-800 font-bold text-base">This Month</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded p-0.5"><span class="material-symbols-outlined text-[20px]">add</span></button>
+<span class="text-gray-600 font-semibold text-sm">0</span>
+</div>
+</div>
+<div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
+<div class="h-full bg-green-500 w-0"></div>
+</div>
+<div class="flex-1 flex flex-col gap-3 min-h-[100px]">
+</div>
+</div>
+<div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
+<div class="flex items-center justify-between pb-2 group cursor-pointer">
+<h3 class="text-gray-800 font-bold text-base">Later</h3>
+<div class="flex items-center gap-2">
+<button class="text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded p-0.5"><span class="material-symbols-outlined text-[20px]">add</span></button>
+<span class="text-gray-600 font-semibold text-sm">1</span>
+</div>
+</div>
+<div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
+<div class="h-full bg-green-500 w-full"></div>
+</div>
+<div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 pb-4 scrollbar-hide">
+<div class="group relative bg-white rounded shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow cursor-pointer flex flex-col gap-2">
+<div class="flex justify-between items-start">
+<h4 class="text-gray-900 font-medium text-sm leading-snug">Energy Certificate</h4>
+</div>
+<p class="text-xs text-gray-500">Office Design</p>
+<div class="text-red-600 font-bold text-xs mt-1">
+                            46 days ago
+                        </div>
+<div class="flex items-center justify-between mt-1 pt-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-gray-400 hover:text-yellow-400">star</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">mail</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- JavaScript Files -->
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/app.js"></script>
+</body></html>

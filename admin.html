@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0014a8",
+                        "secondary": "#0175C8",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#0f1123",
+                        "tprimary": "#263238",
+                    },
+                    fontFamily: {
+                        "display": ["Roboto", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-tprimary dark:text-white">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar Navigation -->
+<!-- Modified to have solid Dark Blue background as requested -->
+<aside class="flex w-64 flex-col bg-primary h-full shrink-0 transition-all duration-300">
+<div class="flex items-center gap-3 px-6 py-6 border-b border-white/20">
+<h1 class="text-white text-lg font-bold leading-normal tracking-tight">Admin Dashboard</h1>
+</div>
+<nav class="flex flex-col gap-2 px-4 py-6 flex-1 overflow-y-auto">
+<!-- Active State: Lighter Blue Background -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-white/10 text-white transition-colors hover:bg-white/20" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium leading-normal">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="text-sm font-medium leading-normal">User Management</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium leading-normal">System Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="text-sm font-medium leading-normal">Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dns</span>
+<span class="text-sm font-medium leading-normal">Platform Config</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/20">
+<button class="flex w-full cursor-pointer items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[24px]">logout</span>
+<span class="text-md font-bold leading-normal">Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex flex-col flex-1 h-full overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Top Header -->
+<header class="flex items-center justify-between px-8 py-5 bg-white dark:bg-[#1a1c2e] border-b border-[#dadce7] dark:border-gray-800 shrink-0 z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-tprimary dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Overview</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3 pl-6 border-l border-gray-100 dark:border-gray-700">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold text-tprimary dark:text-white">Admin Name</p>
+<p class="text-xs text-[#5e638d] dark:text-gray-400">0001</p>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white shadow-sm" data-alt="Admin user profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCwz18cKfRfYRf_tHHYeNgNOGY0hCsCxezyDC5oLaZ95aUExj-ZmpwEwGin7wEPBg1JcrHWGO9HsBRI5mOY1ES-3uARpiKbCjwNGkV-aBDProwtGbebgU_yJfDIySGpOwkKSUT7G8x8QsTPz2cKqZrpn3BnO3kQHJG04JasmoFFNDsq0RLhtDX4Tv4kTZlje63w1YZYLmvRiPkQc7P-d_nCY518dyC25tsDoIi1s5E-8yzN3OMVnPKzBRhcC3s5f2dpCpWCPLshEVY");'></div>
+</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto">
+<!-- Stats Cards Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-[#1a1c2e] shadow-sm border border-[#dadce7] dark:border-gray-800">
+<div class="flex items-center justify-between">
+<p class="text-[#5e638d] dark:text-gray-400 text-sm font-medium leading-normal">Total Users</p>
+<div class="flex items-center justify-center size-10 rounded-full bg-gray-100 dark:bg-blue-900/30 text-gray-500 dark:text-blue-400">
+<span class="material-symbols-outlined">groups</span>
+</div>
+</div>
+<p class="text-tprimary dark:text-white text-2xl font-bold leading-tight">120</p>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-[#1a1c2e] shadow-sm border border-[#dadce7] dark:border-gray-800">
+<div class="flex items-center justify-between">
+<p class="text-[#5e638d] dark:text-gray-400 text-sm font-medium leading-normal">Active Sessions</p>
+<div class="flex items-center justify-center size-10 rounded-full bg-secondary/10 dark:bg-secondary/30 text-secondary dark:text-secondary">
+<span class="material-symbols-outlined">group</span>
+</div>
+</div>
+<p class="text-tprimary dark:text-white text-2xl font-bold leading-tight">35</p>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-[#1a1c2e] shadow-sm border border-[#dadce7] dark:border-gray-800">
+<div class="flex items-center justify-between">
+<p class="text-[#5e638d] dark:text-gray-400 text-sm font-medium leading-normal">System Health</p>
+<div class="flex items-center justify-center size-10 rounded-full bg-[#2E7D31]/10 dark:bg-teal-900/30 text-[#2E7D31] dark:text-teal-400">
+<span class="material-symbols-outlined">ecg_heart</span>
+</div>
+</div>
+<p class="text-tprimary dark:text-white text-2xl font-bold leading-tight">98% Uptime</p>
+</div>
+<!-- Card 4 -->
+<div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-[#1a1c2e] shadow-sm border border-[#dadce7] dark:border-gray-800">
+<div class="flex items-center justify-between">
+<p class="text-[#5e638d] dark:text-gray-400 text-sm font-medium leading-normal">Storage Used</p>
+<div class="flex items-center justify-center size-10 rounded-full bg-orange-50 dark:bg-orange-900/30 text-orange-500 dark:text-orange-400">
+<span class="material-symbols-outlined">database</span>
+</div>
+</div>
+<p class="text-tprimary dark:text-white text-2xl font-bold leading-tight">450 GB</p>
+</div>
+</div>
+<!-- Split Section: Table & Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Panel: Audit Logs Table (Span 2) -->
+<div class="lg:col-span-2 flex flex-col rounded-xl border border-[#dadce7] dark:border-gray-800 bg-white dark:bg-[#1a1c2e] shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-[#dadce7] dark:border-gray-800 flex justify-between items-center">
+<h3 class="text-tprimary dark:text-white text-lg font-bold leading-tight">Recent Audit Logs</h3>
+<button class="text-sm text-secondary font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-gray-50 dark:bg-gray-800/50">
+<th class="px-6 py-3 text-[#5e638d] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Time</th>
+<th class="px-6 py-3 text-[#5e638d] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Admin</th>
+<th class="px-6 py-3 text-[#5e638d] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Action</th>
+<th class="px-6 py-3 text-[#5e638d] dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Target</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#dadce7] dark:divide-gray-800">
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm">10 mins ago</td>
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm font-medium">admin1</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary dark:bg-secondary/50 dark:text-secondary">
+                                                    Created User
+                                                </span>
+</td>
+<td class="px-6 py-4 text-[#5e638d] dark:text-gray-400 text-sm">john.doe</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm">1 hour ago</td>
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm font-medium">admin1</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary dark:bg-secondary/50 dark:text-secondary">
+                                                    Updated Settings
+                                                </span>
+</td>
+<td class="px-6 py-4 text-[#5e638d] dark:text-gray-400 text-sm">Password Policy</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm">2 hours ago</td>
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm font-medium">admin3</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary dark:bg-secondary/50 dark:text-secondary">
+                                                    Purged Logs
+                                                </span>
+</td>
+<td class="px-6 py-4 text-[#5e638d] dark:text-gray-400 text-sm">System Logs</td>
+</tr>
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm">3 hours ago</td>
+<td class="px-6 py-4 text-tprimary dark:text-white text-sm font-medium">admin2</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary dark:bg-secondary/50 dark:text-secondary">
+                                                    System Backup
+                                                </span>
+</td>
+<td class="px-6 py-4 text-[#5e638d] dark:text-gray-400 text-sm">Database-Main</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Panel: Quick Actions (Span 1) -->
+<div class="flex flex-col gap-4">
+<div class="rounded-xl border border-[#dadce7] dark:border-gray-800 bg-white dark:bg-[#1a1c2e] shadow-sm p-6 h-full">
+<h3 class="text-tprimary dark:text-white text-lg font-bold leading-tight mb-2">Quick Actions</h3>
+<p class="text-[#5e638d] dark:text-gray-400 text-sm mb-6">Common tasks for system management</p>
+<div class="flex flex-col gap-3">
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-secondary hover:bg-secondary/90 transition-colors text-white text-sm font-bold leading-normal tracking-[0.015em] shadow-sm">
+<span class="material-symbols-outlined mr-2 text-[20px]">person_add</span>
+<span class="truncate">Add New User</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 border border-secondary text-secondary hover:bg-secondary/5 transition-colors bg-transparent text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined mr-2 text-[20px]">tune</span>
+<span class="truncate">Configure Modules</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center rounded-lg h-12 px-5 border border-[#dadce7] text-[#5e638d] hover:text-tprimary hover:border-tprimary transition-colors bg-transparent text-sm font-medium leading-normal tracking-[0.015em] mt-2">
+<span class="material-symbols-outlined mr-2 text-[20px]">download</span>
+<span class="truncate">Export System Report</span>
+</button>
+</div>
+</div>
+<!-- Additional Info Widget -->
+<div class="rounded-xl border border-[#dadce7] dark:border-gray-800 bg-[#E53835]/10 p-6 shadow-sm">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-[#E53835] text-[24px]">info</span>
+<div>
+<h4 class="text-tprimary dark:text-white text-sm font-bold mb-1">System Maintenance</h4>
+<p class="text-[#5e638d] dark:text-gray-400 text-xs leading-relaxed">
+                                            Scheduled maintenance is planned for Sunday at 02:00 AM UTC. Services may be interrupted for approx. 15 mins.
+                                        </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- JavaScript Files -->
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/app.js"></script>
+</body></html>

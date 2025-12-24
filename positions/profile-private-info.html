@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Employee Detail - Anita Oliver</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0014a8",
+            "variant": "#0175C8",
+            "background-light": "#f5f6f8",
+            "salmon-light": "#FFCCBC",
+            "salmon-text": "#BF360C",
+          },
+          fontFamily: {
+            "display": ["Roboto", "sans-serif"],
+            "sans": ["Roboto", "sans-serif"],
+          },
+          boxShadow: {
+            'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
+  <header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md">
+    <div class="flex items-center gap-4 text-white/80">
+      <button class="flex items-center justify-center p-1 hover:text-white rounded">
+        <span class="material-symbols-outlined text-[24px]">apps</span>
+      </button>
+      <div class="flex flex-col">
+        <h2 class="text-white text-base font-bold leading-tight tracking-tight">POSITIONS</h2>
+      </div>
+      <div class="hidden md:flex gap-6 ml-4 text-sm font-medium text-white/80">
+        <a class="text-white" href="#">Employees</a>
+        <a class="hover:text-white" href="#">Departments</a>
+        <a class="hover:text-white" href="#">Reporting</a>
+        <a class="hover:text-white" href="#">Configuration</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <button class="text-white/80 hover:text-white relative">
+        <span class="material-symbols-outlined text-[20px]">schedule</span>
+      </button>
+      <button class="text-white/80 hover:text-white relative">
+        <span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+        <span
+          class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-[#E53835] ring-2 ring-primary transform translate-x-1/2 -translate-y-1/2"></span>
+      </button>
+      <div class="bg-center bg-no-repeat bg-cover rounded-full h-8 w-8 border border-white/20 cursor-pointer"
+        data-alt="User Avatar"
+        style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrtHkvelBpaYarklRLynYIvwiKO3PJoyX61M9rEfSXCefo80fsa24kkZfg0DWV3dgz6nUbD6jh364tBk1jBdLormL1jkK3HL4EslM15x_1sQpy4l08JfymGvkmu1Jy3gAZz1RbErA5boAfvUEtckyMrukmyRJbDqA03kxyyXNSwB0J0NYb0A7S64rVTRGAGhznKLolcDxtoXziN8SVIDhrTsqOXAhbNhJim9zonklO3A8RW7pU_vxfJ17SJltMnsn_5b6ZLZkOgyQ");'>
+      </div>
+    </div>
+  </header>
+  <div
+    class="bg-white border-b border-[#E7E9ED] px-4 py-2 flex flex-col md:flex-row gap-4 items-center justify-between shrink-0 z-10 shadow-sm">
+    <div class="flex items-center gap-4 w-full md:w-auto">
+      <button
+        class="flex items-center gap-1.5 px-3 py-1.5 border border-variant text-variant bg-white hover:bg-primary/5 rounded text-sm font-bold transition-colors">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        <span>New</span>
+      </button>
+      <nav class="flex items-center text-sm font-medium text-gray-500">
+        <a class="hover:underline hover:text-gray-700" href="#">Employees</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-800 font-medium">Anita Oliver</span>
+      </nav>
+      <button class="text-gray-400 hover:text-gray-600">
+        <span class="material-symbols-outlined text-[18px]">settings</span>
+      </button>
+    </div>
+    <div class="flex items-center gap-2 text-sm text-gray-600">
+      <span class="hidden sm:inline">2 / 20</span>
+      <div class="flex rounded-md shadow-sm">
+        <button
+          class="relative inline-flex items-center px-2 py-1 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+        </button>
+        <button
+          class="relative -ml-px inline-flex items-center px-2 py-1 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary">
+          <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <main class="flex-1 overflow-auto bg-[#F9FAFB] p-4 flex justify-center">
+    <div class="bg-white w-full max-w-5xl shadow-card border border-gray-200 rounded-md flex flex-col h-fit">
+      <div class="flex justify-between items-start p-4 border-b border-gray-100">
+        <div class="flex gap-2">
+          <button
+            class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium px-4 py-1.5 rounded border border-gray-300 shadow-sm transition-colors">
+            Launch Plan
+          </button>
+        </div>
+        <div class="flex -space-x-px">
+          <button
+            class="relative inline-flex flex-col items-center justify-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-variant hover:bg-gray-50 first:rounded-l-md last:rounded-r-md min-w-[100px]">
+            <span class="material-symbols-outlined text-variant mb-1">account_tree</span>
+            <span class="text-xs">Org Chart</span>
+          </button>
+          <button
+            class="relative inline-flex flex-col items-center justify-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-variant hover:bg-gray-50 first:rounded-l-md last:rounded-r-md min-w-[100px]">
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-variant">badge</span>
+            </div>
+            <span class="text-xs mt-1">1 Contact</span>
+          </button>
+        </div>
+      </div>
+      <div class="px-8 py-6 flex flex-col md:flex-row gap-8">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold text-primary mb-2">Anita Oliver</h1>
+          <h2 class="text-lg font-medium text-gray-500 mb-6">Experienced Developer</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-sm">
+            <div class="space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Work Email</span>
+                <a class="text-gray-900 truncate hover:text-primary"
+                  href="mailto:anita.oliver32@example.com">anita.oliver32@example.com</a>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Work Phone</span>
+                <span class="text-gray-900">(555)-497-4804</span>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Work Mobile</span>
+                <span class="text-gray-900">(555)-672-3185</span>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 mt-2">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Tags</span>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-variant/10 text-variant">
+                    Employee
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Department</span>
+                <span class="text-gray-900">Management / Research &amp; Development / R&amp;D USA</span>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Job Position</span>
+                <span class="text-gray-900">Experienced Developer</span>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Manager</span>
+                <div class="flex items-center gap-2 group cursor-pointer">
+                  <div class="h-5 w-5 rounded-full bg-cover bg-center"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZ9IwqZLMVyFuvjD48r6YmxNecS2IrNMxG2dFNdOE52RuIygLm-jHTDoZtgyBLmLKKdD-TTsuUZVou2vdbxd0D9QR6pC_XY_z2cK-Ec_i7mICjIvR4YPbKET2bazHwZFPJKC_OyGs2Us9f1RopSTgaqSV7l4gG5EcUzhWMP3Azd4xOdVEL64x6f7WLJRJvnmpLmkD5Y63-k_4Z7bhbwIrH61E8LwjgddbaPgANhGtx_Tjkt5DESNWq0Mj89htAHSboNhEooCbGTMI");'>
+                  </div>
+                  <span class="text-variant group-hover:underline">Keith Byrd</span>
+                  <span
+                    class="material-symbols-outlined text-[16px] text-gray-400 opacity-0 group-hover:opacity-100">open_in_new</span>
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                <span class="w-32 shrink-0 font-bold text-gray-700">Coach</span>
+                <div class="flex items-center gap-2 group cursor-pointer">
+                  <div class="h-5 w-5 rounded-full bg-cover bg-center"
+                    style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZ9IwqZLMVyFuvjD48r6YmxNecS2IrNMxG2dFNdOE52RuIygLm-jHTDoZtgyBLmLKKdD-TTsuUZVou2vdbxd0D9QR6pC_XY_z2cK-Ec_i7mICjIvR4YPbKET2bazHwZFPJKC_OyGs2Us9f1RopSTgaqSV7l4gG5EcUzhWMP3Azd4xOdVEL64x6f7WLJRJvnmpLmkD5Y63-k_4Z7bhbwIrH61E8LwjgddbaPgANhGtx_Tjkt5DESNWq0Mj89htAHSboNhEooCbGTMI");'>
+                  </div>
+                  <span class="text-variant group-hover:underline">Keith Byrd</span>
+                  <span class="material-symbols-outlined text-[16px] text-blue-500 cursor-help"
+                    title="Help info">help</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="shrink-0 flex justify-center md:justify-end">
+          <div class="h-32 w-32 md:h-40 md:w-40 bg-gray-100 border border-gray-200 shadow-sm relative overflow-hidden">
+            <img alt="Anita Oliver" class="object-cover w-full h-full"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9mRk1CIOBzHuhSCSPXjOW20TJq5by0zvqxoC_T7IioqINpL0mPaAhz_5EQjZav2tpZs0t_kSK1hJ6av0OoxshNfD1Txws5cdaDl0OXngXtTx-jmmYpyExeGTfKwhSlWvKqAC2n2gENakqN0BVuRJlg4P5JVXpr890nlIZm2cVm48ZAGmO5Gy3zZ-83VIEFyaep_gMxU2umrjjy6CYZ4hiEtgNcdUxuT6kRGAaDeDEvO91K76GDnuTgOFdNjYBSRNMxJNTcsU3AZM" />
+            <div class="absolute inset-0 flex items-center justify-center text-gray-300 opacity-0">
+              <span class="material-symbols-outlined text-[64px]">person</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 border-b border-gray-200 px-8">
+        <nav aria-label="Tabs" class="-mb-px flex space-x-8">
+          <a class="border-transparent text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-bold text-sm" href="#">
+            Resume
+          </a>
+          <a class="border-transparent text-gray-700 hover:text-primary/80 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            href="#">
+            Work Information
+          </a>
+          <a class="border-primary text-primary hover:text-primary/80 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            href="#">
+            Private Information
+          </a>
+          <a class="border-transparent text-gray-700 hover:text-primary/80 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+            href="#">
+            Settings
+          </a>
+        </nav>
+      </div>
+<div class="p-8 bg-white min-h-[400px]">
+<div class="flex flex-col lg:flex-row gap-16">
+<div class="w-full lg:w-1/2 space-y-8">
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5">Private Contact</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm mt-0.5">Private Address</span>
+<span class="text-gray-900 text-sm w-[60%]">
+                                        123 Maple Avenue<br/>
+                                        San Francisco, CA 94158<br/>
+                                        United States
+                                    </span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Private Email</span>
+<span class="text-gray-900 text-sm w-[60%]">anita.oliver00@gmail.com</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Private Phone</span>
+<span class="text-gray-900 text-sm w-[60%]">(538)-672-3185</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Bank Account</span>
+<div class="flex items-center gap-2 w-[60%]">
+<span class="text-gray-900 text-sm">US67 3829 1029 3829</span>
+<span class="material-symbols-outlined text-[16px] text-blue-500 cursor-help" title="Bank Info">help</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Home-Work Distance</span>
+<span class="text-gray-900 text-sm w-[60%]">0 km</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Private Car Plate</span>
+<div class="flex items-center gap-2 w-[60%]">
+<span class="text-gray-900 text-sm">7XYZ-582</span>
+<span class="material-symbols-outlined text-[16px] text-blue-500 cursor-help" title="Car Info">help</span>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5 border-t border-gray-100 pt-6">Emergency</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Contact Name</span>
+<span class="text-gray-900 text-sm w-[60%]">John Oliver</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Contact Phone</span>
+<span class="text-gray-900 text-sm w-[60%]">(538)-123-4567</span>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5 border-t border-gray-100 pt-6">Family Status</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Marital Status</span>
+<span class="text-gray-900 text-sm w-[60%]">Single</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Number of Dependent Children</span>
+<span class="text-gray-900 text-sm w-[60%]">0</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-1/2 space-y-8">
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5">Citizenship</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Nationality (Country)</span>
+<span class="text-gray-900 text-sm w-[60%]">United States</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Identification No</span>
+<span class="text-gray-900 text-sm w-[60%]">987654321</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">SSN No</span>
+<div class="flex items-center gap-2 w-[60%]">
+<span class="text-gray-900 text-sm">xxx-xx-xxxx</span>
+<span class="material-symbols-outlined text-[16px] text-blue-500 cursor-help" title="SSN Info">help</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Passport No</span>
+<span class="text-gray-900 text-sm w-[60%]">P12345678</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Gender</span>
+<span class="text-gray-900 text-sm w-[60%]">Female</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Date of Birth</span>
+<span class="text-gray-900 text-sm w-[60%]">05/15/1992</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Place of Birth</span>
+<span class="text-gray-900 text-sm w-[60%]">New York</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Country of Birth</span>
+<span class="text-gray-900 text-sm w-[60%]">United States</span>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5 border-t border-gray-100 pt-6">Education</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Certificate Level</span>
+<span class="text-gray-900 text-sm w-[60%]">Bachelor</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Field of Study</span>
+<span class="text-gray-900 text-sm w-[60%]">Computer Science</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">School</span>
+<span class="text-gray-900 text-sm w-[60%]">University of California</span>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-5 border-t border-gray-100 pt-6">Work Permit</h3>
+<div class="space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Visa No</span>
+<span class="text-gray-900 text-sm w-[60%]"></span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Work Permit No</span>
+<span class="text-gray-900 text-sm w-[60%]"></span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Visa Expiration Date</span>
+<span class="text-gray-900 text-sm w-[60%]"></span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Work Permit Expiration Date</span>
+<span class="text-gray-900 text-sm w-[60%]"></span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-6">
+<span class="w-[40%] shrink-0 font-bold text-gray-700 text-sm">Work Permit</span>
+<button class="flex items-center bg-gray-100 hover:bg-gray-200 text-gray-500 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-colors border border-gray-200">
+  <span class="material-symbols-outlined text-[20px] mr-2">
+    upload
+  </span>
+                                        Upload your file
+                                     </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- JavaScript Files -->
+<script src="../js/data.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/layout.js"></script>
+<script src="../js/app.js"></script>
+</body></html>
