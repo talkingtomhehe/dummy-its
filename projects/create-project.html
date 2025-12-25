@@ -365,5 +365,140 @@
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/layout.js"></script>
+<script src="../js/projects.js"></script>
 <script src="../js/app.js"></script>
+
+<!-- TASK 3: Create Project Form Handler -->
+<script>
+(function() {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Create Project Page Loaded');
+        console.log('DB Available:', typeof db !== 'undefined');
+        console.log('Projects Available:', typeof window.Projects !== 'undefined');
+        
+        // Get form elements
+        const nameInput = document.querySelector('input[placeholder="e.g. Office Party"]');
+        const emailAliasInput = document.querySelector('input[placeholder="e.g. office-party"]');
+        const domainInput = document.querySelector('input[placeholder="e.g. mycompany.com"]');
+        const createBtn = document.querySelector('button.bg-primary');
+        const discardBtn = document.querySelector('button.bg-gray-200');
+        const closeBtn = document.querySelector('a[href="project.html"] button');
+
+        console.log('Form elements found:', {
+            nameInput: !!nameInput,
+            emailAliasInput: !!emailAliasInput,
+            domainInput: !!domainInput,
+            createBtn: !!createBtn,
+            discardBtn: !!discardBtn
+        });
+
+        // Add IDs for easier access
+        if (nameInput) nameInput.id = 'project-name-input';
+        if (emailAliasInput) emailAliasInput.id = 'email-alias-input';
+        if (domainInput) domainInput.id = 'domain-input';
+
+        // Handle Create Project button click
+        if (createBtn) {
+            createBtn.addEventListener('click', function(e) {
+                console.log('Create button clicked!');
+                e.preventDefault();
+                
+                const name = nameInput ? nameInput.value.trim() : '';
+                const emailAlias = emailAliasInput ? emailAliasInput.value.trim() : '';
+                const domain = domainInput ? domainInput.value.trim() : '';
+
+                console.log('Form values:', { name, emailAlias, domain });
+
+                // Validation
+                if (!name) {
+                    alert('Please enter a project name');
+                    nameInput?.focus();
+                    return;
+                }
+
+                console.log('Validation passed');
+
+                // Create project data
+                const projectData = {
+                    name: name,
+                    emailAlias: emailAlias && domain ? `${emailAlias}@${domain}` : '',
+                    managerId: window.Auth?.getCurrentUser()?.id || 1,
+                    status: 'on_track',
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: '',
+                    description: '',
+                    tags: [],
+                    milestones: { completed: 0, total: 0 },
+                    isFavorite: false
+                };
+
+                console.log('Project data created:', projectData);
+
+                // Use Projects module to create
+                if (window.Projects && typeof window.Projects.handleCreateProject === 'function') {
+                    console.log('Using Projects.handleCreateProject');
+                    const created = window.Projects.handleCreateProject(projectData);
+                    console.log('Project created result:', created);
+                    if (created) {
+                        // Redirect back to project list
+                        console.log('Redirecting to project.html');
+                        window.location.href = 'project.html';
+                    } else {
+                        console.error('Failed to create project');
+                        alert('Failed to create project. Please try again.');
+                    }
+                } else {
+                    console.log('Fallback: using db directly');
+                    // Fallback: directly add to database
+                    if (typeof db !== 'undefined') {
+                        const created = db.add('projects', projectData);
+                        console.log('DB add result:', created);
+                        if (created) {
+                            console.log('Project created via db:', created);
+                            window.location.href = 'project.html';
+                        } else {
+                            console.error('DB failed to create project');
+                            alert('Failed to create project. Please try again.');
+                        }
+                    } else {
+                        console.error('DB not available');
+                        alert('Database not initialized. Please refresh the page.');
+                    }
+                }
+            });
+        }
+
+        // Handle Discard button click
+        if (discardBtn) {
+            discardBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Clear form and go back
+                if (nameInput) nameInput.value = '';
+                if (emailAliasInput) emailAliasInput.value = '';
+                if (domainInput) domainInput.value = '';
+                window.location.href = 'project.html';
+            });
+        }
+
+        // Focus on name input when page loads
+        if (nameInput) {
+            nameInput.focus();
+        }
+
+        // Handle Enter key on inputs
+        [nameInput, emailAliasInput, domainInput].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        createBtn?.click();
+                    }
+                });
+            }
+        });
+    });
+})();
+</script>
 </body></html>

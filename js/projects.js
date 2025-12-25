@@ -3,13 +3,15 @@
  * PROJECTS.JS - Projects Module
  * ============================================
  * Handles all project-related functionality including:
- * - Dynamic rendering of project cards
- * - Status updates with dropdown
- * - Create project modal
- * - Navigation to tasks
+ * - Dynamic rendering of project cards (TASK 1)
+ * - Status updates with dropdown (TASK 2)
+ * - Create project navigation & handling (TASK 3)
+ * - Card interactions & navigation
  */
 
 const Projects = (function() {
+    'use strict';
+
     /**
      * ============================================
      * CONFIGURATION
@@ -87,9 +89,14 @@ const Projects = (function() {
      * Format date range for display
      */
     function formatDateRange(startDate, endDate) {
+        if (!startDate) return '';
         const start = new Date(startDate);
-        const end = new Date(endDate);
+        const end = endDate ? new Date(endDate) : null;
         const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        
+        if (!end) {
+            return start.toLocaleDateString('en-US', options);
+        }
         return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', options)}`;
     }
 
@@ -112,18 +119,32 @@ const Projects = (function() {
     }
 
     /**
-     * Calculate project statistics from tasks
+     * TASK 1: Calculate project statistics from tasks
+     * Queries db.tasks to count:
+     * - Total tasks linked to this project ID
+     * - Overdue tasks (for Flag icon count)
      */
     function getProjectStats(projectId) {
         const tasks = db.getTasksByProject(projectId);
-        const overdueTasks = tasks.filter(t => t.isOverdue);
+        const now = new Date();
+        
+        // Calculate overdue tasks
+        const overdueTasks = tasks.filter(t => {
+            if (t.stage === 'Done') return false;
+            const deadline = new Date(t.deadline);
+            return deadline < now;
+        });
+        
         const completedTasks = tasks.filter(t => t.stage === 'Done');
+        const inProgressTasks = tasks.filter(t => t.stage === 'In Progress');
+        const newTasks = tasks.filter(t => t.stage === 'New');
         
         return {
             totalTasks: tasks.length,
             overdueTasks: overdueTasks.length,
             completedTasks: completedTasks.length,
-            inProgressTasks: tasks.filter(t => t.stage === 'In Progress').length
+            inProgressTasks: inProgressTasks.length,
+            newTasks: newTasks.length
         };
     }
 
@@ -139,13 +160,14 @@ const Projects = (function() {
 
     /**
      * ============================================
-     * RENDER FUNCTIONS
+     * RENDER FUNCTIONS (TASK 1)
      * ============================================
      */
 
     /**
      * Generate HTML for a single project card
-     * EXACT structure from the original projects.html
+     * EXACT structure from the original project.html
+     * Maps: project.name, project.manager, project.color (status dot), calculated stats
      */
     function generateProjectCardHTML(project) {
         const stats = getProjectStats(project.id);
@@ -163,91 +185,86 @@ const Projects = (function() {
         // Milestones display
         const milestones = project.milestones || { completed: 0, total: 0 };
 
+        // Star icon styling based on favorite status
+        const starClass = project.isFavorite ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400';
+        const starStyle = project.isFavorite ? "font-variation-settings: 'FILL' 1;" : '';
+        const starFillClass = project.isFavorite ? ' fill-current' : '';
+
         return `
 <div class="group bg-white border border-gray-200 rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.04)] hover:shadow-md hover:border-primary/30 transition-all cursor-pointer flex flex-col h-full min-h-[180px]" data-project-id="${project.id}">
-<div class="p-4 flex flex-col flex-1 gap-3 project-card-body">
-<div class="flex justify-between items-start">
-<h3 class="font-semibold text-[#101118] text-base leading-tight truncate pr-2">${project.name}</h3>
-<div class="flex items-center shrink-0">
-<button class="star-btn ${project.isFavorite ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-400'} transition-colors" data-project-id="${project.id}">
-<span class="material-symbols-outlined text-[20px]${project.isFavorite ? ' fill-current' : ''}" style="${project.isFavorite ? "font-variation-settings: 'FILL' 1;" : ''}">star</span>
-</button>
-<button class="text-gray-400 hover:text-gray-600 ml-1 opacity-80 group-hover:opacity-100 transition-opacity more-btn" data-project-id="${project.id}">
-<span class="material-symbols-outlined text-[20px]">more_vert</span>
-</button>
-</div>
-</div>
-<div class="text-sm text-gray-500">
-<div class="flex items-center gap-1 mb-1">
-<span class="text-xs font-medium uppercase tracking-wide text-gray-400">Manager:</span>
-<span class="text-gray-700">${managerName}</span>
-</div>
-<div class="text-xs text-gray-400">${dateRange}</div>
-</div>
-<div class="flex flex-wrap gap-1.5 mt-auto pt-2">
-${tagsHTML}
-</div>
-</div>
-<div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-100 rounded-b-lg">
-<span class="text-xs font-semibold text-gray-600 bg-gray-300 px-2 py-0.5 rounded">${stats.totalTasks} Task${stats.totalTasks !== 1 ? 's' : ''}</span>
-<div class="flex items-center gap-3">
-<div class="flex items-center gap-1 text-gray-500" title="Milestones">
-<span class="material-symbols-outlined text-[16px]">flag</span>
-<span class="text-xs font-medium">${milestones.completed}/${milestones.total}</span>
-</div>
-<div class="flex items-center gap-2">
-<div class="relative size-7">
-${managerAvatar ? 
-    `<img class="w-full h-full rounded-full object-cover border border-white shadow-sm" alt="${managerName}" src="${managerAvatar}"/>` :
-    `<div class="w-full h-full rounded-full bg-primary/20 border border-white shadow-sm flex items-center justify-center text-primary text-xs font-bold">${managerName.charAt(0)}</div>`
-}
-</div>
-<div class="relative">
-<button class="status-dot size-7 rounded-full ${statusColorClass} border border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-gray-300 transition-all" title="Click to change status" data-project-id="${project.id}">
-</button>
-<!-- Status Dropdown -->
-<div class="status-dropdown hidden absolute right-0 bottom-full mb-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50" data-project-id="${project.id}">
-<div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100">Status</div>
-<button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2" data-status="on_track">
-<span class="size-3 rounded-full bg-green-500"></span>
-<span>On Track</span>
-</button>
-<button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2" data-status="at_risk">
-<span class="size-3 rounded-full bg-orange-500"></span>
-<span>At Risk</span>
-</button>
-<button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2" data-status="off_track">
-<span class="size-3 rounded-full bg-[#E53835]"></span>
-<span>Off Track</span>
-</button>
-<button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2" data-status="delayed">
-<span class="size-3 rounded-full bg-gray-400"></span>
-<span>Delayed</span>
-</button>
-<button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2" data-status="completed">
-<span class="size-3 rounded-full bg-blue-500"></span>
-<span>Completed</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <div class="p-4 flex flex-col flex-1 gap-3 project-card-body">
+        <div class="flex justify-between items-start">
+            <h3 class="font-semibold text-[#101118] text-base leading-tight truncate pr-2">${project.name}</h3>
+            <div class="flex items-center shrink-0">
+                <button class="star-btn ${starClass} transition-colors" data-project-id="${project.id}">
+                    <span class="material-symbols-outlined text-[20px]${starFillClass}" style="${starStyle}">star</span>
+                </button>
+                <button class="text-gray-400 hover:text-gray-600 ml-1 opacity-80 group-hover:opacity-100 transition-opacity more-btn" data-project-id="${project.id}">
+                    <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                </button>
+            </div>
+        </div>
+        <div class="text-sm text-gray-500">
+            <div class="flex items-center gap-1 mb-1">
+                <span class="text-xs font-medium uppercase tracking-wide text-gray-400">Manager:</span>
+                <span class="text-gray-700">${managerName}</span>
+            </div>
+            <div class="text-xs text-gray-400">${dateRange}</div>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-auto pt-2">
+            ${tagsHTML}
+        </div>
+    </div>
+    <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between bg-gray-100 rounded-b-lg">
+        <span class="text-xs font-semibold text-gray-600 bg-gray-300 px-2 py-0.5 rounded">${stats.totalTasks} Task${stats.totalTasks !== 1 ? 's' : ''}</span>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1 ${stats.overdueTasks > 0 ? 'text-red-500' : 'text-gray-500'}" title="${stats.overdueTasks} overdue tasks">
+                <span class="material-symbols-outlined text-[16px]">flag</span>
+                <span class="text-xs font-medium">${milestones.completed}/${milestones.total}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="relative size-7">
+                    ${managerAvatar ? 
+                        `<img class="w-full h-full rounded-full object-cover border border-white shadow-sm" alt="${managerName}" src="${managerAvatar}"/>` :
+                        `<div class="w-full h-full rounded-full bg-primary/20 border border-white shadow-sm flex items-center justify-center text-primary text-xs font-bold">${managerName.charAt(0)}</div>`
+                    }
+                </div>
+                <div class="relative">
+                    <button class="status-dot size-7 rounded-full ${statusColorClass} border border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-gray-300 transition-all" title="Click to change status" data-project-id="${project.id}">
+                    </button>
+                    <!-- Status Dropdown (TASK 2) -->
+                    <div class="status-dropdown hidden absolute right-0 bottom-full mb-2 w-36 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50" data-project-id="${project.id}">
+                        <div class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-100">Status</div>
+                        ${Object.entries(config.statusColors).map(([key, colorClass]) => `
+                            <button class="status-option w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2 ${project.status === key ? 'bg-gray-50 font-medium' : ''}" data-status="${key}">
+                                <span class="size-3 rounded-full ${colorClass}"></span>
+                                <span>${config.statusLabels[key]}</span>
+                                ${project.status === key ? '<span class="material-symbols-outlined text-[16px] ml-auto text-green-500">check</span>' : ''}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>`;
     }
 
     /**
-     * Render all projects to the grid
+     * TASK 1: Main render function - initProjectDashboard()
+     * Fetches data from db.projects, calculates stats, renders grid
      */
     function renderProjects(filterFn = null) {
         const grid = document.getElementById('projects-grid');
         if (!grid) {
-            console.error('Projects grid container not found. Please add id="projects-grid" to the grid div.');
+            console.error('Projects grid container not found. Expected element with id="projects-grid".');
             return;
         }
 
-        // Get projects (optionally filtered)
-        let projects = db.projects;
+        // Get projects from database (reads from localStorage via db)
+        let projects = db.getAll('projects');
+        
+        // Apply filter if provided
         if (filterFn && typeof filterFn === 'function') {
             projects = projects.filter(filterFn);
         }
@@ -259,7 +276,7 @@ ${managerAvatar ?
             return a.name.localeCompare(b.name);
         });
 
-        // Clear and render
+        // Clear existing content and render
         grid.innerHTML = '';
         
         if (projects.length === 0) {
@@ -281,7 +298,7 @@ ${managerAvatar ?
         // Update pagination info
         updatePaginationInfo(projects.length);
 
-        // Attach event listeners
+        // Attach event listeners (TASK 2)
         attachCardEventListeners();
     }
 
@@ -297,7 +314,7 @@ ${managerAvatar ?
 
     /**
      * ============================================
-     * EVENT HANDLERS
+     * EVENT HANDLERS (TASK 2)
      * ============================================
      */
 
@@ -305,10 +322,11 @@ ${managerAvatar ?
      * Attach event listeners to project cards
      */
     function attachCardEventListeners() {
-        // Status dot click - toggle dropdown
+        // TASK 2: Status dot click - toggle dropdown
         document.querySelectorAll('.status-dot').forEach(dot => {
             dot.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const projectId = parseInt(dot.dataset.projectId);
                 const dropdown = dot.parentElement.querySelector('.status-dropdown');
                 
@@ -322,10 +340,11 @@ ${managerAvatar ?
             });
         });
 
-        // Status option click - update status
+        // TASK 2: Status option click - update status in db and re-render
         document.querySelectorAll('.status-option').forEach(option => {
             option.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const dropdown = option.closest('.status-dropdown');
                 const projectId = parseInt(dropdown.dataset.projectId);
                 const newStatus = option.dataset.status;
@@ -339,12 +358,13 @@ ${managerAvatar ?
         document.querySelectorAll('.star-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const projectId = parseInt(btn.dataset.projectId);
                 toggleFavorite(projectId);
             });
         });
 
-        // Card body click - navigate to tasks
+        // TASK 2: Card body click - navigate to project-task.html?id={projectId}
         document.querySelectorAll('.project-card-body').forEach(body => {
             body.addEventListener('click', (e) => {
                 // Don't navigate if clicking on buttons
@@ -360,6 +380,7 @@ ${managerAvatar ?
         document.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 // TODO: Implement more options menu (Edit, Delete, Archive)
                 console.log('More options for project:', btn.dataset.projectId);
             });
@@ -367,14 +388,17 @@ ${managerAvatar ?
     }
 
     /**
-     * Update project status
+     * TASK 2: Update project status
+     * Updates db.projects, saves to LocalStorage, re-renders dot color immediately
      */
     function updateProjectStatus(projectId, newStatus) {
         const project = db.update('projects', projectId, { status: newStatus });
         if (project) {
             console.log(`Project ${projectId} status updated to: ${newStatus}`);
-            // Re-render just the affected card for better performance
+            // Re-render to reflect change immediately
             renderProjects();
+            // Show feedback toast
+            showToast(`Status updated to "${config.statusLabels[newStatus]}"`);
         }
     }
 
@@ -390,10 +414,11 @@ ${managerAvatar ?
     }
 
     /**
-     * Navigate to tasks page with project ID
+     * TASK 2: Navigate to tasks page with project ID
+     * Redirects to projects/project-task.html?id={projectId}
      */
     function navigateToTasks(projectId) {
-        window.location.href = `project-task.html?projectId=${projectId}`;
+        window.location.href = `project-task.html?id=${projectId}`;
     }
 
     /**
@@ -407,21 +432,10 @@ ${managerAvatar ?
      */
     function setupSearch() {
         const searchInput = document.getElementById('project-search');
-        if (!searchInput) {
-            // Try to find by placeholder
-            const inputs = document.querySelectorAll('input[placeholder="Search..."]');
-            if (inputs.length > 0) {
-                inputs[0].id = 'project-search';
-                setupSearchListener(inputs[0]);
-            }
-            return;
-        }
-        setupSearchListener(searchInput);
-    }
-
-    function setupSearchListener(input) {
+        if (!searchInput) return;
+        
         let debounceTimer;
-        input.addEventListener('input', (e) => {
+        searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 const query = e.target.value.toLowerCase().trim();
@@ -430,7 +444,8 @@ ${managerAvatar ?
                 } else {
                     renderProjects(project => 
                         project.name.toLowerCase().includes(query) ||
-                        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(query)))
+                        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(query))) ||
+                        getManagerName(project.managerId).toLowerCase().includes(query)
                     );
                 }
             }, 300);
@@ -439,295 +454,87 @@ ${managerAvatar ?
 
     /**
      * ============================================
-     * CREATE PROJECT MODAL
+     * CREATE PROJECT (TASK 3)
      * ============================================
      */
 
     /**
-     * Setup "New" button to open modal
+     * TASK 3: Setup "New" button to navigate to create-project.html
      */
     function setupNewProjectButton() {
         const newBtn = document.getElementById('new-project-btn');
-        if (!newBtn) {
-            // Find the button by its text content
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(btn => {
-                if (btn.textContent.includes('New') && btn.querySelector('.material-symbols-outlined')) {
-                    btn.id = 'new-project-btn';
-                    // Remove existing <a> wrapper if present
-                    const parent = btn.parentElement;
-                    if (parent.tagName === 'A') {
-                        parent.replaceWith(btn);
-                    }
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        openCreateModal();
-                    });
-                }
-            });
-            return;
-        }
+        if (!newBtn) return;
+        
         newBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            openCreateModal();
+            // Navigate to create-project.html
+            window.location.href = 'create-project.html';
         });
     }
 
     /**
-     * Open create project modal
+     * TASK 3: Handle create project form submission
+     * Called from create-project.html
      */
-    function openCreateModal() {
-        let modal = document.getElementById('create-project-modal');
+    function handleCreateProject(formData) {
+        const name = formData.name?.trim();
         
-        if (!modal) {
-            // Create modal if it doesn't exist
-            modal = createModalElement();
-            document.body.appendChild(modal);
-            setupModalEvents(modal);
-        }
-        
-        // Reset form
-        const form = modal.querySelector('form');
-        if (form) form.reset();
-        
-        // Show modal
-        modal.classList.remove('hidden');
-        modal.querySelector('input[name="name"]')?.focus();
-    }
-
-    /**
-     * Close create project modal
-     */
-    function closeCreateModal() {
-        const modal = document.getElementById('create-project-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-    }
-
-    /**
-     * Create modal HTML element
-     */
-    function createModalElement() {
-        const modal = document.createElement('div');
-        modal.id = 'create-project-modal';
-        modal.className = 'hidden fixed inset-0 z-50 overflow-y-auto';
-        modal.innerHTML = `
-<!-- Backdrop -->
-<div class="fixed inset-0 bg-black/50 transition-opacity modal-backdrop"></div>
-
-<!-- Modal Content -->
-<div class="flex min-h-full items-center justify-center p-4">
-<div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg transform transition-all">
-<!-- Header -->
-<div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-<h3 class="text-lg font-bold text-gray-900">Create New Project</h3>
-<button type="button" class="modal-close text-gray-400 hover:text-gray-600 transition-colors">
-<span class="material-symbols-outlined text-[24px]">close</span>
-</button>
-</div>
-
-<!-- Form -->
-<form id="create-project-form" class="p-6">
-<div class="space-y-4">
-<!-- Project Name -->
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-name">
-Project Name <span class="text-red-500">*</span>
-</label>
-<input type="text" name="name" id="project-name" required
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm"
-placeholder="Enter project name">
-</div>
-
-<!-- Manager -->
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-manager">
-Project Manager
-</label>
-<select name="managerId" id="project-manager"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm">
-<option value="">Select a manager</option>
-${db.users.filter(u => u.role === 'admin' || u.role === 'manager').map(u => 
-    `<option value="${u.id}">${u.name}</option>`
-).join('')}
-</select>
-</div>
-
-<!-- Date Range -->
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-start">
-Start Date
-</label>
-<input type="date" name="startDate" id="project-start"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm">
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-end">
-End Date
-</label>
-<input type="date" name="endDate" id="project-end"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm">
-</div>
-</div>
-
-<!-- Status -->
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-status">
-Initial Status
-</label>
-<select name="status" id="project-status"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm">
-<option value="on_track">On Track</option>
-<option value="at_risk">At Risk</option>
-<option value="delayed">Delayed</option>
-</select>
-</div>
-
-<!-- Tags -->
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-tags">
-Tags <span class="text-gray-400 font-normal">(comma-separated)</span>
-</label>
-<input type="text" name="tags" id="project-tags"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm"
-placeholder="e.g., Marketing, Q4, High Priority">
-</div>
-
-<!-- Description -->
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-1" for="project-description">
-Description
-</label>
-<textarea name="description" id="project-description" rows="3"
-class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm resize-none"
-placeholder="Brief project description..."></textarea>
-</div>
-</div>
-
-<!-- Error Message -->
-<div id="create-project-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
-</form>
-
-<!-- Footer -->
-<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-<button type="button" class="modal-close px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
-Cancel
-</button>
-<button type="submit" form="create-project-form"
-class="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg shadow-sm transition-colors">
-Create Project
-</button>
-</div>
-</div>
-</div>
-        `;
-        return modal;
-    }
-
-    /**
-     * Setup modal event listeners
-     */
-    function setupModalEvents(modal) {
-        // Close buttons
-        modal.querySelectorAll('.modal-close').forEach(btn => {
-            btn.addEventListener('click', closeCreateModal);
-        });
-
-        // Backdrop click
-        modal.querySelector('.modal-backdrop').addEventListener('click', closeCreateModal);
-
-        // Form submission
-        const form = modal.querySelector('#create-project-form');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            handleCreateProject(form);
-        });
-
-        // Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                closeCreateModal();
-            }
-        });
-    }
-
-    /**
-     * Handle create project form submission
-     */
-    function handleCreateProject(form) {
-        const formData = new FormData(form);
-        const errorDiv = document.getElementById('create-project-error');
-        
-        // Get values
-        const name = formData.get('name')?.trim();
-        const managerId = formData.get('managerId') ? parseInt(formData.get('managerId')) : null;
-        const startDate = formData.get('startDate') || new Date().toISOString().split('T')[0];
-        const endDate = formData.get('endDate') || '';
-        const status = formData.get('status') || 'on_track';
-        const tagsStr = formData.get('tags')?.trim() || '';
-        const description = formData.get('description')?.trim() || '';
-
-        // Validation
         if (!name) {
-            showError(errorDiv, 'Project name is required');
-            return;
+            showToast('Project name is required', 'error');
+            return null;
         }
 
-        // Parse tags
-        const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()).filter(t => t) : [];
+        // Parse tags if provided (handle both string and array)
+        let tags = [];
+        if (formData.tags) {
+            if (Array.isArray(formData.tags)) {
+                tags = formData.tags;
+            } else if (typeof formData.tags === 'string') {
+                tags = formData.tags.split(',').map(t => t.trim()).filter(t => t);
+            }
+        }
 
         // Create project object
         const newProject = {
-            name,
-            managerId,
-            status,
-            color: config.statusColors[status],
-            startDate,
-            endDate: endDate || startDate,
-            description,
-            tags,
-            milestones: { completed: 0, total: 0 },
-            taskCount: 0,
-            isFavorite: false
+            name: name,
+            managerId: formData.managerId ? parseInt(formData.managerId) : null,
+            status: formData.status || 'on_track',
+            startDate: formData.startDate || new Date().toISOString().split('T')[0],
+            endDate: formData.endDate || '',
+            description: formData.description || '',
+            tags: tags,
+            milestones: formData.milestones || { completed: 0, total: 0 },
+            isFavorite: formData.isFavorite || false
         };
 
-        // Add to database
+        // Add to database (saves to localStorage)
         const created = db.add('projects', newProject);
         
         if (created) {
             console.log('Project created:', created);
-            closeCreateModal();
-            renderProjects();
-            
-            // Show success toast (optional)
             showToast(`Project "${name}" created successfully!`);
-        } else {
-            showError(errorDiv, 'Failed to create project. Please try again.');
+            return created;
         }
-    }
-
-    /**
-     * Show error message
-     */
-    function showError(element, message) {
-        if (element) {
-            element.textContent = message;
-            element.classList.remove('hidden');
-            setTimeout(() => element.classList.add('hidden'), 5000);
-        }
+        
+        return null;
     }
 
     /**
      * Show toast notification
      */
-    function showToast(message) {
-        // Create toast element
+    function showToast(message, type = 'success') {
+        // Remove existing toast
+        const existingToast = document.querySelector('.toast-notification');
+        if (existingToast) existingToast.remove();
+
+        const bgColor = type === 'error' ? 'bg-red-500' : 'bg-gray-900';
+        const icon = type === 'error' ? 'error' : 'check_circle';
+        const iconColor = type === 'error' ? 'text-white' : 'text-green-400';
+
         const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-slide-up';
+        toast.className = `toast-notification fixed bottom-4 right-4 ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-slide-up`;
         toast.innerHTML = `
-            <span class="material-symbols-outlined text-green-400 text-[20px]">check_circle</span>
+            <span class="material-symbols-outlined ${iconColor} text-[20px]">${icon}</span>
             <span class="text-sm">${message}</span>
         `;
         
@@ -744,35 +551,31 @@ Create Project
 
     /**
      * ============================================
-     * INITIALIZATION
+     * INITIALIZATION (TASK 1: initProjectDashboard)
      * ============================================
      */
 
     /**
-     * Initialize the Projects module
+     * Initialize the Projects Dashboard
+     * This is the main entry point - runs on projects/project.html
      */
-    function init() {
-        console.log('Initializing Projects module...');
+    function initProjectDashboard() {
+        console.log('Initializing Projects Dashboard...');
 
         // Check if we're on the projects page
-        const grid = document.getElementById('projects-grid') || 
-                     document.querySelector('main .grid');
-        
+        const grid = document.getElementById('projects-grid');
         if (!grid) {
-            console.warn('Projects grid not found');
+            console.warn('Projects grid not found - not on projects page');
             return;
         }
 
-        // Add ID to grid if not present
-        if (!grid.id) {
-            grid.id = 'projects-grid';
-        }
-
-        // Render projects
+        // TASK 1: Fetch data and render projects
         renderProjects();
 
-        // Setup interactions
+        // Setup search
         setupSearch();
+
+        // TASK 3: Setup New button navigation
         setupNewProjectButton();
 
         // Close dropdowns when clicking outside
@@ -782,7 +585,7 @@ Create Project
             }
         });
 
-        console.log('Projects module initialized');
+        console.log('Projects Dashboard initialized successfully');
     }
 
     /**
@@ -792,15 +595,26 @@ Create Project
      */
 
     return {
-        init,
+        // Main initialization
+        init: initProjectDashboard,
+        initProjectDashboard,
+        
+        // Rendering
         renderProjects,
-        openCreateModal,
-        closeCreateModal,
+        
+        // Actions
         updateProjectStatus,
         toggleFavorite,
+        navigateToTasks,
+        handleCreateProject,
+        
+        // Stats
         getProjectStats,
         
-        // Expose for external use
+        // Utilities
+        showToast,
+        
+        // Config (for external use)
         config
     };
 })();
@@ -810,14 +624,9 @@ window.Projects = Projects;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Only init on projects pages
-    if (window.location.pathname.includes('project.html') || 
-        window.location.pathname.endsWith('projects/')) {
-        Projects.init();
+    // Only init on main projects page (project.html)
+    const path = window.location.pathname;
+    if (path.includes('project.html') && !path.includes('create-project') && !path.includes('project-task') && !path.includes('project-status')) {
+        Projects.initProjectDashboard();
     }
 });
-
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Projects;
-}

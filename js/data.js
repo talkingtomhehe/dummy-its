@@ -211,7 +211,7 @@ const defaultData = {
             description: 'Complete residential construction project including foundation, framing, and interior finishing.',
             tags: ['Renovation', 'External', 'High Priority'],
             milestones: { completed: 1, total: 3 },
-            taskCount: 0
+            isFavorite: true
         },
         {
             id: 2,
@@ -224,7 +224,7 @@ const defaultData = {
             description: 'Modern office space redesign focusing on collaborative work areas and ergonomic furniture.',
             tags: ['Digital', 'Urgent'],
             milestones: { completed: 2, total: 5 },
-            taskCount: 12
+            isFavorite: false
         },
         {
             id: 3,
@@ -237,7 +237,7 @@ const defaultData = {
             description: 'End-of-year marketing push including social media, email campaigns, and promotional events.',
             tags: ['Marketing', 'Q4'],
             milestones: { completed: 0, total: 2 },
-            taskCount: 8
+            isFavorite: true
         },
         {
             id: 4,
@@ -250,7 +250,7 @@ const defaultData = {
             description: 'Complete office building renovation including HVAC upgrade and modern amenities.',
             tags: ['Facilities', 'Long-term'],
             milestones: { completed: 3, total: 6 },
-            taskCount: 24
+            isFavorite: false
         },
         {
             id: 5,
@@ -263,7 +263,7 @@ const defaultData = {
             description: 'Cross-platform mobile application for customer engagement and self-service.',
             tags: ['Development', 'Mobile', 'Strategic'],
             milestones: { completed: 4, total: 8 },
-            taskCount: 45
+            isFavorite: false
         }
     ],
 
@@ -271,6 +271,7 @@ const defaultData = {
     // TASKS - Task Management Data
     // ============================================
     tasks: [
+        // Project 2 - Office Design (5 tasks)
         {
             id: 1,
             projectId: 2,
@@ -298,18 +299,46 @@ const defaultData = {
             description: 'Complete interior decoration for conference room 1 including artwork and plants.'
         },
         {
-            id: 3,
-            projectId: null,
-            title: 'Empty Trash Bins',
+            id: 7,
+            projectId: 2,
+            title: 'Furniture Selection Meeting',
             stage: 'New',
-            assigneeIds: [3],
-            priority: 'low',
-            deadline: '2025-12-28',
+            assigneeIds: [2, 4],
+            priority: 'normal',
+            deadline: '2025-12-29',
             isOverdue: false,
-            tags: ['Work'],
-            statusColor: '#EAB308',
-            description: 'Weekly office maintenance task - empty all trash bins on the floor.'
+            tags: ['Meeting', 'Planning'],
+            statusColor: '#06B6D4',
+            description: 'Meet with vendors to finalize furniture selection for the new office layout.'
         },
+        {
+            id: 8,
+            projectId: 2,
+            title: 'Lighting Design Review',
+            stage: 'New',
+            assigneeIds: [1],
+            priority: 'normal',
+            deadline: '2025-12-31',
+            isOverdue: false,
+            tags: ['Design', 'Review'],
+            statusColor: '#10B981',
+            description: 'Review proposed lighting designs for open workspace and private offices.'
+        },
+        {
+            id: 9,
+            projectId: 2,
+            title: 'Floor Plan Approval',
+            stage: 'Done',
+            assigneeIds: [2, 3],
+            priority: 'high',
+            deadline: '2025-11-15',
+            isOverdue: false,
+            tags: ['Planning', 'Approval'],
+            statusColor: '#22C55E',
+            description: 'Get final approval on the new floor plan layout from stakeholders.'
+        },
+
+        // Project 3 - Q4 Marketing (3 tasks)
         {
             id: 4,
             projectId: 3,
@@ -324,18 +353,33 @@ const defaultData = {
             description: 'Create graphics for Q4 campaign across Instagram, LinkedIn, and Twitter.'
         },
         {
-            id: 5,
-            projectId: 5,
-            title: 'Implement user authentication',
-            stage: 'Done',
-            assigneeIds: [3],
+            id: 10,
+            projectId: 3,
+            title: 'Email Campaign Setup',
+            stage: 'In Progress',
+            assigneeIds: [4],
             priority: 'high',
-            deadline: '2023-10-15',
+            deadline: '2025-12-28',
             isOverdue: false,
-            tags: ['Development', 'Security'],
-            statusColor: '#22C55E',
-            description: 'Implement OAuth2 authentication with support for Google and Microsoft accounts.'
+            tags: ['Marketing', 'Email'],
+            statusColor: '#F97316',
+            description: 'Set up automated email sequences for Q4 promotional campaign.'
         },
+        {
+            id: 11,
+            projectId: 3,
+            title: 'Analytics Dashboard',
+            stage: 'New',
+            assigneeIds: [3],
+            priority: 'normal',
+            deadline: '2026-01-05',
+            isOverdue: false,
+            tags: ['Marketing', 'Analytics'],
+            statusColor: '#3B82F6',
+            description: 'Create dashboard to track Q4 campaign performance metrics.'
+        },
+
+        // Project 4 - Office Renovation (4 tasks)
         {
             id: 6,
             projectId: 4,
@@ -350,17 +394,151 @@ const defaultData = {
             description: 'Coordinate with contractors for HVAC system inspection and maintenance report.'
         },
         {
-            id: 7,
-            projectId: 2,
-            title: 'Furniture Selection Meeting',
-            stage: 'New',
-            assigneeIds: [2, 4],
-            priority: 'normal',
-            deadline: '2025-12-29',
+            id: 12,
+            projectId: 4,
+            title: 'Electrical Wiring Assessment',
+            stage: 'Done',
+            assigneeIds: [1],
+            priority: 'high',
+            deadline: '2025-11-20',
             isOverdue: false,
-            tags: ['Meeting', 'Planning'],
-            statusColor: '#06B6D4',
-            description: 'Meet with vendors to finalize furniture selection for the new office layout.'
+            tags: ['Facilities', 'Safety'],
+            statusColor: '#22C55E',
+            description: 'Complete electrical assessment and prepare upgrade recommendations.'
+        },
+        {
+            id: 13,
+            projectId: 4,
+            title: 'Contractor Bid Review',
+            stage: 'In Progress',
+            assigneeIds: [1, 4],
+            priority: 'normal',
+            deadline: '2025-12-30',
+            isOverdue: false,
+            tags: ['Procurement', 'Review'],
+            statusColor: '#3B82F6',
+            description: 'Review and compare contractor bids for renovation work.'
+        },
+        {
+            id: 14,
+            projectId: 4,
+            title: 'Safety Compliance Check',
+            stage: 'New',
+            assigneeIds: [2],
+            priority: 'high',
+            deadline: '2026-01-10',
+            isOverdue: false,
+            tags: ['Safety', 'Compliance'],
+            statusColor: '#EF4444',
+            description: 'Ensure all renovation plans meet building safety codes and regulations.'
+        },
+
+        // Project 5 - Mobile App (6 tasks)
+        {
+            id: 5,
+            projectId: 5,
+            title: 'Implement user authentication',
+            stage: 'Done',
+            assigneeIds: [3],
+            priority: 'high',
+            deadline: '2023-10-15',
+            isOverdue: false,
+            tags: ['Development', 'Security'],
+            statusColor: '#22C55E',
+            description: 'Implement OAuth2 authentication with support for Google and Microsoft accounts.'
+        },
+        {
+            id: 15,
+            projectId: 5,
+            title: 'UI Component Library',
+            stage: 'Done',
+            assigneeIds: [3, 4],
+            priority: 'high',
+            deadline: '2025-11-01',
+            isOverdue: false,
+            tags: ['Development', 'UI'],
+            statusColor: '#22C55E',
+            description: 'Build reusable UI component library for consistent app design.'
+        },
+        {
+            id: 16,
+            projectId: 5,
+            title: 'API Integration',
+            stage: 'In Progress',
+            assigneeIds: [3],
+            priority: 'high',
+            deadline: '2025-12-31',
+            isOverdue: false,
+            tags: ['Development', 'Backend'],
+            statusColor: '#3B82F6',
+            description: 'Integrate mobile app with backend REST APIs for data sync.'
+        },
+        {
+            id: 17,
+            projectId: 5,
+            title: 'Push Notifications',
+            stage: 'New',
+            assigneeIds: [4],
+            priority: 'normal',
+            deadline: '2026-01-15',
+            isOverdue: false,
+            tags: ['Development', 'Features'],
+            statusColor: '#8B5CF6',
+            description: 'Implement push notification system for iOS and Android.'
+        },
+        {
+            id: 18,
+            projectId: 5,
+            title: 'Performance Testing',
+            stage: 'New',
+            assigneeIds: [3],
+            priority: 'normal',
+            deadline: '2026-01-20',
+            isOverdue: false,
+            tags: ['Testing', 'QA'],
+            statusColor: '#EAB308',
+            description: 'Run performance tests and optimize app loading times.'
+        },
+        {
+            id: 19,
+            projectId: 5,
+            title: 'Beta Release Preparation',
+            stage: 'New',
+            assigneeIds: [3, 4],
+            priority: 'high',
+            deadline: '2026-02-01',
+            isOverdue: false,
+            tags: ['Release', 'Planning'],
+            statusColor: '#EC4899',
+            description: 'Prepare app store listings and beta testing distribution.'
+        },
+
+        // Unassigned Tasks (2 tasks)
+        {
+            id: 3,
+            projectId: null,
+            title: 'Empty Trash Bins',
+            stage: 'New',
+            assigneeIds: [3],
+            priority: 'low',
+            deadline: '2025-12-28',
+            isOverdue: false,
+            tags: ['Work'],
+            statusColor: '#EAB308',
+            description: 'Weekly office maintenance task - empty all trash bins on the floor.'
+        },
+        {
+            id: 20,
+            projectId: null,
+            title: 'Team Building Ideas',
+            stage: 'New',
+            assigneeIds: [1, 2, 3, 4],
+            priority: 'low',
+            deadline: '2026-01-31',
+            isOverdue: false,
+            tags: ['HR', 'Team'],
+            statusColor: '#10B981',
+            description: 'Brainstorm and plan upcoming team building activities for Q1.'
         }
     ],
 

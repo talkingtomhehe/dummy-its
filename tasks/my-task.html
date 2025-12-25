@@ -21,6 +21,15 @@
               "sans": ["Roboto", "sans-serif"],
             },
             borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            keyframes: {
+              'slide-up': {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              }
+            },
+            animation: {
+              'slide-up': 'slide-up 0.3s ease-out'
+            }
           },
         },
       }
@@ -44,9 +53,11 @@
 <body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
 <header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md">
 <div class="flex items-center gap-4 text-white">
+<a href="../home.html">
 <button class="flex items-center justify-center p-1 text-white/80 hover:bg-white/10 rounded">
 <span class="material-symbols-outlined text-[24px]">apps</span>
 </button>
+</a>
 <div class="flex flex-col">
 <h2 class="text-white text-base font-bold leading-tight tracking-tight">TASKS</h2>
 </div>
@@ -247,5 +258,6 @@
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/layout.js"></script>
+<script src="../js/tasks.js"></script>
 <script src="../js/app.js"></script>
 </body></html>

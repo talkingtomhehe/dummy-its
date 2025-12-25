@@ -23,6 +23,15 @@
               "sans": ["Roboto", "sans-serif"],
             },
             borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            keyframes: {
+              'slide-up': {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              }
+            },
+            animation: {
+              'slide-up': 'slide-up 0.3s ease-out'
+            }
           },
         },
       }
@@ -40,9 +49,11 @@
 <body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
 <header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md">
 <div class="flex items-center gap-4 text-white/80">
+    <a href="../home.html">
     <button class="flex items-center justify-center p-1 hover:text-white rounded">
         <span class="material-symbols-outlined text-[24px]">apps</span>
     </button>
+    </a>
     <div class="flex flex-col">
         <h2 class="text-white text-base font-bold leading-tight tracking-tight">PROJECTS</h2>
     </div>
@@ -123,6 +134,7 @@
 </div>
 <main class="flex-1 overflow-x-auto overflow-y-hidden p-4 md:p-6 bg-[#F9FAFB] min-w-0">
 <div class="flex h-full gap-4 items-start min-w-max">
+<!-- NEW Column -->
 <div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
 <div class="flex items-center justify-between pb-2 group cursor-pointer">
 <h3 class="text-gray-700 font-bold text-sm uppercase tracking-wide">New</h3>
@@ -132,11 +144,14 @@
 </div>
 </div>
 <div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
-<div class="h-full bg-gray-400 w-0"></div>
+<div class="h-full bg-gray-400" style="width: 0%"></div>
 </div>
-<div class="flex-1 flex flex-col gap-3 min-h-[100px]">
+<div class="flex-1 flex flex-col gap-3 min-h-[100px] overflow-y-auto pr-1 pb-4 scrollbar-hide">
+    <!-- Tasks rendered dynamically by project-tasks.js -->
 </div>
 </div>
+
+<!-- IN PROGRESS Column -->
 <div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
 <div class="flex items-center justify-between pb-2 group cursor-pointer">
 <h3 class="text-gray-700 font-bold text-sm uppercase tracking-wide">In Progress</h3>
@@ -146,123 +161,14 @@
 </div>
 </div>
 <div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
-<div class="h-full bg-[#FBC02D] w-2/3"></div>
+<div class="h-full bg-[#FBC02D]" style="width: 0%"></div>
 </div>
 <div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 pb-4 scrollbar-hide">
-<div class="group relative bg-white rounded shadow-md border border-gray-100 p-3 hover:shadow-lg transition-shadow cursor-pointer flex flex-col gap-2">
-<div class="flex justify-between items-start">
-<h4 class="text-tprimary font-medium text-sm leading-snug">Energy Certificate</h4>
-<div class="flex items-center gap-1">
-<div class="bg-center bg-no-repeat bg-cover rounded-full h-6 w-6 border border-white shrink-0" data-alt="User Avatar Joel Willis" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNvzmR2QaPryImJ6Eef1iIYM0QQU3MaUifxAWnO8Usf3XrtFHkd-josMO4s-7RBpjcvGGaR3rDVNORCNHWBvfbYM8vEH26sPNRYeIkYPZ8EV1-uI3yEQAGIFuPjpgdgFH-Baq18XKcinP1K8ZqRbj9GRtGQCIsNvEvM1z4q7GOCyQOkRMJcHnPCZb0j8gUMfjQs01QlHmCidDJ-Ti0SKcafXxew3dCjc8H4RbjKzMb1paF5OWux2ean-31V-WHuCiRa9ai2YTNup4");'></div>
+    <!-- Tasks rendered dynamically by project-tasks.js -->
 </div>
 </div>
-<p class="text-xs text-gray-500">YourCompany, Joel Willis</p>
-<div class="flex items-end justify-between mt-1">
-<div class="flex flex-col gap-1 flex-1">
-<div class="flex items-center gap-1 text-red-600 font-bold text-xs">
-<span>46 days ago</span>
-</div>
-<div class="flex items-center justify-between w-full">
-<span class="material-symbols-outlined text-[18px] text-amber-400 fill-current" style="font-variation-settings: 'FILL' 1;">star</span>
-</div>
-</div>
-<div class="relative ml-2 group">
-<button class="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center hover:ring-2 hover:ring-offset-1 hover:ring-orange-200 transition-all border border-white" title="At Risk">
-</button>
-<div class="absolute top-full mb-1 right-0 w-36 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden hidden group-hover:block">
-<ul class="py-1 text-xs font-medium text-gray-500">
-<li>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-green-500 mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">On Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 bg-gray-50/80 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-orange-500 mr-3"></span>
-    <span class="text-xs font-medium text-gray-900">At Risk</span>
-    <span class="material-symbols-outlined text-[18px] ml-auto text-gray-600">check</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-[#E53835] mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">Off Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-gray-400 mr-3"></span>
-    <span class="text-xs font-medium text-gray-500 ">On Hold</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-[#0175C8] mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">Done</span>
-</button>
-</li>
-</ul>
-</div>
-<style>.relative:focus-within .absolute,
-                            .relative:active .absolute,
-                            button:focus + .absolute {
-                                display: block !important;
-                            }
-                            </style>
-</div>
-</div>
-</div>
-<div class="group relative bg-white rounded shadow-md border border-gray-100 p-3 hover:shadow-lg transition-shadow cursor-pointer flex flex-col gap-2">
-<div class="flex justify-between items-start">
-<h4 class="text-tprimary font-medium text-sm leading-snug">Room 2: Decoration</h4>
-<div class="flex items-center gap-1">
-<div class="bg-center bg-no-repeat bg-cover rounded-full h-6 w-6 border border-white shrink-0" data-alt="User Avatar Joel Willis" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZ9IwqZLMVyFuvjD48r6YmxNecS2IrNMxG2dFNdOE52RuIygLm-jHTDoZtgyBLmLKKdD-TTsuUZVou2vdbxd0D9QR6pC_XY_z2cK-Ec_i7mICjIvR4YPbKET2bazHwZFPJKC_OyGs2Us9f1RopSTgaqSV7l4gG5EcUzhWMP3Azd4xOdVEL64x6f7WLJRJvnmpLmkD5Y63-k_4Z7bhbwIrH61E8LwjgddbaPgANhGtx_Tjkt5DESNWq0Mj89htAHSboNhEooCbGTMI");'></div>
-</div>
-</div>
-<p class="text-xs text-gray-500">YourCompany, Joel Willis</p>
-<div class="flex items-end justify-between mt-1">
-<div class="flex flex-col gap-1 flex-1">
-<div class="flex items-center gap-1 text-red-600 font-bold text-xs">
-<span>42 days ago</span>
-</div>
-<div class="flex items-center justify-between w-full">
-<span class="material-symbols-outlined text-[16px] text-gray-400">schedule</span>
-</div>
-</div>
-<div class="relative ml-2 group">
-<button class="h-6 w-6 rounded-full bg-[#E53835] flex items-center justify-center hover:ring-2 hover:ring-offset-1 hover:ring-red-200 transition-all border border-white" title="Off Track">
-</button>
-<div class="absolute top-full mb-1 right-0 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden hidden group-hover:block">
-<ul class="py-1 text-xs font-medium">
-<li>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-green-500 mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">On Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 bg-gray-50/80 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-orange-500 mr-3"></span>
-    <span class="text-xs font-medium text-gray-900">At Risk</span>
-    <span class="material-symbols-outlined text-[18px] ml-auto text-gray-600">check</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-[#E53835] mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">Off Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-gray-400 mr-3"></span>
-    <span class="text-xs font-medium text-gray-500 ">On Hold</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-    <span class="size-2.5 rounded-full bg-[#0175C8] mr-3"></span>
-    <span class="text-xs font-medium text-gray-500">Done</span>
-</button>
-</li>
-</ul>
-</div>
-<style>.relative:focus-within .absolute,
-                            .relative:active .absolute,
-                            button:focus + .absolute {
-                                display: block !important;
-                            }
-                            </style>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+<!-- DONE Column -->
 <div class="flex flex-col w-[300px] shrink-0 h-full max-h-full">
 <div class="flex items-center justify-between pb-2 group cursor-pointer">
 <h3 class="text-gray-700 font-bold text-sm uppercase tracking-wide">Done</h3>
@@ -272,80 +178,26 @@
 </div>
 </div>
 <div class="h-1 w-full bg-gray-200 rounded-full mb-3 flex overflow-hidden">
-<div class="h-full bg-green-500 w-full"></div>
+<div class="h-full bg-green-500" style="width: 0%"></div>
 </div>
 <div class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 pb-4 scrollbar-hide">
-<div class="group relative bg-white rounded shadow-md border border-gray-100 p-3 hover:shadow-lg transition-shadow cursor-pointer flex flex-col gap-2 border-l-[3px] border-l-transparent">
-<div class="flex justify-between items-start">
-<h4 class="text-primary font-medium text-sm leading-snug">Modifications asked by customer</h4>
-<div class="flex items-center gap-1">
-<div class="bg-center bg-no-repeat bg-cover rounded-full h-6 w-6 border border-white shrink-0" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCRqRHWuVwXt44GojFVKS0kYj7ux1sQhotSt9UaJu5rzvS1oUbJntgQ64ps8BOL3tT8IRXLlKvZGwTKTtKtwn1p4iAMjpnO_Db6zYTrJUHqu_GbCv0jrOz1Gl0C5khWEW3OtotB1H-Qyw3O9JqAX1v4T9JBoJTnxoz2b7_HO_gJmzu5PKvckk4zpVr51zocwqzl0uoXt81VnImSzy8InMKPWPYfBsEkDZu4wE-zrqVp5lcrhU34L1xvgZ8f5Anz6J6POSyiUUrYmeE");'></div>
+    <!-- Tasks rendered dynamically by project-tasks.js -->
 </div>
 </div>
-<p class="text-xs text-gray-500">Second Phase</p>
-<div class="flex items-end justify-between mt-1">
-<div class="flex flex-col gap-1 flex-1">
-<div class="flex flex-wrap gap-1">
-<span class="bg-orange-100 text-orange-800 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-orange-200 flex items-center gap-1">
-<span class="material-symbols-outlined text-[12px]">bug_report</span> Bug
-                                </span>
-</div>
-<div class="flex items-center justify-end w-full">
-</div>
-</div>
-<div class="relative ml-2 group">
-<button class="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center hover:ring-2 hover:ring-offset-1 hover:ring-green-200 transition-all border border-white" title="On Track">
-</button>
-<div class="absolute top-full mb-1 right-0 w-36 bg-white rounded-lg shadow-lg border border-gray-100 z-50 overflow-hidden hidden group-hover:block">
-<ul class="py-1 text-xs font-medium text-gray-700">
-<li>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-<span class="size-2.5 rounded-full bg-green-500 mr-3"></span>
-<span class="text-xs font-medium text-gray-500">On Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 bg-gray-50/80 hover:bg-gray-50 transition-colors">
-<span class="size-2.5 rounded-full bg-orange-500 mr-3"></span>
-<span class="text-xs font-medium text-gray-900">At Risk</span>
-<span class="material-symbols-outlined text-[18px] ml-auto text-gray-600">check</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-<span class="size-2.5 rounded-full bg-[#E53835] mr-3"></span>
-<span class="text-xs font-medium text-gray-500">Off Track</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-<span class="size-2.5 rounded-full bg-gray-400 mr-3"></span>
-<span class="text-xs font-medium text-gray-500 ">On Hold</span>
-</button>
-<button class="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50 transition-colors">
-<span class="size-2.5 rounded-full bg-[#0175C8] mr-3"></span>
-<span class="text-xs font-medium text-gray-500">Done</span>
-</button>
-</li>
-</ul>
-</div>
-<style>.relative:focus-within .absolute,
-                            .relative:active .absolute,
-                            button:focus + .absolute {
-                                display: block !important;
-                            }
-                            </style>
-</div>
-</div>
-</div>
-</div>
-</div>
+
+<!-- CANCELLED Column (Collapsed) -->
 <div class="flex flex-col w-[40px] shrink-0 h-full bg-[#f0f0f5] border border-gray-200 rounded cursor-pointer hover:bg-gray-200 transition-colors items-center py-4">
 <div class="flex-1 flex items-center justify-center">
 <h3 class="text-gray-500 font-bold text-xs uppercase tracking-wide whitespace-nowrap rotate-90 transform origin-center">
-                    Cancelled
-                </h3>
+    Cancelled
+</h3>
 </div>
 <div class="mb-2">
-<span class="material-symbols-outlined text-gray-500 text-[20px]">
-    arrow_menu_open
-</span>
+<span class="material-symbols-outlined text-gray-500 text-[20px]">arrow_menu_open</span>
 </div>
 </div>
+
+<!-- ADD STAGE Column -->
 <div class="flex flex-col w-[300px] shrink-0 h-full max-h-full opacity-60 hover:opacity-100 transition-opacity">
 <div class="flex items-center gap-2 pb-2">
 <h3 class="text-gray-400 font-bold text-sm uppercase tracking-wide px-2">Add a Stage</h3>
@@ -364,5 +216,6 @@
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/layout.js"></script>
+<script src="../js/project-tasks.js"></script>
 <script src="../js/app.js"></script>
 </body></html>

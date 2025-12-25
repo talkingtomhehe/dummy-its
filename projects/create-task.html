@@ -28,6 +28,15 @@
                         "sans": ["Roboto", "sans-serif"],
                     },
                     borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    keyframes: {
+                        'slide-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    },
+                    animation: {
+                        'slide-up': 'slide-up 0.3s ease-out'
+                    }
                 },
             },
         }
@@ -47,9 +56,11 @@
 <body class="bg-[#F9FAFB] text-[#101118] font-display h-screen flex flex-col overflow-hidden">
     <header class="flex items-center justify-between whitespace-nowrap bg-primary px-4 py-2 shrink-0 z-20 shadow-md">
         <div class="flex items-center gap-4 text-white/80">
+            <a href="../home.html">
             <button class="flex items-center justify-center p-1 hover:text-white rounded">
                 <span class="material-symbols-outlined text-[24px]">apps</span>
             </button>
+            </a>
             <div class="flex flex-col">
                 <h2 class="text-white text-base font-bold leading-tight tracking-tight">TASKS</h2>
             </div>
@@ -151,29 +162,28 @@
                     <div class="h-full bg-gray-400 w-0"></div>
                 </div>
 <div class="flex-1 flex flex-col gap-3 min-h-[100px] overflow-y-auto scrollbar-hide">
-<div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex flex-col gap-3">
+<div id="quick-create-form" class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex flex-col gap-3">
 <div class="flex flex-col gap-1.5">
 <div class="flex items-center gap-1">
 <label class="text-xs font-bold text-gray-700">Task Title</label>
 <span class="material-symbols-outlined text-[14px] text-blue-500 cursor-help" title="More information">help</span>
 </div>
-<input class="w-full border-gray-300 rounded text-sm focus:ring-[#0014A6] focus:border-[#0014A6] placeholder:text-gray-400 py-1.5" placeholder="e.g. Send Invitations" type="text"/>
+<input id="quick-task-title" class="w-full border-gray-300 rounded text-sm focus:ring-[#0014A6] focus:border-[#0014A6] placeholder:text-gray-400 py-1.5" placeholder="e.g. Send Invitations" type="text"/>
 </div>
 <div class="flex flex-col gap-1.5">
 <label class="text-xs font-bold text-gray-700">Assignees</label>
-<div class="flex items-center justify-end h-[34px] border border-gray-300 rounded bg-white">
-<button class="pr-2 text-gray-400 hover:text-gray-600">
-    <span class="material-symbols-outlined text-[20px]">arrow_drop_down</span>
-</button>
-</div>
+<select id="quick-task-assignee" class="w-full border-gray-300 rounded text-sm focus:ring-[#0014A6] focus:border-[#0014A6] h-[34px]">
+    <option value="">Select assignee...</option>
+    <!-- Populated dynamically -->
+</select>
 </div>
 <div class="flex items-center justify-between mt-1">
 <div class="flex gap-2">
-<button class="bg-primary hover:bg-primary/90 text-white text-xs font-medium px-4 py-1.5 rounded tracking-wide shadow-sm transition-colors">
+<button id="btn-add-task" class="bg-primary hover:bg-primary/90 text-white text-xs font-medium px-4 py-1.5 rounded tracking-wide shadow-sm transition-colors">
                     Add
                 </button>
-<button class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 text-xs font-medium px-4 py-1.5 rounded tracking-wide shadow-sm transition-colors">
-                    Edit
+<button id="btn-cancel-task" class="bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 text-xs font-medium px-4 py-1.5 rounded tracking-wide shadow-sm transition-colors">
+                    Cancel
                 </button>
 </div>
 <button class="text-gray-400 hover:text-gray-600 transition-colors p-1" title="Delete">
@@ -461,7 +471,177 @@
 <script src="../js/data.js"></script>
 <script src="../js/auth.js"></script>
 <script src="../js/layout.js"></script>
+<script src="../js/tasks.js"></script>
 <script src="../js/app.js"></script>
+
+<!-- Create Task Form Handler -->
+<script>
+(function() {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Create Task Page Loaded');
+        
+        // Get projectId from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId') || urlParams.get('id');
+        
+        console.log('Project ID:', projectId);
+
+        // Find the quick create form
+        const quickForm = document.getElementById('quick-create-form');
+        if (!quickForm) {
+            console.warn('Quick create form not found');
+            return;
+        }
+
+        // Find form elements
+        const titleInput = document.getElementById('quick-task-title');
+        const assigneeSelect = document.getElementById('quick-task-assignee');
+        const addBtn = document.getElementById('btn-add-task');
+        const cancelBtn = document.getElementById('btn-cancel-task');
+
+        console.log('Form elements found:', {
+            titleInput: !!titleInput,
+            assigneeSelect: !!assigneeSelect,
+            addBtn: !!addBtn,
+            cancelBtn: !!cancelBtn
+        });
+
+        // Wait for database to be ready
+        const waitForDatabase = () => {
+            return new Promise((resolve) => {
+                if (window.db) {
+                    resolve(window.db);
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.db) {
+                            clearInterval(checkInterval);
+                            resolve(window.db);
+                        }
+                    }, 50);
+                }
+            });
+        };
+
+        // Populate assignee dropdown from database
+        waitForDatabase().then(db => {
+            if (assigneeSelect) {
+                const users = db.getAll('users') || [];
+                assigneeSelect.innerHTML = '<option value="">Select assignee</option>';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    assigneeSelect.appendChild(option);
+                });
+            }
+
+            // Update breadcrumb with project name if available
+            if (projectId) {
+                const project = db.getById('projects', parseInt(projectId));
+                if (project) {
+                    const breadcrumbLink = document.querySelector('.breadcrumb-project-link');
+                    if (breadcrumbLink) {
+                        breadcrumbLink.textContent = project.name;
+                        breadcrumbLink.href = `project-task.html?id=${projectId}`;
+                    }
+                }
+            }
+        });
+
+        // Handle Add button click
+        if (addBtn) {
+            addBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('Add button clicked');
+                
+                const title = titleInput?.value.trim();
+                const assigneeId = assigneeSelect?.value;
+
+                console.log('Form values:', { title, assigneeId, projectId });
+
+                if (!title) {
+                    alert('Please enter a task title');
+                    titleInput?.focus();
+                    return;
+                }
+
+                try {
+                    const db = await waitForDatabase();
+                    
+                    // Create new task
+                    const newTask = {
+                        title: title,
+                        projectId: projectId ? parseInt(projectId) : null,
+                        stage: 'New',
+                        assigneeIds: assigneeId ? [parseInt(assigneeId)] : [],
+                        priority: 'normal',
+                        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days from now
+                        isOverdue: false,
+                        tags: [],
+                        statusColor: '#22C55E',
+                        description: ''
+                    };
+
+                    console.log('Creating task:', newTask);
+
+                    const created = db.add('tasks', newTask);
+                    
+                    if (created) {
+                        console.log('Task created successfully:', created);
+                        alert('Task created successfully!');
+                        // Redirect back to project tasks
+                        if (projectId) {
+                            window.location.href = `project-task.html?id=${projectId}`;
+                        } else {
+                            window.location.href = '../tasks/my-task.html';
+                        }
+                    } else {
+                        console.error('Failed to create task');
+                        alert('Failed to create task. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error creating task:', error);
+                    alert('Database not initialized. Please refresh the page.');
+                }
+            });
+        }
+
+        // Handle Cancel button click
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Cancel button clicked');
+                
+                // Navigate back
+                if (projectId) {
+                    window.location.href = `project-task.html?id=${projectId}`;
+                } else {
+                    window.location.href = '../tasks/my-task.html';
+                }
+            });
+        }
+
+        // Handle Enter key on inputs
+        [titleInput, assigneeSelect].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addBtn?.click();
+                    }
+                });
+            }
+        });
+
+        // Focus on title input
+        if (titleInput) {
+            titleInput.focus();
+        }
+    });
+})();
+</script>
 </body>
 
 </html>
