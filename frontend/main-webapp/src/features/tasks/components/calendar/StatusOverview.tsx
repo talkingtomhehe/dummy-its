@@ -12,10 +12,10 @@ export default function StatusOverview({ status }: StatusOverviewProps) {
   ];
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-neutral-100">
-      <h3 className="text-base font-semibold text-neutral-900 mb-4">Status Overview</h3>
-      
-      <div className="space-y-3">
+    <div className="bg-white rounded-lg p-3 shadow-sm border border-neutral-100">
+      <h3 className="text-sm font-semibold text-neutral-900 mb-3">Status Overview</h3>
+
+      <div className="space-y-2">
         {items.map((item) => (
           <div key={item.label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">

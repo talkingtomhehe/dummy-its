@@ -11,11 +11,11 @@ interface TaskColumnProps {
 
 export default function TaskColumn({ stage, onAddTask, onSettings, onTaskClick }: TaskColumnProps) {
   return (
-    <div className="flex flex-col gap-2.5 min-w-[300px] lg:min-w-[360px] flex-shrink-0 p-2.5">
+    <div className="flex flex-col gap-2 min-w-[240px] lg:min-w-[280px] flex-shrink-0 p-1.5">
       {/* Column Header */}
-      <div className="flex items-center justify-between py-2.5 px-2.5">
-        <div className="flex items-center gap-2.5">
-          <span className="font-medium text-lg leading-[22px] text-neutral-500 uppercase">
+      <div className="flex items-center justify-between py-1.5 px-1.5">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm leading-5 text-neutral-500 uppercase">
             {stage.title}
           </span>
           {/* Count Badge */}
@@ -29,15 +29,15 @@ export default function TaskColumn({ stage, onAddTask, onSettings, onTaskClick }
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2.5">
-          <button 
+        <div className="flex items-center gap-2">
+          <button
             onClick={onSettings}
             className="p-1 hover:bg-neutral-100 rounded transition-colors text-neutral-500"
             aria-label="Column settings"
           >
             <SettingsIcon />
           </button>
-          <button 
+          <button
             onClick={onAddTask}
             className="p-1 hover:bg-neutral-100 rounded transition-colors text-neutral-500"
             aria-label="Add task"
@@ -48,7 +48,7 @@ export default function TaskColumn({ stage, onAddTask, onSettings, onTaskClick }
       </div>
 
       {/* Task Cards */}
-      <div className="flex flex-col gap-2.5 overflow-y-auto flex-1 pr-1">
+      <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
         {stage.tasks.map((task) => (
           <TaskCard key={task.id} task={task} onClick={() => onTaskClick?.(task)} />
         ))}

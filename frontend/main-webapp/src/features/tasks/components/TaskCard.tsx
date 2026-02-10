@@ -12,14 +12,14 @@ const ProgressBar = ({ progress }: { progress: number }) => {
   };
 
   return (
-    <div className="flex items-center gap-3 w-full">
-      <div className="flex-1 h-2.5 bg-neutral-200 rounded-[20px] overflow-hidden">
+    <div className="flex items-center gap-2 w-full">
+      <div className="flex-1 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-[20px] transition-all ${getProgressColor(progress)}`}
+          className={`h-full rounded-full transition-all ${getProgressColor(progress)}`}
           style={{ width: `${Math.max(progress, 1)}%` }}
         />
       </div>
-      <span className="font-medium text-base leading-5 text-neutral-500 w-10 text-right shrink-0">
+      <span className="font-medium text-xs leading-4 text-neutral-500 w-8 text-right shrink-0">
         {progress}%
       </span>
     </div>
@@ -36,7 +36,7 @@ const AvatarStack = ({ assignees }: { assignees: Task["assignees"] }) => {
       {displayAssignees.map((assignee, index) => (
         <div
           key={assignee.id}
-          className="w-[30px] h-[30px] rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
+          className="w-6 h-6 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
           style={{ zIndex: displayCount - index }}
           title={assignee.name}
         >
@@ -62,20 +62,20 @@ interface TaskCardProps {
 
 export default function TaskCard({ task, onClick }: TaskCardProps) {
   return (
-    <div 
-      className="bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] px-5 lg:px-[30px] py-5 flex flex-col gap-5 cursor-pointer hover:shadow-md transition-shadow"
+    <div
+      className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 cursor-pointer hover:shadow-md transition-shadow overflow-hidden min-w-0"
       onClick={onClick}
     >
       {/* Header: Title + Priority Flag */}
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-medium text-lg leading-[22px] text-neutral-900 flex-1">
+        <h3 className="font-medium text-sm leading-5 text-neutral-900 flex-1">
           {task.title}
         </h3>
         <FlagIcon priority={task.priority} />
       </div>
 
       {/* Description */}
-      <p className="font-normal text-sm leading-[18px] text-neutral-400 line-clamp-2">
+      <p className="font-normal text-xs leading-4 text-neutral-400 line-clamp-2">
         {task.description}
       </p>
 
@@ -89,15 +89,15 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
       <div className="flex items-center justify-between">
         <AvatarStack assignees={task.assignees} />
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <CalendarIcon />
-          <span className="font-medium text-sm leading-[18px] text-neutral-400">
+          <span className="font-medium text-xs leading-4 text-neutral-400">
             {task.dueDate}
           </span>
         </div>
 
         {/* Status dot */}
-        <div className="w-[30px] h-[30px] rounded-full bg-status-on_track" />
+        <div className="w-5 h-5 rounded-full bg-status-on_track" />
       </div>
     </div>
   );

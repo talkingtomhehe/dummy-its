@@ -146,7 +146,7 @@ export default function GanttView({ tasks = mockTasks }: GanttViewProps) {
       />
 
       {/* Main Content */}
-      <div className="flex flex-1 mt-4 overflow-hidden">
+      <div className="flex flex-1 mt-2 overflow-hidden">
         {/* Timeline */}
         <GanttTimeline
           tasks={tasks}

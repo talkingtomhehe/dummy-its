@@ -53,7 +53,7 @@ export default function CalendarHeader({
   ];
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3">
       {/* View Mode Tabs */}
       <div className="flex items-center gap-1 bg-neutral-50 p-1 rounded-lg">
         {viewTabs.map(({ mode, label, icon }) => (
@@ -61,9 +61,9 @@ export default function CalendarHeader({
             key={mode}
             onClick={() => onViewModeChange(mode)}
             className={`
-              flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
-              ${viewMode === mode 
-                ? "bg-white text-primary shadow-sm" 
+              flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all
+              ${viewMode === mode
+                ? "bg-white text-primary shadow-sm"
                 : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100"
               }
             `}
@@ -75,7 +75,7 @@ export default function CalendarHeader({
       </div>
 
       {/* Month Navigation & Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Month Navigation */}
         <div className="flex items-center gap-2">
           <button
@@ -85,11 +85,11 @@ export default function CalendarHeader({
           >
             <ChevronLeftIcon />
           </button>
-          
-          <span className="text-lg font-semibold text-neutral-900 min-w-[160px] text-center">
+
+          <span className="text-sm font-semibold text-neutral-900 min-w-[140px] text-center">
             {monthNames[currentMonth]} {currentYear}
           </span>
-          
+
           <button
             onClick={onNextMonth}
             className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-500"
@@ -102,7 +102,7 @@ export default function CalendarHeader({
         {/* Today Button */}
         <button
           onClick={onToday}
-          className="px-4 py-2 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+          className="px-3 py-1.5 bg-neutral-900 text-white text-xs font-medium rounded-lg hover:bg-neutral-800 transition-colors"
         >
           Today
         </button>
@@ -111,14 +111,14 @@ export default function CalendarHeader({
         <div className="flex items-center gap-1">
           <button
             onClick={onFilter}
-            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors"
             aria-label="Filter"
           >
             <FilterLinesIcon />
           </button>
           <button
             onClick={onSettings}
-            className="p-2 hover:bg-neutral-100 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors"
             aria-label="Settings"
           >
             <SettingsGearIcon />

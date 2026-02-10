@@ -126,7 +126,7 @@ export default function TaskCalendarView({ viewMode, onViewModeChange }: TaskCal
       />
 
       {/* Main Content: Calendar + Sidebar */}
-      <div className="flex-1 flex gap-4 lg:gap-6 min-h-0">
+      <div className="flex-1 flex gap-3 min-h-0">
         {/* Calendar Grid - Takes remaining space */}
         <div className="flex-1 flex flex-col min-w-0">
           <CalendarGrid
@@ -137,7 +137,7 @@ export default function TaskCalendarView({ viewMode, onViewModeChange }: TaskCal
         </div>
 
         {/* Right Sidebar - Fixed width, scrollable on small heights */}
-        <aside className="hidden lg:flex flex-col gap-4 w-[280px] xl:w-[300px] flex-shrink-0 overflow-y-auto">
+        <aside className="hidden lg:flex flex-col gap-3 w-[240px] xl:w-[260px] flex-shrink-0 overflow-y-auto">
           <MiniCalendar
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}

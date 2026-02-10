@@ -13,10 +13,10 @@ export default function UpcomingDeadlines({ deadlines, onViewAll, onDeadlineClic
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-neutral-100">
+    <div className="bg-white rounded-lg p-3 shadow-sm border border-neutral-100">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-neutral-900">Upcoming Deadlines</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-neutral-900">Upcoming Deadlines</h3>
         <button
           onClick={onViewAll}
           className="text-sm text-primary hover:text-primary-hover transition-colors font-medium"
@@ -26,7 +26,7 @@ export default function UpcomingDeadlines({ deadlines, onViewAll, onDeadlineClic
       </div>
 
       {/* Deadline Items */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {deadlines.map((deadline) => (
           <button
             key={deadline.id}
@@ -34,11 +34,11 @@ export default function UpcomingDeadlines({ deadlines, onViewAll, onDeadlineClic
             className="w-full flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-neutral-50 transition-colors group"
           >
             {/* Date Badge */}
-            <div className="flex-shrink-0 w-12 h-12 bg-primary/5 rounded-lg flex flex-col items-center justify-center">
-              <span className="text-[10px] font-medium text-primary/70 leading-tight">
+            <div className="flex-shrink-0 w-10 h-10 bg-primary/5 rounded-lg flex flex-col items-center justify-center">
+              <span className="text-[9px] font-medium text-primary/70 leading-tight">
                 {getMonthAbbr(deadline.date)}
               </span>
-              <span className="text-lg font-bold text-primary leading-tight">
+              <span className="text-sm font-bold text-primary leading-tight">
                 {deadline.date.getDate()}
               </span>
             </div>

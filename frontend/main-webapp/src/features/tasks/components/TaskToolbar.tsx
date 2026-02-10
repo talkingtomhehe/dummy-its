@@ -34,25 +34,25 @@ export default function TaskToolbar({
   ];
 
   return (
-    <div className="bg-white flex flex-wrap items-center justify-between gap-4 px-6 lg:px-10 py-2.5 rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0]">
+    <div className="bg-white flex flex-wrap items-center justify-between gap-3 px-3 py-1.5 rounded-[12px] shadow-sm border border-neutral-100">
       {/* Breadcrumb */}
-      <div className="flex items-center h-10">
-        <span className="font-normal text-lg leading-[22px] text-black">
+      <div className="flex items-center h-8">
+        <span className="font-normal text-sm leading-5 text-black">
           Project /{" "}
           <span className="text-primary">{projectName}</span>
         </span>
       </div>
 
       {/* Search Input */}
-      <div className="w-full sm:w-[250px] lg:w-[315px] order-last sm:order-none">
-        <div className="bg-white border border-neutral-200 rounded-[20px] flex items-center gap-2.5 px-3 h-10">
+      <div className="w-full sm:w-[200px] lg:w-[240px] order-last sm:order-none">
+        <div className="bg-white border border-neutral-200 rounded-[10px] flex items-center gap-2 px-2 h-8">
           <SearchIcon />
           <input
             type="text"
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-neutral-900 text-base font-normal placeholder:text-neutral-400"
+            className="flex-1 bg-transparent outline-none text-neutral-900 text-sm font-normal placeholder:text-neutral-400"
           />
         </div>
       </div>
@@ -60,23 +60,22 @@ export default function TaskToolbar({
       {/* Filter Button */}
       <button
         onClick={onFilter}
-        className="bg-neutral-50 border border-neutral-200 flex items-center gap-2.5 px-2 py-2 rounded-[10px] text-neutral-500 font-medium text-lg leading-[22px] hover:bg-neutral-100 transition-colors"
+        className="bg-neutral-50 border border-neutral-200 flex items-center gap-2 px-2 py-1.5 rounded-[8px] text-neutral-500 font-medium text-sm leading-5 hover:bg-neutral-100 transition-colors"
       >
         <FilterIcon />
         <span>Filter</span>
       </button>
 
       {/* View Mode Toggle */}
-      <div className="flex items-center rounded-[10px] overflow-hidden">
+      <div className="flex items-center rounded-[8px] overflow-hidden">
         {viewModes.map(({ mode, icon }) => (
           <button
             key={mode}
             onClick={() => onViewModeChange(mode)}
-            className={`p-2 transition-colors ${
-              viewMode === mode
+            className={`p-2 transition-colors ${viewMode === mode
                 ? "bg-primary"
                 : "bg-neutral-200 hover:bg-neutral-300"
-            }`}
+              }`}
             aria-label={`${mode} view`}
           >
             {icon(viewMode === mode)}

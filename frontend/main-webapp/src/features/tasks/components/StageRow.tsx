@@ -26,7 +26,7 @@ export default function StageRow({
   onAddTask,
 }: StageRowProps) {
   return (
-    <div className="flex items-center gap-2.5 px-3 py-2.5 w-full">
+    <div className="flex items-center gap-2 px-3 py-2 w-full">
       {/* Checkbox */}
       <button
         onClick={onToggleSelect}
@@ -37,7 +37,7 @@ export default function StageRow({
       </button>
 
       {/* Stage Info */}
-      <div className="flex items-center gap-2.5 px-2.5 py-2.5">
+      <div className="flex items-center gap-2 px-2 py-1.5">
         {/* Expand/Collapse Arrow */}
         <button
           onClick={onToggleExpand}
@@ -48,7 +48,7 @@ export default function StageRow({
         </button>
 
         {/* Stage Title */}
-        <span className="font-bold text-lg lg:text-[22px] leading-[26px] text-neutral-500 whitespace-nowrap">
+        <span className="font-bold text-sm leading-5 text-neutral-500 whitespace-nowrap">
           {stage.title.toUpperCase()}
         </span>
 

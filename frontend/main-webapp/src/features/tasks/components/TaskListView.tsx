@@ -64,7 +64,7 @@ export default function TaskListView({ stages, onAddTask, onTaskClick }: TaskLis
   };
 
   return (
-    <div className="bg-white rounded-[20px] overflow-hidden w-full">
+    <div className="bg-white rounded-[12px] overflow-hidden w-full">
       {/* Table Header */}
       <TaskListHeader />
 

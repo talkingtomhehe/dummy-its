@@ -34,20 +34,20 @@ export default function GanttTimeline({
   return (
     <div className="flex flex-1 overflow-hidden border border-neutral-200 rounded-lg bg-white">
       {/* Left Panel: Task List */}
-      <div className="w-[380px] flex-shrink-0 border-r border-neutral-200">
+      <div className="w-[300px] flex-shrink-0 border-r border-neutral-200">
         {/* Header */}
-        <div className="flex items-center h-[72px] border-b border-neutral-200 bg-neutral-50">
-          <div className="flex-1 min-w-[180px] px-4">
+        <div className="flex items-center h-[56px] border-b border-neutral-200 bg-neutral-50">
+          <div className="flex-1 min-w-[140px] px-3">
             <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Task Name
             </span>
           </div>
-          <div className="w-[100px] px-3 text-center">
+          <div className="w-[80px] px-2 text-center">
             <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Owner
             </span>
           </div>
-          <div className="w-[100px] px-3 text-center">
+          <div className="w-[80px] px-2 text-center">
             <span className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Status
             </span>
@@ -55,7 +55,7 @@ export default function GanttTimeline({
         </div>
 
         {/* Task Rows */}
-        <div className="overflow-y-auto" style={{ height: "calc(100% - 72px)" }}>
+        <div className="overflow-y-auto" style={{ height: "calc(100% - 56px)" }}>
           {tasks.map((task) => (
             <GanttTaskRow
               key={task.id}
@@ -71,9 +71,9 @@ export default function GanttTimeline({
       <div ref={timelineRef} className="flex-1 overflow-x-auto overflow-y-hidden">
         <div style={{ minWidth: `${totalWidth}px` }}>
           {/* Timeline Header */}
-          <div className="h-[72px] border-b border-neutral-200 bg-neutral-50">
+          <div className="h-[56px] border-b border-neutral-200 bg-neutral-50">
             {/* Week Row */}
-            <div className="flex h-9 border-b border-neutral-200">
+            <div className="flex h-7 border-b border-neutral-200">
               {config.weeks.map((week, weekIndex) => (
                 <div
                   key={weekIndex}
@@ -86,22 +86,21 @@ export default function GanttTimeline({
             </div>
 
             {/* Days Row */}
-            <div className="flex h-[36px]">
+            <div className="flex h-[28px]">
               {config.weeks.map((week) =>
                 week.days.map((day, dayIndex) => {
                   const isTodayDate = isToday(day);
                   const isWeekendDate = isWeekend(day);
-                  
+
                   return (
                     <div
                       key={`${day.getTime()}-${dayIndex}`}
-                      className={`flex items-center justify-center border-r border-neutral-200 text-xs ${
-                        isTodayDate
+                      className={`flex items-center justify-center border-r border-neutral-200 text-xs ${isTodayDate
                           ? "bg-priority-high/10 text-priority-high font-semibold"
                           : isWeekendDate
-                          ? "bg-neutral-100 text-neutral-400"
-                          : "text-neutral-500"
-                      }`}
+                            ? "bg-neutral-100 text-neutral-400"
+                            : "text-neutral-500"
+                        }`}
                       style={{ width: `${config.dayWidth}px` }}
                     >
                       {day.getDate().toString().padStart(2, "0")}
@@ -113,7 +112,7 @@ export default function GanttTimeline({
           </div>
 
           {/* Timeline Body with Bars */}
-          <div className="relative" style={{ height: `${tasks.length * 48}px` }}>
+          <div className="relative" style={{ height: `${tasks.length * 40}px` }}>
             {/* Grid Lines */}
             <div className="absolute inset-0 flex">
               {config.weeks.map((week) =>
@@ -122,9 +121,8 @@ export default function GanttTimeline({
                   return (
                     <div
                       key={`grid-${day.getTime()}-${dayIndex}`}
-                      className={`h-full border-r border-neutral-100 ${
-                        isWeekendDate ? "bg-neutral-50/50" : ""
-                      }`}
+                      className={`h-full border-r border-neutral-100 ${isWeekendDate ? "bg-neutral-50/50" : ""
+                        }`}
                       style={{ width: `${config.dayWidth}px` }}
                     />
                   );
@@ -148,8 +146,8 @@ export default function GanttTimeline({
             {tasks.map((task, index) => (
               <div
                 key={task.id}
-                className="absolute left-0 right-0 h-12 border-b border-neutral-100"
-                style={{ top: `${index * 48}px` }}
+                className="absolute left-0 right-0 h-10 border-b border-neutral-100"
+                style={{ top: `${index * 40}px` }}
               >
                 <GanttBar
                   task={task}

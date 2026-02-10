@@ -143,14 +143,14 @@ export default function ProjectTasksPage() {
       tasks: stage.tasks.map((t) =>
         t.id === updatedTask.id
           ? {
-              ...t,
-              title: updatedTask.title,
-              description: updatedTask.description,
-              priority: updatedTask.priority,
-              progress: updatedTask.progress,
-              dueDate: updatedTask.dueDate,
-              assignees: updatedTask.assignees,
-            }
+            ...t,
+            title: updatedTask.title,
+            description: updatedTask.description,
+            priority: updatedTask.priority,
+            progress: updatedTask.progress,
+            dueDate: updatedTask.dueDate,
+            assignees: updatedTask.assignees,
+          }
           : t
       ),
     }));
@@ -178,7 +178,7 @@ export default function ProjectTasksPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1440px] mx-auto gap-4 relative">
+    <div className="flex flex-col h-full w-full max-w-[1440px] mx-auto gap-3 relative">
       {/* Sidebar Collapse Toggle - Left Edge */}
       <button
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}

@@ -11,10 +11,10 @@ export default function MiniCalendar({ selectedDate, onDateSelect }: MiniCalenda
   const today = new Date();
   const [viewMonth, setViewMonth] = useState(selectedDate?.getMonth() ?? today.getMonth());
   const [viewYear, setViewYear] = useState(selectedDate?.getFullYear() ?? today.getFullYear());
-  
+
   const dayNames = getDayNames();
   const days = getCalendarDays(viewYear, viewMonth, []);
-  
+
   // Split into weeks
   const weeks: typeof days[] = [];
   for (let i = 0; i < days.length; i += 7) {
@@ -50,10 +50,10 @@ export default function MiniCalendar({ selectedDate, onDateSelect }: MiniCalenda
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-neutral-100">
+    <div className="bg-white rounded-lg p-3 shadow-sm border border-neutral-100">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-neutral-900">
+        <h3 className="text-sm font-semibold text-neutral-900">
           {monthNames[viewMonth]} {viewYear}
         </h3>
         <div className="flex items-center gap-1">
@@ -75,13 +75,12 @@ export default function MiniCalendar({ selectedDate, onDateSelect }: MiniCalenda
       </div>
 
       {/* Day Names */}
-      <div className="grid grid-cols-7 mb-2">
+      <div className="grid grid-cols-7 mb-1">
         {dayNames.map((name, index) => (
-          <div 
-            key={name} 
-            className={`text-center text-xs font-medium py-1 ${
-              index === 0 || index === 6 ? "text-neutral-400" : "text-neutral-500"
-            }`}
+          <div
+            key={name}
+            className={`text-center text-xs font-medium py-1 ${index === 0 || index === 6 ? "text-neutral-400" : "text-neutral-500"
+              }`}
           >
             {name}
           </div>
@@ -97,7 +96,7 @@ export default function MiniCalendar({ selectedDate, onDateSelect }: MiniCalenda
                 key={day.date.toISOString()}
                 onClick={() => onDateSelect?.(day.date)}
                 className={`
-                  w-8 h-8 flex items-center justify-center text-xs rounded-full
+                  w-7 h-7 flex items-center justify-center text-xs rounded-full
                   transition-colors
                   ${day.isToday && !isSelectedDate(day.date)
                     ? "bg-primary text-white font-semibold"

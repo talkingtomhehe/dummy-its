@@ -15,7 +15,7 @@ export default function GanttBar({ task, config, onClick }: GanttBarProps) {
   return (
     <button
       onClick={onClick}
-      className={`absolute top-1/2 -translate-y-1/2 h-7 rounded-md ${bgColor} hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center overflow-hidden`}
+      className={`absolute top-1/2 -translate-y-1/2 h-5 rounded-md ${bgColor} hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center overflow-hidden`}
       style={{
         left: `${left}px`,
         width: `${width}px`,
