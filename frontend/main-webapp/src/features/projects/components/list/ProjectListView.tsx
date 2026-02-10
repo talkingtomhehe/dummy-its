@@ -82,7 +82,7 @@ export default function ProjectListView({ projects, onProjectClick }: ProjectLis
   };
 
   return (
-    <div className="bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] overflow-hidden h-full flex flex-col">
+    <div className="bg-white rounded-[12px] shadow-sm border border-neutral-100 overflow-hidden h-full flex flex-col">
       {/* Header */}
       <ProjectListHeader
         columns={columns}
@@ -113,7 +113,7 @@ export default function ProjectListView({ projects, onProjectClick }: ProjectLis
 
       {/* Selection Summary */}
       {selectedProjects.size > 0 && (
-        <div className="px-5 py-3 bg-primary/5 border-t border-primary/20 flex items-center justify-between">
+        <div className="px-3 py-2 bg-primary/5 border-t border-primary/20 flex items-center justify-between">
           <span className="text-sm text-primary font-medium">
             {selectedProjects.size} project{selectedProjects.size !== 1 ? "s" : ""} selected
           </span>

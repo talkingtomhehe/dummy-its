@@ -17,10 +17,10 @@ export default function CalendarHeader({
   onToday,
 }: CalendarHeaderProps) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200">
+    <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-200">
       <div className="flex items-center gap-4">
-        <h2 className="font-bold text-xl text-neutral-900">{getMonthYear(year, month)}</h2>
-        
+        <h2 className="font-bold text-base text-neutral-900">{getMonthYear(year, month)}</h2>
+
         <div className="flex items-center gap-1">
           <button
             onClick={onPrevMonth}
@@ -41,7 +41,7 @@ export default function CalendarHeader({
 
       <button
         onClick={onToday}
-        className="px-4 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
+        className="px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
       >
         Today
       </button>

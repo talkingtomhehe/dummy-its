@@ -15,7 +15,7 @@ export default function TimelineBar({ project, config, onClick }: TimelineBarPro
 
   return (
     <div
-      className={`absolute top-1/2 -translate-y-1/2 h-8 rounded-lg cursor-pointer transition-all hover:shadow-md ${colors.bar}`}
+      className={`absolute top-1/2 -translate-y-1/2 h-6 rounded-md cursor-pointer transition-all hover:shadow-md ${colors.bar}`}
       style={{
         left: `${left}px`,
         width: `${width}px`,
@@ -36,9 +36,9 @@ export default function TimelineBar({ project, config, onClick }: TimelineBarPro
       )}
 
       {/* Content */}
-      <div className="flex items-center gap-2 px-3 h-full overflow-hidden">
+      <div className="flex items-center gap-1.5 px-2 h-full overflow-hidden">
         <FlagIcon color={priorityColors[project.priority]} />
-        <span className="text-white text-sm font-medium truncate">
+        <span className="text-white text-xs font-medium truncate">
           {project.title}
         </span>
         <span className="text-white/80 text-xs ml-auto shrink-0">

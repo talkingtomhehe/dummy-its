@@ -19,7 +19,7 @@ const FlagIcon = ({ priority }: { priority: Priority }) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M4 22V15" stroke={colors[priority]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M4 22V15" stroke={colors[priority]} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
@@ -27,10 +27,10 @@ const FlagIcon = ({ priority }: { priority: Priority }) => {
 // Calendar icon
 const CalendarIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2.5" y="3.33" width="15" height="15" rx="2" stroke="#90A1B9" strokeWidth="1.5"/>
-    <line x1="13.33" y1="1.67" x2="13.33" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="6.67" y1="1.67" x2="6.67" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round"/>
-    <line x1="2.5" y1="8.33" x2="17.5" y2="8.33" stroke="#90A1B9" strokeWidth="1.5"/>
+    <rect x="2.5" y="3.33" width="15" height="15" rx="2" stroke="#90A1B9" strokeWidth="1.5" />
+    <line x1="13.33" y1="1.67" x2="13.33" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="6.67" y1="1.67" x2="6.67" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="2.5" y1="8.33" x2="17.5" y2="8.33" stroke="#90A1B9" strokeWidth="1.5" />
   </svg>
 );
 
@@ -43,7 +43,7 @@ const TagBadge = ({ tag }: { tag: Tag }) => {
 
   return (
     <span
-      className={`inline-flex items-center justify-center px-2.5 py-2 rounded-[20px] font-medium text-sm leading-[18px] ${styles[tag.type]}`}
+      className={`inline-flex items-center justify-center px-2 py-1 rounded-full font-medium text-xs leading-4 ${styles[tag.type]}`}
     >
       {tag.label}
     </span>
@@ -60,14 +60,14 @@ const ProgressBar = ({ progress, status }: { progress: number; status: Project["
   };
 
   return (
-    <div className="flex items-center gap-3 w-full">
-      <div className="flex-1 h-2.5 bg-neutral-200 rounded-[20px] overflow-hidden">
+    <div className="flex items-center gap-2 w-full">
+      <div className="flex-1 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-[20px] transition-all ${progressColors[status]}`}
+          className={`h-full rounded-full transition-all ${progressColors[status]}`}
           style={{ width: `${Math.max(progress, 1)}%` }}
         />
       </div>
-      <span className="font-medium text-base leading-5 text-neutral-500 w-10 text-right">
+      <span className="font-medium text-xs leading-4 text-neutral-500 w-8 text-right">
         {progress}%
       </span>
     </div>
@@ -84,7 +84,7 @@ const AvatarStack = ({ assignees }: { assignees: Project["assignees"] }) => {
       {displayAssignees.map((assignee, index) => (
         <div
           key={assignee.id}
-          className="w-[30px] h-[30px] rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
+          className="w-6 h-6 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
           style={{ zIndex: displayCount - index }}
           title={assignee.name}
         >
@@ -109,7 +109,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <div className="bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] px-5 lg:px-[30px] py-5 flex flex-col gap-5">
+    <div className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 overflow-hidden min-w-0">
       {/* Header: Tags + Priority */}
       <div className="flex items-start justify-between">
         <div className="flex flex-wrap gap-1">
@@ -121,14 +121,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       </div>
 
       {/* Title */}
-      <h3 className="font-medium text-lg leading-[22px] text-neutral-900">
+      <h3 className="font-medium text-sm leading-[18px] text-neutral-900">
         {project.title}
       </h3>
 
-      {/* Description */}
-      <p className="font-normal text-sm leading-[18px] text-neutral-400 line-clamp-2">
-        {project.description}
-      </p>
 
       {/* Progress */}
       <ProgressBar progress={project.progress} status={project.status} />
@@ -140,9 +136,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <div className="flex items-center justify-between">
         <AvatarStack assignees={project.assignees} />
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <CalendarIcon />
-          <span className="font-medium text-sm leading-[18px] text-neutral-400">
+          <span className="font-medium text-xs leading-4 text-neutral-400">
             {project.dueDate}
           </span>
         </div>

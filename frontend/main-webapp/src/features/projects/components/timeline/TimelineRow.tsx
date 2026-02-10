@@ -26,37 +26,36 @@ export default function TimelineRow({ project, onClick }: TimelineRowProps) {
 
   return (
     <div
-      className="flex items-center gap-4 px-4 py-3 border-b border-neutral-100 hover:bg-neutral-50 cursor-pointer transition-colors"
+      className="flex items-center gap-3 px-3 py-2 border-b border-neutral-100 hover:bg-neutral-50 cursor-pointer transition-colors"
       onClick={onClick}
     >
       {/* Project Name */}
-      <div className="w-48 min-w-[12rem] flex items-center gap-2 truncate">
+      <div className="w-40 min-w-[10rem] flex items-center gap-2 truncate">
         <FlagIcon color={priorityColors[project.priority]} />
-        <span className="font-medium text-neutral-900 truncate">{project.title}</span>
+        <span className="font-medium text-sm text-neutral-900 truncate">{project.title}</span>
       </div>
 
       {/* Owner */}
-      <div className="w-32 min-w-[8rem] flex items-center gap-2">
+      <div className="w-24 min-w-[6rem] flex items-center gap-1.5">
         {owner && (
           <>
             <Avatar name={owner.name} avatar={owner.avatar} />
-            <span className="text-sm text-neutral-600 truncate">{owner.name}</span>
+            <span className="text-xs text-neutral-600 truncate">{owner.name}</span>
           </>
         )}
       </div>
 
       {/* Status */}
-      <div className="w-24 min-w-[6rem]">
+      <div className="w-20 min-w-[5rem]">
         <span
-          className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-            project.status === "completed"
+          className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${project.status === "completed"
               ? "bg-status-done/15 text-status-done"
               : project.status === "in_progress"
-              ? "bg-primary/15 text-primary"
-              : project.status === "on_hold"
-              ? "bg-status-off_track/15 text-status-off_track"
-              : "bg-status-on_hold/15 text-status-on_hold"
-          }`}
+                ? "bg-primary/15 text-primary"
+                : project.status === "on_hold"
+                  ? "bg-status-off_track/15 text-status-off_track"
+                  : "bg-status-on_hold/15 text-status-on_hold"
+            }`}
         >
           {statusLabels[project.status]}
         </span>

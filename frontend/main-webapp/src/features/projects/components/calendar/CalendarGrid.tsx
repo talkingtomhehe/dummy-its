@@ -31,7 +31,7 @@ export default function CalendarGrid({
         {dayNames.map((day) => (
           <div
             key={day}
-            className="px-2 py-3 text-center text-sm font-medium text-neutral-500"
+            className="px-2 py-2 text-center text-xs font-medium text-neutral-500"
           >
             {day}
           </div>
@@ -47,22 +47,19 @@ export default function CalendarGrid({
           return (
             <div
               key={index}
-              className={`relative border-r border-b border-neutral-100 p-2 min-h-[100px] cursor-pointer transition-colors hover:bg-neutral-50 ${
-                !day.isCurrentMonth ? "bg-neutral-50/50" : ""
-              } ${day.isWeekend ? "bg-neutral-50/30" : ""} ${
-                isSelected(day.date) ? "bg-primary/5 ring-2 ring-primary ring-inset" : ""
-              }`}
+              className={`relative border-r border-b border-neutral-100 p-1.5 min-h-[80px] cursor-pointer transition-colors hover:bg-neutral-50 ${!day.isCurrentMonth ? "bg-neutral-50/50" : ""
+                } ${day.isWeekend ? "bg-neutral-50/30" : ""} ${isSelected(day.date) ? "bg-primary/5 ring-2 ring-primary ring-inset" : ""
+                }`}
               onClick={() => onSelectDate?.(day.date)}
             >
               {/* Date Number */}
               <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium mb-1 ${
-                  day.isToday
+                className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium mb-1 ${day.isToday
                     ? "bg-primary text-white"
                     : day.isCurrentMonth
-                    ? "text-neutral-900"
-                    : "text-neutral-400"
-                }`}
+                      ? "text-neutral-900"
+                      : "text-neutral-400"
+                  }`}
               >
                 {day.date.getDate()}
               </div>

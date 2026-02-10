@@ -151,7 +151,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 h-full -m-6">
+    <div className="flex flex-col gap-2 h-full -m-3">
       {/* Toolbar */}
       <ProjectToolbar
         onNewProject={handleNewProject}
@@ -163,7 +163,7 @@ export default function ProjectsPage() {
       />
 
       {/* Kanban Board */}
-      <div className="flex-1 overflow-hidden px-6 pb-6">
+      <div className="flex-1 overflow-hidden px-3 pb-3">
         {viewMode === "kanban" && (
           <KanbanBoard projectsByStatus={projectsByStatus} />
         )}

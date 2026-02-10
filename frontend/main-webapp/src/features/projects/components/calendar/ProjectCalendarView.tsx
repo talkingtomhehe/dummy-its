@@ -97,9 +97,9 @@ export default function ProjectCalendarView({ projects, onProjectClick }: Projec
   };
 
   return (
-    <div className="flex gap-5 h-full">
+    <div className="flex gap-3 h-full">
       {/* Main Calendar */}
-      <div className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] overflow-hidden flex flex-col">
+      <div className="flex-1 bg-white rounded-[12px] shadow-sm border border-neutral-100 overflow-hidden flex flex-col">
         <CalendarHeader
           year={currentYear}
           month={currentMonth}
@@ -116,7 +116,7 @@ export default function ProjectCalendarView({ projects, onProjectClick }: Projec
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-[300px] shrink-0 flex flex-col gap-5">
+      <div className="w-[240px] shrink-0 flex flex-col gap-3">
         <MiniCalendar
           year={currentYear}
           month={currentMonth}

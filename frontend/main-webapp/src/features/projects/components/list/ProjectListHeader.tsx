@@ -17,7 +17,7 @@ export default function ProjectListHeader({
   onSelectAll,
 }: ProjectListHeaderProps) {
   return (
-    <div className="bg-neutral-50 border-b border-neutral-200 px-5 py-3 grid grid-cols-[40px_2fr_1fr_1fr_1fr_120px_100px_60px] gap-4 items-center text-sm font-medium text-neutral-500 sticky top-0 z-10">
+    <div className="bg-neutral-50 border-b border-neutral-200 px-3 py-2 grid grid-cols-[32px_2fr_1fr_1fr_1fr_100px_90px_48px] gap-3 items-center text-xs font-medium text-neutral-500 sticky top-0 z-10">
       {/* Checkbox */}
       <button
         onClick={onSelectAll}
@@ -32,9 +32,8 @@ export default function ProjectListHeader({
         <button
           key={column.key}
           onClick={() => column.sortable && onSort(column.key)}
-          className={`flex items-center gap-2 text-left ${
-            column.sortable ? "cursor-pointer hover:text-neutral-700" : "cursor-default"
-          }`}
+          className={`flex items-center gap-2 text-left ${column.sortable ? "cursor-pointer hover:text-neutral-700" : "cursor-default"
+            }`}
           disabled={!column.sortable}
         >
           <span className="uppercase tracking-wider">{column.label}</span>

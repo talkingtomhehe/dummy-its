@@ -25,7 +25,7 @@ export default function CalendarEventBadge({ event, onClick, compact = false }: 
   return (
     <button
       onClick={onClick}
-      className={`w-full px-3 py-2 rounded-lg text-sm font-medium truncate text-left border-l-4 ${colors.bg} ${colors.border} ${colors.text} hover:opacity-80 transition-opacity`}
+      className={`w-full px-2 py-1.5 rounded-md text-xs font-medium truncate text-left border-l-2 ${colors.bg} ${colors.border} ${colors.text} hover:opacity-80 transition-opacity`}
       title={event.title}
     >
       <div className="truncate">{event.title}</div>

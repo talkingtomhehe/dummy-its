@@ -10,7 +10,7 @@ const SearchIcon = () => (
 
 // Star Icon
 const StarIcon = ({ filled = false }: { filled?: boolean }) => (
-  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
       fill={filled ? "#FFD230" : "none"}
@@ -31,14 +31,14 @@ const ArrowRightIcon = () => (
 
 // Milestone Icons
 const CompletedMilestoneIcon = () => (
-  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="30" cy="30" r="28" fill="#00A63E" />
     <path d="M20 30L27 37L40 24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const LateMilestoneIcon = () => (
-  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="30" cy="30" r="28" fill="#E7000B" />
     <path d="M30 20V32" stroke="white" strokeWidth="4" strokeLinecap="round" />
     <circle cx="30" cy="40" r="2.5" fill="white" />
@@ -46,7 +46,7 @@ const LateMilestoneIcon = () => (
 );
 
 const UpcomingMilestoneIcon = () => (
-  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="30" cy="30" r="28" stroke="#90A1B9" strokeWidth="2" fill="white" />
     <rect x="20" y="18" width="20" height="20" rx="2" stroke="#90A1B9" strokeWidth="2" fill="none" />
     <line x1="24" y1="16" x2="24" y2="20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
@@ -94,7 +94,7 @@ const TagBadge = ({ label, type }: { label: string; type: "department" | "scope"
   };
 
   return (
-    <span className={`inline-flex items-center justify-center px-2.5 py-2 rounded-[20px] font-medium text-sm leading-[18px] ${styles[type]}`}>
+    <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full font-medium text-xs leading-4 ${styles[type]}`}>
       {label}
     </span>
   );
@@ -117,7 +117,7 @@ const PriorityBadge = ({ priority }: { priority: ProjectDetail["priority"] }) =>
   };
 
   return (
-    <span className={`inline-flex items-center justify-center px-2.5 py-2 rounded-[20px] font-medium text-sm leading-[18px] ${styles[priority]}`}>
+    <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full font-medium text-xs leading-4 ${styles[priority]}`}>
       {labels[priority]}
     </span>
   );
@@ -138,7 +138,7 @@ const MilestoneStatusBadge = ({ status }: { status: Milestone["status"] }) => {
   };
 
   return (
-    <span className={`inline-flex items-center justify-center px-2.5 py-2 rounded-[20px] font-medium text-base leading-5 ${styles[status]}`}>
+    <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full font-medium text-xs leading-4 ${styles[status]}`}>
       {labels[status]}
     </span>
   );
@@ -154,7 +154,7 @@ const AvatarStack = ({ members, maxDisplay = 3 }: { members: TeamMember[]; maxDi
       {displayMembers.map((member, index) => (
         <div
           key={member.id}
-          className="w-10 h-10 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-sm font-medium text-neutral-900"
+          className="w-7 h-7 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
           style={{ zIndex: maxDisplay - index }}
           title={member.name}
         >
@@ -166,7 +166,7 @@ const AvatarStack = ({ members, maxDisplay = 3 }: { members: TeamMember[]; maxDi
         </div>
       ))}
       {remaining > 0 && (
-        <div className="w-10 h-10 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-sm font-medium text-neutral-900">
+        <div className="w-7 h-7 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900">
           +{remaining}
         </div>
       )}
@@ -183,12 +183,12 @@ const MilestoneItem = ({ milestone }: { milestone: Milestone }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-0.5 min-w-[160px] lg:min-w-[180px]">
+    <div className="flex flex-col items-center gap-0.5 min-w-[120px] lg:min-w-[140px]">
       {iconMap[milestone.status]}
-      <h4 className="font-bold text-lg lg:text-[22px] leading-[26px] text-neutral-900 text-center mt-1">
+      <h4 className="font-bold text-sm leading-5 text-neutral-900 text-center mt-0.5">
         {milestone.title}
       </h4>
-      <p className="font-medium text-base leading-5 text-neutral-400 text-center">
+      <p className="font-medium text-xs leading-4 text-neutral-400 text-center">
         {milestone.date}
       </p>
       <MilestoneStatusBadge status={milestone.status} />
@@ -233,17 +233,17 @@ const mockProject: ProjectDetail = {
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
-  
+
   // TODO: Fetch project data based on projectId from API
   // For now, using mock data
   console.log("Loading project:", projectId);
   const project = mockProject;
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-5 w-full max-w-full">
+    <div className="flex flex-col gap-3 w-full max-w-full">
       {/* Breadcrumb Bar with Search */}
-      <div className="bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 lg:px-5 py-2.5 rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0]">
-        <nav className="text-lg leading-[22px] text-neutral-900">
+      <div className="bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-3 py-1.5 rounded-[12px] shadow-sm border border-neutral-100">
+        <nav className="text-sm leading-5 text-neutral-900">
           <Link to="/projects" className="hover:text-primary transition-colors">
             Project
           </Link>
@@ -252,23 +252,23 @@ export default function ProjectDetailPage() {
         </nav>
 
         {/* Search Input */}
-        <div className="bg-white border border-neutral-200 rounded-[20px] flex items-center gap-2.5 px-2.5 py-2 w-full sm:w-[280px] lg:w-[315px]">
+        <div className="bg-white border border-neutral-200 rounded-[10px] flex items-center gap-2 px-2 h-8 w-full sm:w-[200px] lg:w-[240px]">
           <SearchIcon />
           <input
             type="text"
             placeholder="Search..."
-            className="flex-1 bg-transparent outline-none text-base leading-5 text-neutral-900 placeholder:text-neutral-400"
+            className="flex-1 bg-transparent outline-none text-sm leading-5 text-neutral-900 placeholder:text-neutral-400"
           />
         </div>
       </div>
 
       {/* Headline Card */}
-      <div className="bg-white flex flex-col gap-6 lg:gap-8 p-4 lg:p-5 rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0]">
+      <div className="bg-white flex flex-col gap-4 p-3 rounded-[12px] shadow-sm border border-neutral-100">
         {/* Title Row with Progress */}
-        <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           {/* Title + Star */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <h1 className="font-bold text-2xl lg:text-4xl leading-tight lg:leading-[40px] text-neutral-900">
+          <div className="flex items-center gap-2 shrink-0">
+            <h1 className="font-bold text-lg leading-6 text-neutral-900">
               {project.title}
             </h1>
             <button type="button" className="shrink-0 hover:scale-110 transition-transform" aria-label="Toggle star">
@@ -279,16 +279,16 @@ export default function ProjectDetailPage() {
           {/* Progress Section */}
           <div className="flex flex-col gap-0.5 flex-1">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-base leading-5 text-neutral-500">
+              <span className="font-medium text-xs leading-4 text-neutral-500">
                 {project.daysRemaining} days remaining until deadline
               </span>
-              <span className="font-medium text-lg leading-[22px] text-neutral-900">
+              <span className="font-medium text-sm leading-5 text-neutral-900">
                 {project.progress}%
               </span>
             </div>
-            <div className="w-full h-4 bg-neutral-200 rounded-[20px] overflow-hidden">
+            <div className="w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-status-on_track rounded-[20px] transition-all"
+                className="h-full bg-status-on_track rounded-full transition-all"
                 style={{ width: `${project.progress}%` }}
               />
             </div>
@@ -296,28 +296,28 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Metadata Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 lg:gap-x-32 xl:gap-x-44 gap-y-4 lg:gap-y-6 py-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-16 gap-y-3 py-1">
           {/* Left Column */}
-          <div className="grid grid-cols-[120px_1fr] lg:grid-cols-[145px_1fr] gap-x-8 lg:gap-x-12 gap-y-4 lg:gap-y-6">
+          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3">
             {/* Project Manager */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Project Manager</span>
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-full bg-status-on_track flex items-center justify-center text-sm font-medium text-neutral-900">
+            <span className="font-medium text-xs leading-4 text-neutral-900">Project Manager</span>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-status-on_track flex items-center justify-center text-xs font-medium text-neutral-900">
                 {project.projectManager.avatar ? (
                   <img src={project.projectManager.avatar} alt={project.projectManager.name} className="w-full h-full rounded-full object-cover" />
                 ) : (
                   project.projectManager.name.charAt(0).toUpperCase()
                 )}
               </div>
-              <span className="text-sm leading-[18px] text-neutral-900">{project.projectManager.name}</span>
+              <span className="text-xs leading-4 text-neutral-900">{project.projectManager.name}</span>
             </div>
 
             {/* Customer */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Customer</span>
-            <span className="text-sm leading-[18px] text-neutral-900">{project.customer}</span>
+            <span className="font-medium text-xs leading-4 text-neutral-900">Customer</span>
+            <span className="text-xs leading-4 text-neutral-900">{project.customer}</span>
 
             {/* Tags */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Tags</span>
+            <span className="font-medium text-xs leading-4 text-neutral-900">Tags</span>
             <div className="flex flex-wrap gap-2">
               {project.tags.map((tag, index) => (
                 <TagBadge key={index} label={tag.label} type={tag.type} />
@@ -326,43 +326,43 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Right Column */}
-          <div className="grid grid-cols-[120px_1fr] lg:grid-cols-[145px_1fr] gap-x-8 lg:gap-x-12 gap-y-4 lg:gap-y-6">
+          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3">
             {/* Team Members */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Team Members</span>
+            <span className="font-medium text-xs leading-4 text-neutral-900">Team Members</span>
             <AvatarStack members={project.teamMembers} maxDisplay={3} />
 
             {/* Planned Date */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Planned Date</span>
-            <div className="flex items-center gap-4">
-              <span className="text-sm leading-[18px] text-neutral-900">{project.plannedStartDate}</span>
+            <span className="font-medium text-xs leading-4 text-neutral-900">Planned Date</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs leading-4 text-neutral-900">{project.plannedStartDate}</span>
               <ArrowRightIcon />
-              <span className="text-sm leading-[18px] text-neutral-900">{project.plannedEndDate}</span>
+              <span className="text-xs leading-4 text-neutral-900">{project.plannedEndDate}</span>
             </div>
 
             {/* Priority */}
-            <span className="font-medium text-sm leading-[18px] text-neutral-900">Priority</span>
+            <span className="font-medium text-xs leading-4 text-neutral-900">Priority</span>
             <PriorityBadge priority={project.priority} />
           </div>
         </div>
       </div>
 
       {/* Milestones Card */}
-      <div className="bg-white flex flex-col gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] relative overflow-hidden">
+      <div className="bg-white flex flex-col gap-3 p-3 rounded-[12px] shadow-sm border border-neutral-100 relative overflow-hidden">
         {/* Horizontal connecting line (visible on larger screens) */}
-        <div className="hidden lg:block absolute top-[130px] left-[60px] right-[60px] h-[2px] bg-neutral-200" />
+        <div className="hidden lg:block absolute top-[90px] left-[40px] right-[40px] h-[2px] bg-neutral-200" />
 
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg lg:text-[22px] leading-[26px] text-neutral-900">
+          <h2 className="font-bold text-sm leading-5 text-neutral-900">
             Project Milestones
           </h2>
-          <button type="button" className="font-bold text-lg lg:text-[22px] leading-[26px] text-primary hover:underline">
+          <button type="button" className="font-bold text-xs leading-4 text-primary hover:underline">
             View all
           </button>
         </div>
 
         {/* Milestones Grid */}
-        <div className="flex flex-wrap justify-center lg:justify-between gap-6 lg:gap-8 xl:gap-16 px-2 lg:px-8 py-2 relative z-10">
+        <div className="flex flex-wrap justify-center lg:justify-between gap-4 lg:gap-6 px-2 lg:px-4 py-1 relative z-10">
           {project.milestones.map((milestone) => (
             <MilestoneItem key={milestone.id} milestone={milestone} />
           ))}
@@ -370,11 +370,11 @@ export default function ProjectDetailPage() {
       </div>
 
       {/* Description Card */}
-      <div className="bg-white flex flex-col gap-4 lg:gap-5 p-4 lg:p-5 rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0]">
-        <h2 className="font-bold text-lg lg:text-[22px] leading-[26px] text-neutral-900">
+      <div className="bg-white flex flex-col gap-3 p-3 rounded-[12px] shadow-sm border border-neutral-100">
+        <h2 className="font-bold text-sm leading-5 text-neutral-900">
           Description
         </h2>
-        <p className="text-base lg:text-lg leading-[22px] text-neutral-900">
+        <p className="text-xs leading-4 text-neutral-900">
           {project.description}
         </p>
       </div>

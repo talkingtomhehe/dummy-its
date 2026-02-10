@@ -16,16 +16,16 @@ export default function StatusOverview({ counts }: StatusOverviewProps) {
   const total = counts.planning + counts.inProgress + counts.onHold + counts.completed;
 
   return (
-    <div className="bg-white rounded-[20px] p-4 shadow-[0px_4px_4px_0px_#e2e8f0]">
-      <h3 className="font-bold text-lg text-neutral-900 mb-4">Status Overview</h3>
+    <div className="bg-white rounded-[12px] p-3 shadow-sm border border-neutral-100">
+      <h3 className="font-bold text-sm text-neutral-900 mb-3">Status Overview</h3>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-3">
         {stats.map((stat) => (
           <div key={stat.label} className="flex items-center gap-2 p-2 bg-neutral-50 rounded-lg">
             {stat.icon}
             <div>
-              <p className={`font-bold text-lg ${stat.color}`}>{stat.count}</p>
+              <p className={`font-bold text-base ${stat.color}`}>{stat.count}</p>
               <p className="text-xs text-neutral-500">{stat.label}</p>
             </div>
           </div>

@@ -166,23 +166,23 @@ export default function CreateProjectModal({
         <>
           <button
             onClick={handleCancel}
-            className="px-4 py-2 text-sm font-bold text-neutral-500 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors"
+            className="px-3 py-1.5 text-sm font-bold text-neutral-500 hover:text-neutral-900 rounded-lg hover:bg-neutral-100 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-6 py-2 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-lg shadow-md shadow-blue-500/20 transition-all"
+            className="px-4 py-1.5 text-sm font-bold text-white bg-primary hover:bg-primary-hover rounded-lg shadow-md shadow-blue-500/20 transition-all"
           >
             Create Project
           </button>
         </>
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Project Name */}
         <div className="relative group">
-          <label className="block text-sm font-semibold text-neutral-900 mb-2">
+          <label className="block text-xs font-semibold text-neutral-900 mb-1.5">
             Project Name <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -192,11 +192,10 @@ export default function CreateProjectModal({
               onChange={handleNameChange}
               placeholder="Enter project name"
               className={`
-                w-full px-4 py-3 rounded-lg border 
-                ${
-                  errors.name
-                    ? "border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary"
+                w-full px-3 py-2 rounded-lg border 
+                ${errors.name
+                  ? "border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary"
                 }
                 bg-neutral-50 text-neutral-900 placeholder:text-neutral-400 text-sm transition-colors
               `}
@@ -230,14 +229,14 @@ export default function CreateProjectModal({
 
         {/* Project Manager */}
         <div>
-          <label className="block text-sm font-semibold text-neutral-900 mb-2">
+          <label className="block text-xs font-semibold text-neutral-900 mb-1.5">
             Project Manager / Lead
           </label>
           <div className="relative">
             <select
               value={formData.managerId}
               onChange={handleManagerChange}
-              className="w-full appearance-none pl-4 pr-10 py-3 rounded-lg border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-neutral-50 text-neutral-900 text-sm cursor-pointer"
+              className="w-full appearance-none pl-3 pr-10 py-2 rounded-lg border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-neutral-50 text-neutral-900 text-sm cursor-pointer"
             >
               <option disabled value="">
                 Select a manager...
@@ -257,7 +256,7 @@ export default function CreateProjectModal({
         {/* Tabs */}
         <div className="border-b border-neutral-200">
           <nav aria-label="Tabs" className="flex gap-8">
-            <button className="border-b-2 border-primary py-3 px-1 text-sm font-bold text-primary flex items-center gap-2">
+            <button className="border-b-2 border-primary py-2 px-1 text-xs font-bold text-primary flex items-center gap-2">
               <InfoIcon />
               Overview
             </button>
@@ -274,8 +273,8 @@ export default function CreateProjectModal({
         />
 
         {/* Milestones */}
-        <div className="bg-neutral-100 rounded-xl border border-neutral-200 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-neutral-100 rounded-lg border border-neutral-200 p-4">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-neutral-900 flex items-center gap-2">
               <span className="text-primary"><FlagIcon /></span>
               Key Milestones
@@ -287,7 +286,7 @@ export default function CreateProjectModal({
           </div>
 
           {/* Header */}
-          <div className="grid grid-cols-12 gap-4 mb-2 px-2">
+          <div className="grid grid-cols-12 gap-3 mb-2 px-2">
             <div className="col-span-7 text-xs font-semibold text-neutral-500 uppercase">
               Milestone Name
             </div>
@@ -298,11 +297,11 @@ export default function CreateProjectModal({
           </div>
 
           {/* Milestone Rows */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             {formData.milestones.map((milestone) => (
               <div
                 key={milestone.id}
-                className="grid grid-cols-12 gap-4 items-center group"
+                className="grid grid-cols-12 gap-3 items-center group"
               >
                 <div className="col-span-7">
                   <input
@@ -312,7 +311,7 @@ export default function CreateProjectModal({
                       handleMilestoneChange(milestone.id, "name", e.target.value)
                     }
                     placeholder="e.g. Design Approval"
-                    className="w-full px-3 py-2 rounded-md border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-white text-neutral-900 text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-white text-neutral-900 text-sm"
                   />
                 </div>
                 <div className="col-span-4">
@@ -326,14 +325,14 @@ export default function CreateProjectModal({
                         e.target.value
                       )
                     }
-                    className="w-full px-3 py-2 rounded-md border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-white text-neutral-900 text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-white text-neutral-900 text-sm"
                   />
                 </div>
                 <div className="col-span-1 flex justify-center">
                   <button
                     type="button"
                     onClick={() => removeMilestone(milestone.id)}
-                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-1.5 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete Milestone"
                   >
                     <DeleteIcon />
@@ -347,7 +346,7 @@ export default function CreateProjectModal({
           <button
             type="button"
             onClick={addMilestone}
-            className="mt-4 flex items-center gap-2 text-primary font-bold text-sm hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors w-max"
+            className="mt-3 flex items-center gap-2 text-primary font-bold text-xs hover:bg-blue-50 px-2 py-1.5 rounded-lg transition-colors w-max"
           >
             <AddCircleIcon />
             Add Milestone

@@ -45,7 +45,7 @@ export default function ProjectTimelineView({ projects, onProjectClick }: Projec
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] overflow-hidden">
+    <div className="flex flex-col h-full bg-white rounded-[12px] shadow-sm border border-neutral-100 overflow-hidden">
       {/* Toolbar */}
       <TimelineToolbar
         currentDate={currentDate}

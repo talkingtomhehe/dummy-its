@@ -23,12 +23,12 @@ export default function ProjectTimelineGrid({
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* Left Panel - Project List */}
-      <div className="w-[400px] min-w-[400px] border-r border-neutral-200 flex flex-col bg-white">
+      <div className="w-[320px] min-w-[320px] border-r border-neutral-200 flex flex-col bg-white">
         {/* Header */}
-        <div className="flex items-center gap-4 px-4 py-3 bg-neutral-50 border-b border-neutral-200 text-sm font-medium text-neutral-500">
-          <div className="w-48 min-w-[12rem]">PROJECT</div>
-          <div className="w-32 min-w-[8rem]">OWNER</div>
-          <div className="w-24 min-w-[6rem]">STATUS</div>
+        <div className="flex items-center gap-3 px-3 py-2 bg-neutral-50 border-b border-neutral-200 text-xs font-medium text-neutral-500">
+          <div className="w-40 min-w-[10rem]">PROJECT</div>
+          <div className="w-24 min-w-[6rem]">OWNER</div>
+          <div className="w-20 min-w-[5rem]">STATUS</div>
         </div>
 
         {/* Project Rows */}
@@ -71,9 +71,8 @@ export default function ProjectTimelineGrid({
                 week.days.map((day, dayIndex) => (
                   <div
                     key={`${week.weekNumber}-${dayIndex}`}
-                    className={`flex flex-col items-center justify-center py-1 border-r border-neutral-100 ${
-                      isWeekend(day) ? "bg-neutral-100" : ""
-                    } ${isToday(day) ? "bg-primary/10" : ""}`}
+                    className={`flex flex-col items-center justify-center py-1 border-r border-neutral-100 ${isWeekend(day) ? "bg-neutral-100" : ""
+                      } ${isToday(day) ? "bg-primary/10" : ""}`}
                     style={{ width: `${config.dayWidth}px` }}
                   >
                     <span className={`text-xs ${isToday(day) ? "text-primary font-bold" : "text-neutral-500"}`}>
@@ -94,7 +93,7 @@ export default function ProjectTimelineGrid({
               <div
                 key={project.id}
                 className="relative border-b border-neutral-100"
-                style={{ height: "56px" }}
+                style={{ height: "44px" }}
               >
                 {/* Grid Lines */}
                 <div className="absolute inset-0 flex">
@@ -102,9 +101,8 @@ export default function ProjectTimelineGrid({
                     week.days.map((day, dayIndex) => (
                       <div
                         key={`grid-${week.weekNumber}-${dayIndex}`}
-                        className={`border-r border-neutral-100 ${
-                          isWeekend(day) ? "bg-neutral-50" : ""
-                        } ${isToday(day) ? "bg-primary/5" : ""}`}
+                        className={`border-r border-neutral-100 ${isWeekend(day) ? "bg-neutral-50" : ""
+                          } ${isToday(day) ? "bg-primary/5" : ""}`}
                         style={{ width: `${config.dayWidth}px` }}
                       />
                     ))
@@ -125,15 +123,14 @@ export default function ProjectTimelineGrid({
               <div
                 className="absolute top-0 bottom-0 w-0.5 bg-primary z-20"
                 style={{
-                  left: `${
-                    config.weeks.reduce((acc, week, weekIndex) => {
-                      const todayIndex = week.days.findIndex((day) => isToday(day));
-                      if (todayIndex !== -1) {
-                        return weekIndex * 7 * config.dayWidth + todayIndex * config.dayWidth + config.dayWidth / 2;
-                      }
-                      return acc;
-                    }, 0)
-                  }px`,
+                  left: `${config.weeks.reduce((acc, week, weekIndex) => {
+                    const todayIndex = week.days.findIndex((day) => isToday(day));
+                    if (todayIndex !== -1) {
+                      return weekIndex * 7 * config.dayWidth + todayIndex * config.dayWidth + config.dayWidth / 2;
+                    }
+                    return acc;
+                  }, 0)
+                    }px`,
                 }}
               />
             )}

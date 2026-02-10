@@ -4,9 +4,9 @@ import type { Project, ProjectStatus } from "../types";
 // More options icon
 const MoreVertIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="5" r="1.5" fill="#62748E"/>
-    <circle cx="12" cy="12" r="1.5" fill="#62748E"/>
-    <circle cx="12" cy="19" r="1.5" fill="#62748E"/>
+    <circle cx="12" cy="5" r="1.5" fill="#62748E" />
+    <circle cx="12" cy="12" r="1.5" fill="#62748E" />
+    <circle cx="12" cy="19" r="1.5" fill="#62748E" />
   </svg>
 );
 
@@ -18,11 +18,11 @@ interface KanbanColumnProps {
 
 export default function KanbanColumn({ title, projects }: KanbanColumnProps) {
   return (
-    <div className="flex flex-col gap-5 min-w-[300px] lg:min-w-[351px] flex-shrink-0">
+    <div className="flex flex-col gap-3 min-w-[240px] lg:min-w-[280px] flex-shrink-0">
       {/* Column Header */}
-      <div className="flex items-center justify-between py-2.5">
-        <div className="flex items-center gap-2.5">
-          <span className="font-medium text-lg leading-[22px] text-neutral-500">
+      <div className="flex items-center justify-between py-1.5">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm leading-5 text-neutral-500">
             {title}
           </span>
           {/* Count Badge */}
@@ -41,7 +41,7 @@ export default function KanbanColumn({ title, projects }: KanbanColumnProps) {
       </div>
 
       {/* Project Cards */}
-      <div className="flex flex-col gap-5 overflow-y-auto flex-1 pr-1">
+      <div className="flex flex-col gap-3 overflow-y-auto flex-1 pr-1">
         {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}

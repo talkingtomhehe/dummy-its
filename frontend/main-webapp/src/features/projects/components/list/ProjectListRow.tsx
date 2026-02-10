@@ -28,7 +28,7 @@ const AvatarStack = ({ assignees }: { assignees: Project["assignees"] }) => {
       {displayAssignees.map((assignee, index) => (
         <div
           key={assignee.id}
-          className="w-7 h-7 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
+          className="w-6 h-6 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
           style={{ zIndex: displayCount - index }}
           title={assignee.name}
         >
@@ -44,7 +44,7 @@ const AvatarStack = ({ assignees }: { assignees: Project["assignees"] }) => {
         </div>
       ))}
       {remaining > 0 && (
-        <div className="w-7 h-7 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-600">
+        <div className="w-6 h-6 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-600">
           +{remaining}
         </div>
       )}
@@ -55,13 +55,13 @@ const AvatarStack = ({ assignees }: { assignees: Project["assignees"] }) => {
 // Progress bar
 const ProgressBar = ({ progress }: { progress: number }) => (
   <div className="flex items-center gap-2 w-full">
-    <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+    <div className="flex-1 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
       <div
         className="h-full bg-primary rounded-full transition-all"
         style={{ width: `${Math.max(progress, 1)}%` }}
       />
     </div>
-    <span className="text-sm text-neutral-500 w-10 text-right">{progress}%</span>
+    <span className="text-xs text-neutral-500 w-8 text-right">{progress}%</span>
   </div>
 );
 
@@ -83,9 +83,8 @@ export default function ProjectListRow({
 }: ProjectListRowProps) {
   return (
     <div
-      className={`px-5 py-4 grid grid-cols-[40px_2fr_1fr_1fr_1fr_120px_100px_60px] gap-4 items-center border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer ${
-        isSelected ? "bg-primary/5" : ""
-      }`}
+      className={`px-3 py-2 grid grid-cols-[32px_2fr_1fr_1fr_1fr_100px_90px_48px] gap-3 items-center border-b border-neutral-100 hover:bg-neutral-50 transition-colors cursor-pointer ${isSelected ? "bg-primary/5" : ""
+        }`}
       onClick={onClick}
     >
       {/* Checkbox */}
@@ -102,16 +101,15 @@ export default function ProjectListRow({
 
       {/* Project Name & Tags */}
       <div className="flex flex-col gap-1 min-w-0">
-        <span className="font-medium text-neutral-900 truncate">{project.title}</span>
+        <span className="font-medium text-sm text-neutral-900 truncate">{project.title}</span>
         <div className="flex gap-1 flex-wrap">
           {project.tags.slice(0, 2).map((tag, index) => (
             <span
               key={index}
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                tag.type === "department"
+              className={`text-xs px-2 py-0.5 rounded-full ${tag.type === "department"
                   ? "bg-tag-department/15 text-tag-department"
                   : "bg-tag-scope/15 text-tag-scope"
-              }`}
+                }`}
             >
               {tag.label}
             </span>
@@ -135,7 +133,7 @@ export default function ProjectListRow({
       </div>
 
       {/* Due Date */}
-      <div className="flex items-center gap-2 text-sm text-neutral-500">
+      <div className="flex items-center gap-1.5 text-xs text-neutral-500">
         <CalendarIcon />
         <span>{project.dueDate}</span>
       </div>
@@ -143,7 +141,7 @@ export default function ProjectListRow({
       {/* Priority */}
       <div className="flex items-center gap-2">
         <FlagIcon color={priorityColors[project.priority]} />
-        <span className="text-sm text-neutral-600 capitalize">{project.priority}</span>
+        <span className="text-xs text-neutral-600 capitalize">{project.priority}</span>
       </div>
 
       {/* Actions */}
