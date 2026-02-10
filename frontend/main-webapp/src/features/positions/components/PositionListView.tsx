@@ -3,13 +3,13 @@ import { useState } from "react";
 // ========== ICONS ==========
 const CheckboxIcon = ({ checked }: { checked: boolean }) => (
   <div
-    className={`w-[25px] h-[25px] rounded-[10px] flex items-center justify-center transition-colors cursor-pointer
+    className={`w-5 h-5 rounded-[6px] flex items-center justify-center transition-colors cursor-pointer
       ${checked ? "bg-primary" : "bg-neutral-200"}`}
   >
     {checked && (
       <svg
-        width="14"
-        height="11"
+        width="12"
+        height="9"
         viewBox="0 0 14 11"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -36,10 +36,10 @@ const CountBadge = ({ count }: { count: number }) => (
 );
 
 const UnassignedAvatar = () => (
-  <div className="w-10 h-10 rounded-full border-2 border-dashed border-neutral-400 flex items-center justify-center">
+  <div className="w-7 h-7 rounded-full border-2 border-dashed border-neutral-400 flex items-center justify-center">
     <svg
-      width="20"
-      height="20"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -128,16 +128,16 @@ function DepartmentRow({
         className="bg-neutral-50 cursor-pointer hover:bg-neutral-100 transition-colors"
         onClick={onToggle}
       >
-        <td className="p-2.5">
+        <td className="px-2 py-1.5">
           <div onClick={(e) => { e.stopPropagation(); handleDepartmentSelect(); }}>
             <CheckboxIcon
               checked={allSelected && department.employees.length > 0}
             />
           </div>
         </td>
-        <td colSpan={6} className="p-2.5">
-          <div className="flex items-center gap-2.5">
-            <span className="header-h6 text-neutral-500">{department.name}</span>
+        <td colSpan={6} className="px-2 py-1.5">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-neutral-500">{department.name}</span>
             <CountBadge count={department.employees.length} />
           </div>
         </td>
@@ -185,7 +185,7 @@ function EmployeeRow({
       onClick={onClick}
     >
       {/* Checkbox */}
-      <td className="p-2.5">
+      <td className="px-2 py-1.5">
         <div onClick={(e) => e.stopPropagation()}>
           <div onClick={onSelect}>
             <CheckboxIcon checked={isSelected} />
@@ -194,19 +194,19 @@ function EmployeeRow({
       </td>
 
       {/* Employee Name with Avatar */}
-      <td className="p-2.5">
-        <div className="flex items-center gap-2.5">
+      <td className="px-2 py-1.5">
+        <div className="flex items-center gap-2">
           {employee.isVacant ? (
             <UnassignedAvatar />
           ) : employee.avatar ? (
             <img
               src={employee.avatar}
               alt={employee.name}
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-7 h-7 rounded-full object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center">
-              <span className="text-sm font-medium text-neutral-500">
+            <div className="w-7 h-7 rounded-full bg-neutral-200 flex items-center justify-center">
+              <span className="text-xs font-medium text-neutral-500">
                 {employee.name
                   .split(" ")
                   .map((n) => n[0])
@@ -215,9 +215,8 @@ function EmployeeRow({
             </div>
           )}
           <span
-            className={`body-1-medium ${
-              employee.isVacant ? "text-neutral-500" : "text-neutral-900"
-            }`}
+            className={`text-sm font-medium ${employee.isVacant ? "text-neutral-500" : "text-neutral-900"
+              }`}
           >
             {employee.isVacant ? "Unassigned" : employee.name}
           </span>
@@ -225,37 +224,37 @@ function EmployeeRow({
       </td>
 
       {/* Work Phone */}
-      <td className="p-2.5">
-        <span className="body-1-medium text-neutral-500">
+      <td className="px-2 py-1.5">
+        <span className="text-sm font-medium text-neutral-500">
           {employee.workPhone || "—"}
         </span>
       </td>
 
       {/* Work Email */}
-      <td className="p-2.5">
-        <span className="body-1-medium text-neutral-400">
+      <td className="px-2 py-1.5">
+        <span className="text-sm font-medium text-neutral-400">
           {employee.workEmail || "—"}
         </span>
       </td>
 
       {/* Job Position */}
-      <td className="p-2.5">
-        <span className="body-1-medium text-black">{employee.jobPosition}</span>
+      <td className="px-2 py-1.5">
+        <span className="text-sm font-medium text-black">{employee.jobPosition}</span>
       </td>
 
       {/* Manager */}
-      <td className="p-2.5">
+      <td className="px-2 py-1.5">
         {employee.manager ? (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {employee.manager.avatar ? (
               <img
                 src={employee.manager.avatar}
                 alt={employee.manager.name}
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-7 h-7 rounded-full object-cover"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center">
-                <span className="text-sm font-medium text-neutral-500">
+              <div className="w-7 h-7 rounded-full bg-neutral-200 flex items-center justify-center">
+                <span className="text-xs font-medium text-neutral-500">
                   {employee.manager.name
                     .split(" ")
                     .map((n) => n[0])
@@ -263,12 +262,12 @@ function EmployeeRow({
                 </span>
               </div>
             )}
-            <span className="body-1-medium text-neutral-900">
+            <span className="text-sm font-medium text-neutral-900">
               {employee.manager.name}
             </span>
           </div>
         ) : (
-          <span className="body-1-medium text-neutral-400">—</span>
+          <span className="text-sm font-medium text-neutral-400">—</span>
         )}
       </td>
     </tr>
@@ -303,23 +302,23 @@ export default function PositionListView({
         {/* Table Header */}
         <thead>
           <tr className="bg-neutral-50 border border-neutral-200">
-            <th className="p-2.5 text-left w-[50px]">
+            <th className="px-2 py-1.5 text-left w-[40px]">
               <CheckboxIcon checked={false} />
             </th>
-            <th className="p-2.5 text-left min-w-[180px]">
-              <span className="header-h6 text-neutral-500">Employee Name</span>
+            <th className="px-2 py-1.5 text-left min-w-[140px]">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Employee Name</span>
             </th>
-            <th className="p-2.5 text-left min-w-[130px]">
-              <span className="header-h6 text-neutral-500">Work Phone</span>
+            <th className="px-2 py-1.5 text-left min-w-[100px]">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Work Phone</span>
             </th>
-            <th className="p-2.5 text-left min-w-[180px]">
-              <span className="header-h6 text-neutral-500">Work Email</span>
+            <th className="px-2 py-1.5 text-left min-w-[140px]">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Work Email</span>
             </th>
-            <th className="p-2.5 text-left min-w-[150px]">
-              <span className="header-h6 text-neutral-500">Job Position</span>
+            <th className="px-2 py-1.5 text-left min-w-[110px]">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Job Position</span>
             </th>
-            <th className="p-2.5 text-left min-w-[150px]">
-              <span className="header-h6 text-neutral-500">Manager</span>
+            <th className="px-2 py-1.5 text-left min-w-[120px]">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Manager</span>
             </th>
           </tr>
         </thead>

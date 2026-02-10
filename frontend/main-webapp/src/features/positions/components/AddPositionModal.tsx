@@ -63,11 +63,11 @@ export default function AddPositionModal({
         aria-hidden="true"
       />
 
-      {/* Modal Container - Laptop-First: max-width 512px */}
-      <div className="relative w-full max-w-[512px] mx-4 bg-white rounded-xl shadow-xl overflow-hidden">
+      {/* Modal Container - Laptop-First: max-width 460px */}
+      <div className="relative w-full max-w-[460px] mx-4 bg-white rounded-xl shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 h-[71px] border-b border-neutral-200">
-          <h2 className="text-[22px] font-bold leading-[26px] text-neutral-900">
+        <div className="flex items-center justify-between px-4 h-[50px] border-b border-neutral-200">
+          <h2 className="text-base font-bold leading-5 text-neutral-900">
             Add New Position
           </h2>
           <button
@@ -81,7 +81,7 @@ export default function AddPositionModal({
 
         {/* Form Content - Scrollable */}
         <form onSubmit={handleSubmit}>
-          <div className="px-6 py-6 max-h-[calc(100vh-220px)] overflow-y-auto space-y-5">
+          <div className="px-4 py-3 max-h-[calc(100vh-180px)] overflow-y-auto space-y-3">
             {/* Job Title */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-neutral-900">
@@ -94,7 +94,7 @@ export default function AddPositionModal({
                   setFormData({ ...formData, jobTitle: e.target.value })
                 }
                 placeholder="e.g. Senior Product Designer"
-                className="w-full h-[42px] px-3 bg-neutral-50 border border-neutral-200 rounded-lg
+                className="w-full h-9 px-3 bg-neutral-50 border border-neutral-200 rounded-lg
                   text-sm text-neutral-900 placeholder:text-neutral-400
                   focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20
                   transition-colors"
@@ -112,7 +112,7 @@ export default function AddPositionModal({
                   onChange={(e) =>
                     setFormData({ ...formData, department: e.target.value })
                   }
-                  className="w-full h-[42px] px-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-lg
+                  className="w-full h-9 px-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-lg
                     text-sm text-neutral-900 appearance-none cursor-pointer
                     focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20
                     transition-colors"
@@ -143,7 +143,7 @@ export default function AddPositionModal({
                     setFormData({ ...formData, reportsTo: e.target.value })
                   }
                   placeholder="Search employee..."
-                  className="w-full h-[42px] pl-10 pr-3 bg-neutral-50 border border-neutral-200 rounded-lg
+                  className="w-full h-9 pl-10 pr-3 bg-neutral-50 border border-neutral-200 rounded-lg
                     text-sm text-neutral-900 placeholder:text-neutral-400
                     focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20
                     transition-colors"
@@ -156,7 +156,7 @@ export default function AddPositionModal({
               <label className="block text-sm font-medium text-neutral-900">
                 Employment Type
               </label>
-              <div className="flex h-[42px] p-1 bg-neutral-50 border border-neutral-200 rounded-lg">
+              <div className="flex h-9 p-1 bg-neutral-50 border border-neutral-200 rounded-lg">
                 {employmentTypes.map((type) => (
                   <button
                     key={type.value}
@@ -165,10 +165,9 @@ export default function AddPositionModal({
                       setFormData({ ...formData, employmentType: type.value })
                     }
                     className={`flex-1 h-full rounded-md text-sm font-medium transition-all
-                      ${
-                        formData.employmentType === type.value
-                          ? "bg-secondary text-primary shadow-sm"
-                          : "text-neutral-400 hover:text-neutral-500"
+                      ${formData.employmentType === type.value
+                        ? "bg-secondary text-primary shadow-sm"
+                        : "text-neutral-400 hover:text-neutral-500"
                       }`}
                   >
                     {type.label}
@@ -207,7 +206,7 @@ export default function AddPositionModal({
                     onChange={(e) =>
                       setFormData({ ...formData, assignedUser: e.target.value })
                     }
-                    className="w-full h-[42px] px-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-lg
+                    className="w-full h-9 px-3 pr-10 bg-neutral-50 border border-neutral-200 rounded-lg
                       text-sm text-neutral-900 appearance-none cursor-pointer
                       focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20
                       transition-colors"
@@ -224,20 +223,20 @@ export default function AddPositionModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-4 px-6 h-[69px] border-t border-neutral-200">
+          <div className="flex items-center justify-end gap-3 px-4 h-[50px] border-t border-neutral-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-base font-medium text-neutral-500 
-                border border-neutral-200 rounded-[10px]
+              className="px-4 py-2 text-sm font-medium text-neutral-500 
+                border border-neutral-200 rounded-[8px]
                 hover:bg-neutral-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 text-base font-medium text-primary 
-                bg-secondary border border-primary rounded-[10px]
+              className="px-4 py-2 text-sm font-medium text-primary 
+                bg-secondary border border-primary rounded-[8px]
                 hover:bg-secondary/80 transition-colors"
             >
               Create Position
