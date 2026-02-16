@@ -326,41 +326,52 @@ const TreeNode = ({
         <div
           className="overflow-hidden transition-all duration-400 ease-in-out"
           style={{
-            maxHeight: isCollapsed ? "0px" : "2000px",
+            maxHeight: isCollapsed ? "0px" : "3000px",
             opacity: isCollapsed ? 0 : 1,
-            marginTop: isCollapsed ? "0px" : "12px",
+            marginTop: isCollapsed ? "0px" : "16px",
           }}
         >
           <div className="flex flex-col items-center">
-            <div className="w-px h-6 bg-neutral-200" />
-            <div className="relative flex items-start">
+            {/* Vertical stem from parent card down to horizontal bar */}
+            <div className="w-0.5 h-5 bg-neutral-300" />
+
+            {/* Children row with horizontal connector */}
+            <div className="relative">
+              {/* Horizontal connector bar — spans from center of first child to center of last child */}
               {children.length > 1 && (
                 <div
-                  className="absolute top-0 h-px bg-neutral-200"
+                  className="absolute top-0 h-0.5 bg-neutral-300"
                   style={{
-                    left: `${100 / (children.length * 2)}%`,
-                    right: `${100 / (children.length * 2)}%`,
+                    left: `calc(50% / ${children.length})`,
+                    right: `calc(50% / ${children.length})`,
                   }}
                 />
               )}
-              {children.map((child) => (
-                <div key={child.id} className="flex flex-col items-center px-3">
-                  <div className="w-px h-4 bg-neutral-200" />
-                  <TreeNode
-                    position={child}
-                    collapsedNodes={collapsedNodes}
-                    onToggle={onToggle}
-                    draggedId={draggedId}
-                    dragType={dragType}
-                    onDragStart={onDragStart}
-                    onDragEnd={onDragEnd}
-                    onDrop={onDrop}
-                    onPositionClick={onPositionClick}
-                    level={level + 1}
-                    nodeRefs={nodeRefs}
-                  />
-                </div>
-              ))}
+
+              {/* Children nodes in a flex row with equal gap */}
+              <div className="flex gap-6 items-start">
+                {children.map((child) => (
+                  <div key={child.id} className="flex flex-col items-center">
+                    {/* Vertical stem from horizontal bar down to child card */}
+                    <div className="w-0.5 h-4 bg-neutral-300" />
+
+                    {/* Recursive child */}
+                    <TreeNode
+                      position={child}
+                      collapsedNodes={collapsedNodes}
+                      onToggle={onToggle}
+                      draggedId={draggedId}
+                      dragType={dragType}
+                      onDragStart={onDragStart}
+                      onDragEnd={onDragEnd}
+                      onDrop={onDrop}
+                      onPositionClick={onPositionClick}
+                      level={level + 1}
+                      nodeRefs={nodeRefs}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
