@@ -1,14 +1,14 @@
 // Icons for Task Kanban feature
 
 export const SearchIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="11" cy="11" r="8" stroke="#90A1B9" strokeWidth="2" />
     <path d="M21 21L16.65 16.65" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
 export const FilterIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="4" y1="6" x2="20" y2="6" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
     <line x1="6" y1="12" x2="18" y2="12" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
     <line x1="8" y1="18" x2="16" y2="18" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
@@ -16,7 +16,7 @@ export const FilterIcon = () => (
 );
 
 export const KanbanIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="3" y="3" width="5" height="18" rx="1" fill={active ? "white" : "#62748E"} />
     <rect x="10" y="3" width="5" height="12" rx="1" fill={active ? "white" : "#62748E"} />
     <rect x="17" y="3" width="5" height="15" rx="1" fill={active ? "white" : "#62748E"} />
@@ -24,7 +24,7 @@ export const KanbanIcon = ({ active }: { active: boolean }) => (
 );
 
 export const ListIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M8 6H21" stroke={active ? "white" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
     <path d="M8 12H21" stroke={active ? "white" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
     <path d="M8 18H21" stroke={active ? "white" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
@@ -35,7 +35,7 @@ export const ListIcon = ({ active }: { active: boolean }) => (
 );
 
 export const TimelineIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="3" y="14" width="4" height="7" fill={active ? "white" : "#62748E"} />
     <rect x="10" y="10" width="4" height="11" fill={active ? "white" : "#62748E"} />
     <rect x="17" y="3" width="4" height="18" fill={active ? "white" : "#62748E"} />
@@ -43,7 +43,7 @@ export const TimelineIcon = ({ active }: { active: boolean }) => (
 );
 
 export const CalendarViewIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="3" y="4" width="18" height="18" rx="2" stroke={active ? "white" : "#62748E"} strokeWidth="2" />
     <line x1="16" y1="2" x2="16" y2="6" stroke={active ? "white" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
     <line x1="8" y1="2" x2="8" y2="6" stroke={active ? "white" : "#62748E"} strokeWidth="2" strokeLinecap="round" />

@@ -54,13 +54,13 @@ export default function GanttToolbar({
   ];
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-neutral-200">
+    <div className="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-neutral-200">
       {/* Left Section: Filter & Group By */}
       <div className="flex items-center gap-2">
         {/* Filter Button */}
         <button
           onClick={onFilter}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-500 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-neutral-500 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
         >
           <FilterIcon />
           <span>Filter</span>
@@ -70,7 +70,7 @@ export default function GanttToolbar({
         <div className="relative">
           <button
             onClick={() => setIsGroupByOpen(!isGroupByOpen)}
-            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-500 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-neutral-500 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
           >
             <GroupByIcon />
             <span>Group By</span>
@@ -82,7 +82,7 @@ export default function GanttToolbar({
                   onGroupBy?.();
                   setIsGroupByOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 transition-colors"
+                className="w-full px-2.5 py-1.5 text-left text-xs hover:bg-neutral-50 transition-colors"
               >
                 By Status
               </button>
@@ -91,7 +91,7 @@ export default function GanttToolbar({
                   onGroupBy?.();
                   setIsGroupByOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 transition-colors"
+                className="w-full px-2.5 py-1.5 text-left text-xs hover:bg-neutral-50 transition-colors"
               >
                 By Assignee
               </button>
@@ -100,7 +100,7 @@ export default function GanttToolbar({
                   onGroupBy?.();
                   setIsGroupByOpen(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-50 transition-colors"
+                className="w-full px-2.5 py-1.5 text-left text-xs hover:bg-neutral-50 transition-colors"
               >
                 By Priority
               </button>
@@ -110,22 +110,22 @@ export default function GanttToolbar({
       </div>
 
       {/* Center Section: Date Navigation */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <button
           onClick={handlePrevMonth}
-          className="p-1.5 text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
+          className="p-1 text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
           aria-label="Previous month"
         >
           <ChevronLeftIcon />
         </button>
 
-        <span className="text-base font-semibold text-neutral-900 min-w-[160px] text-center">
+        <span className="text-xs font-semibold text-neutral-900 min-w-[130px] text-center">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </span>
 
         <button
           onClick={handleNextMonth}
-          className="p-1.5 text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
+          className="p-1 text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
           aria-label="Next month"
         >
           <ChevronRightIcon />
@@ -133,7 +133,7 @@ export default function GanttToolbar({
 
         <button
           onClick={handleToday}
-          className="px-3 py-1.5 text-sm font-medium text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
+          className="px-2.5 py-1 text-xs font-medium text-neutral-500 hover:bg-neutral-100 rounded-md transition-colors"
         >
           Today
         </button>
@@ -145,11 +145,10 @@ export default function GanttToolbar({
           <button
             key={mode}
             onClick={() => onViewModeChange(mode)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              viewMode === mode
+            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${viewMode === mode
                 ? "bg-primary text-white shadow-sm"
                 : "text-neutral-500 hover:text-neutral-900"
-            }`}
+              }`}
           >
             {label}
           </button>

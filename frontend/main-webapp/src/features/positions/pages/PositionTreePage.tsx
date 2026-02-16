@@ -5,7 +5,6 @@ import {
   PositionListView,
   AddPositionModal,
   AddIcon,
-  ChevronDoubleRightIcon,
   type Position,
   type Department,
   type Employee,
@@ -110,7 +109,6 @@ const mockDepartments: Department[] = [
 export default function PositionTreePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"tree" | "list">("list");
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -218,15 +216,15 @@ export default function PositionTreePage() {
             />
 
             {/* Vacant Position - Connected below first child */}
-            <div className="relative mt-4 ml-[40px]">
+            <div className="relative mt-2 ml-[20px]">
               {/* Vertical connector line */}
-              <div className="absolute -top-4 left-[100px] w-0.5 h-4 bg-neutral-200" />
+              <div className="absolute -top-2 left-[60px] w-0.5 h-2 bg-neutral-200" />
 
               <div className="inline-block">
                 <div
                   onClick={() => handlePositionClick(vacantPosition)}
                   className="bg-white border border-dashed border-black rounded-[12px] shadow-sm 
-                    flex items-center gap-3 px-4 py-3 cursor-pointer hover:shadow-md transition-shadow
+                    flex items-center gap-3 px-3 py-2 cursor-pointer hover:shadow-md transition-shadow
                     w-[220px] h-[70px]"
                 >
                   <div className="w-[50px] h-[50px] rounded-full bg-neutral-200 flex items-center justify-center shrink-0">

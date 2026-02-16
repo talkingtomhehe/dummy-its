@@ -54,34 +54,34 @@ export default function TimelineToolbar({
   ];
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 bg-white border-b border-neutral-200">
+    <div className="flex items-center justify-between px-3 py-1.5 bg-white border-b border-neutral-200">
       {/* Left: Navigation */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
           <button
             onClick={handlePrev}
-            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600"
+            className="p-1 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600"
             aria-label="Previous"
           >
             <ChevronLeftIcon />
           </button>
           <button
             onClick={handleNext}
-            className="p-1.5 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600"
+            className="p-1 hover:bg-neutral-100 rounded-lg transition-colors text-neutral-600"
             aria-label="Next"
           >
             <ChevronRightIcon />
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <CalendarIcon />
-          <span className="font-medium text-sm text-neutral-900">{getMonthName(currentDate)}</span>
+          <span className="font-medium text-xs text-neutral-900">{getMonthName(currentDate)}</span>
         </div>
 
         <button
           onClick={handleToday}
-          className="flex items-center gap-2 px-3 py-1.5 text-sm text-primary hover:bg-primary/10 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-primary hover:bg-primary/10 rounded-lg transition-colors"
         >
           <TodayIcon />
           <span>Today</span>
@@ -89,23 +89,23 @@ export default function TimelineToolbar({
       </div>
 
       {/* Right: Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Filter */}
         <button
           onClick={onFilter}
-          className="flex items-center gap-2 px-2 py-1.5 text-neutral-500 hover:bg-neutral-100 rounded-lg transition-colors border border-neutral-200"
+          className="flex items-center gap-1.5 px-2 py-1 text-neutral-500 hover:bg-neutral-100 rounded-lg transition-colors border border-neutral-200"
         >
           <FilterIcon />
-          <span className="text-sm">Filter</span>
+          <span className="text-xs">Filter</span>
         </button>
 
         {/* Group By */}
         <button
           onClick={onGroupBy}
-          className="flex items-center gap-2 px-2 py-1.5 text-neutral-500 hover:bg-neutral-100 rounded-lg transition-colors border border-neutral-200"
+          className="flex items-center gap-1.5 px-2 py-1 text-neutral-500 hover:bg-neutral-100 rounded-lg transition-colors border border-neutral-200"
         >
           <GroupByIcon />
-          <span className="text-sm">Group by</span>
+          <span className="text-xs">Group by</span>
         </button>
 
         {/* View Mode Toggle */}
@@ -114,9 +114,9 @@ export default function TimelineToolbar({
             <button
               key={mode}
               onClick={() => onViewModeChange(mode)}
-              className={`px-3 py-1.5 text-xs font-medium transition-colors ${viewMode === mode
-                  ? "bg-primary text-white"
-                  : "bg-white text-neutral-600 hover:bg-neutral-50"
+              className={`px-2.5 py-1 text-xs font-medium transition-colors ${viewMode === mode
+                ? "bg-primary text-white"
+                : "bg-white text-neutral-600 hover:bg-neutral-50"
                 }`}
             >
               {label}

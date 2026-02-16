@@ -1,6 +1,6 @@
 // Icons for Position Tree feature
 
-export const SearchIcon = ({ size = 24 }: { size?: number }) => (
+export const SearchIcon = ({ size = 14 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="11" cy="11" r="8" stroke="#90A1B9" strokeWidth="2" />
     <path d="M21 21L16.65 16.65" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
@@ -15,7 +15,7 @@ export const CloseIcon = () => (
 );
 
 export const FilterIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="4" y1="6" x2="20" y2="6" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
     <line x1="6" y1="12" x2="18" y2="12" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
     <line x1="8" y1="18" x2="16" y2="18" stroke="#62748E" strokeWidth="2" strokeLinecap="round" />
@@ -23,7 +23,7 @@ export const FilterIcon = () => (
 );
 
 export const TreeViewIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M22 11V3H14V6H10V3H2V11H10V8H11V14H7V12H2V20H7V18H11V22H17V14H11V17H8V8H11V11H22Z"
       fill={active ? "white" : "#62748E"}
@@ -32,7 +32,7 @@ export const TreeViewIcon = ({ active }: { active: boolean }) => (
 );
 
 export const ListViewIcon = ({ active }: { active: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M3 4H21V6H3V4Z" fill={active ? "white" : "#62748E"} />
     <path d="M3 9H21V11H3V9Z" fill={active ? "white" : "#62748E"} />
     <path d="M3 14H21V16H3V14Z" fill={active ? "white" : "#62748E"} />
