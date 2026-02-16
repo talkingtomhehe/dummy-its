@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   PositionToolbar,
   PositionTreeView,
@@ -10,44 +10,98 @@ import {
   type Employee,
 } from "../components";
 
-// Mock data for Tree View
-const mockPositionTree: Position = {
-  id: "1",
-  name: "Alex",
+// Richer mock data for Tree View - realistic org chart
+const initialPositionTree: Position = {
+  id: "ceo",
+  name: "Sarah Johnson",
   title: "Chief Executive Officer",
   status: "primary",
-  subordinateCount: 3,
+  subordinateCount: 5,
   children: [
     {
-      id: "2",
-      name: "Alex",
-      title: "Chief Executive Officer",
+      id: "cto",
+      name: "Michael Chen",
+      title: "Chief Technology Officer",
       status: "on_track",
+      children: [
+        {
+          id: "dev-lead",
+          name: "Emily Davis",
+          title: "Development Lead",
+          status: "on_track",
+          children: [
+            {
+              id: "fe-dev",
+              name: "James Wilson",
+              title: "Frontend Developer",
+              status: "on_track",
+            },
+            {
+              id: "be-dev",
+              name: "Lisa Park",
+              title: "Backend Developer",
+              status: "on_track",
+            },
+            {
+              id: "vacant-dev",
+              name: "Vacant",
+              title: "Full-stack Developer",
+              isVacant: true,
+            },
+          ],
+        },
+        {
+          id: "qa-lead",
+          name: "David Brown",
+          title: "QA Engineer",
+          status: "off_track",
+        },
+      ],
     },
     {
-      id: "3",
-      name: "Alex",
-      title: "Chief Executive Officer",
+      id: "cfo",
+      name: "Robert Taylor",
+      title: "Chief Financial Officer",
       status: "on_track",
+      children: [
+        {
+          id: "accountant",
+          name: "Jennifer Lee",
+          title: "Senior Accountant",
+          status: "on_track",
+        },
+        {
+          id: "vacant-finance",
+          name: "Vacant",
+          title: "Financial Analyst",
+          isVacant: true,
+        },
+      ],
     },
     {
-      id: "4",
-      name: "Alex",
-      title: "Chief Executive Officer",
-      status: "off_track",
+      id: "cmo",
+      name: "Amanda White",
+      title: "Chief Marketing Officer",
+      status: "on_track",
+      children: [
+        {
+          id: "mkt-lead",
+          name: "Chris Martinez",
+          title: "Marketing Lead",
+          status: "on_track",
+        },
+        {
+          id: "designer",
+          name: "Sophia Kim",
+          title: "UI/UX Designer",
+          status: "on_track",
+        },
+      ],
     },
   ],
 };
 
-// Separate vacant position for display
-const vacantPosition: Position = {
-  id: "5",
-  name: "Vacant Position",
-  title: "Frontend Dev",
-  isVacant: true,
-};
-
-// Mock data for List View (based on Figma design)
+// Mock data for List View
 const mockDepartments: Department[] = [
   {
     id: "marketing",
@@ -59,20 +113,14 @@ const mockDepartments: Department[] = [
         workPhone: "0987654321",
         workEmail: "john.nguyen@gmail.com",
         jobPosition: "Manager",
-        manager: {
-          id: "mgr-1",
-          name: "Alex Nguyen",
-        },
+        manager: { id: "mgr-1", name: "Alex Nguyen" },
       },
       {
         id: "emp-2",
         name: "Unassigned",
         jobPosition: "Marketing Design",
         isVacant: true,
-        manager: {
-          id: "mgr-1",
-          name: "Alex Nguyen",
-        },
+        manager: { id: "mgr-1", name: "Alex Nguyen" },
       },
     ],
   },
@@ -86,10 +134,7 @@ const mockDepartments: Department[] = [
         workPhone: "0912345678",
         workEmail: "sarah.chen@gmail.com",
         jobPosition: "Senior Developer",
-        manager: {
-          id: "mgr-2",
-          name: "Mike Wilson",
-        },
+        manager: { id: "mgr-2", name: "Mike Wilson" },
       },
       {
         id: "emp-4",
@@ -97,23 +142,70 @@ const mockDepartments: Department[] = [
         workPhone: "0923456789",
         workEmail: "tom.brown@gmail.com",
         jobPosition: "Junior Developer",
-        manager: {
-          id: "mgr-2",
-          name: "Mike Wilson",
-        },
+        manager: { id: "mgr-2", name: "Mike Wilson" },
       },
     ],
   },
 ];
 
+// Helper: recursively find and remove a node from the tree
+function removeNode(tree: Position, id: string): { tree: Position; removed: Position | null } {
+  if (tree.id === id) return { tree, removed: null }; // can't remove root
+
+  const newChildren: Position[] = [];
+  let removed: Position | null = null;
+
+  for (const child of tree.children || []) {
+    if (child.id === id) {
+      removed = child;
+    } else {
+      const result = removeNode(child, id);
+      if (result.removed) removed = result.removed;
+      newChildren.push(result.removed ? result.tree : child);
+    }
+  }
+
+  return {
+    tree: { ...tree, children: newChildren.length > 0 ? newChildren : undefined },
+    removed,
+  };
+}
+
+// Helper: recursively insert a node as child of target
+function insertNode(tree: Position, targetId: string, node: Position): Position {
+  if (tree.id === targetId) {
+    return {
+      ...tree,
+      children: [...(tree.children || []), node],
+    };
+  }
+
+  return {
+    ...tree,
+    children: tree.children?.map((child) => insertNode(child, targetId, node)),
+  };
+}
+
+// Helper: count all positions recursively
+function countPositions(tree: Position): { total: number; vacant: number } {
+  let total = 1;
+  let vacant = tree.isVacant ? 1 : 0;
+  for (const child of tree.children || []) {
+    const childCount = countPositions(child);
+    total += childCount.total;
+    vacant += childCount.vacant;
+  }
+  return { total, vacant };
+}
+
 export default function PositionTreePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"tree" | "list">("list");
+  const [viewMode, setViewMode] = useState<"tree" | "list">("tree");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [positionTree, setPositionTree] = useState<Position>(initialPositionTree);
 
   const handleFilter = () => {
-    // TODO: Implement filter modal
     console.log("Filter clicked");
   };
 
@@ -130,43 +222,30 @@ export default function PositionTreePage() {
     assignedUser: string;
   }) => {
     console.log("Creating position:", data);
-    // TODO: Call API to create position
     setIsAddModalOpen(false);
   };
 
   const handlePositionClick = (position: Position) => {
-    // TODO: Navigate to position detail or open modal
     console.log("Position clicked:", position);
   };
 
   const handleEmployeeClick = (employee: Employee) => {
-    // TODO: Navigate to employee detail or open modal
     console.log("Employee clicked:", employee);
   };
 
-  // Calculate stats from departments
-  const totalPositions = mockDepartments.reduce(
-    (sum, dept) => sum + dept.employees.length,
-    0
-  );
-  const vacantPositions = mockDepartments.reduce(
-    (sum, dept) => sum + dept.employees.filter((e) => e.isVacant).length,
-    0
-  );
+  // Drag and drop: move a position under a new parent
+  const handlePositionMove = useCallback((draggedId: string, targetId: string) => {
+    setPositionTree((prev) => {
+      const { tree: treeWithout, removed } = removeNode(prev, draggedId);
+      if (!removed) return prev;
+      return insertNode(treeWithout, targetId, removed);
+    });
+  }, []);
+
+  const { total: totalPositions, vacant: vacantPositions } = countPositions(positionTree);
 
   return (
     <div className="relative w-full max-w-full mx-auto">
-      {/* Sidebar Collapse Toggle - Fixed Position */}
-      {/* <button
-        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-10 bg-primary/20 rounded-r-[20px] p-1.5 hover:bg-primary/30 transition-colors"
-        aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        <div className={`transition-transform ${isSidebarCollapsed ? "" : "rotate-180"}`}>
-          <ChevronDoubleRightIcon />
-        </div>
-      </button> */}
-
       {/* Toolbar */}
       <div className="mb-2">
         <PositionToolbar
@@ -180,76 +259,41 @@ export default function PositionTreePage() {
 
       {/* Main Content Area */}
       {viewMode === "tree" ? (
-        // Tree View Layout
         <div className="relative">
           {/* Stats and Add Button Row */}
           <div className="flex items-center justify-between mb-2">
             {/* Stats Box */}
-            <div className="bg-white border border-primary rounded-[8px] p-2">
-              <div className="text-sm font-bold leading-5">
-                <span className="text-neutral-500">
-                  Total Position:{" "}
-                  <span className="text-primary">{totalPositions}</span>
-                </span>
-                <span className="ml-4 text-neutral-500">
-                  Vacant:{" "}
-                  <span className="text-status-off_track">{vacantPositions}</span>
-                </span>
-              </div>
+            <div className="bg-white border border-primary rounded-[8px] px-3 py-1.5 flex items-center gap-4">
+              <span className="text-xs font-semibold text-neutral-500">
+                Total Position:{" "}
+                <span className="text-primary font-bold">{totalPositions}</span>
+              </span>
+              <span className="text-xs font-semibold text-neutral-500">
+                Vacant:{" "}
+                <span className="text-status-off_track font-bold">{vacantPositions}</span>
+              </span>
             </div>
 
             {/* Add Position Button */}
             <button
               onClick={handleAddPosition}
-              className="bg-secondary border border-primary rounded-[8px] flex items-center gap-2 px-3 py-1.5 hover:bg-secondary/80 transition-colors"
+              className="bg-secondary border border-primary rounded-[8px] flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
             >
               <AddIcon />
-              <span className="text-primary font-medium text-sm">Add Position</span>
+              <span className="text-primary font-medium text-xs">Add Position</span>
             </button>
           </div>
 
           {/* Tree View */}
-          <div className="pt-2">
-            <PositionTreeView
-              rootPosition={mockPositionTree}
-              onPositionClick={handlePositionClick}
-            />
-
-            {/* Vacant Position - Connected below first child */}
-            <div className="relative mt-2 ml-[20px]">
-              {/* Vertical connector line */}
-              <div className="absolute -top-2 left-[60px] w-0.5 h-2 bg-neutral-200" />
-
-              <div className="inline-block">
-                <div
-                  onClick={() => handlePositionClick(vacantPosition)}
-                  className="bg-white border border-dashed border-black rounded-[12px] shadow-sm 
-                    flex items-center gap-3 px-3 py-2 cursor-pointer hover:shadow-md transition-shadow
-                    w-[220px] h-[70px]"
-                >
-                  <div className="w-[50px] h-[50px] rounded-full bg-neutral-200 flex items-center justify-center shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="8" r="4" stroke="#90A1B9" strokeWidth="2" />
-                      <path d="M4 20C4 16.6863 7.13401 14 11 14H13C16.866 14 20 16.6863 20 20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <p className="text-sm font-bold leading-[18px] text-neutral-400">
-                      Vacant Position
-                    </p>
-                    <p className="text-xs font-medium leading-4 text-neutral-400">
-                      Frontend Dev
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PositionTreeView
+            positions={positionTree}
+            onPositionClick={handlePositionClick}
+            onPositionMove={handlePositionMove}
+          />
         </div>
       ) : (
-        // List View Layout (Figma design)
+        // List View Layout
         <div className="w-full bg-white rounded-[12px] overflow-hidden">
-          {/* Stats Bar with Add Button */}
           <div className="bg-neutral-50 border border-neutral-200 flex flex-wrap items-center gap-4 p-2">
             <span className="text-sm font-bold text-neutral-500">
               Total Position:{" "}
@@ -270,7 +314,6 @@ export default function PositionTreePage() {
             </button>
           </div>
 
-          {/* List View Table */}
           <PositionListView
             departments={mockDepartments}
             onEmployeeClick={handleEmployeeClick}
