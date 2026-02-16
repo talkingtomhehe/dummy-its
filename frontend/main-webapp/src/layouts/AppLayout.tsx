@@ -11,12 +11,12 @@ export default function AppLayout() {
         <Header />
 
         {/* Main Area: Sidebar + Content */}
-        <div className="flex flex-1 p-4 gap-4">
+        <div className="flex flex-1 p-3 gap-3 overflow-hidden">
           {/* Sidebar */}
           <Sidebar />
 
           {/* Main Content Area */}
-          <main className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_4px_0px_#e2e8f0] p-6 overflow-auto">
+          <main className="flex-1 bg-white rounded-[12px] shadow-sm border border-neutral-100 p-4 overflow-auto">
             <Outlet />
           </main>
         </div>
