@@ -8,12 +8,12 @@ export default function AppLayout() {
 
   return (
     <SidebarProvider>
-      <div className="flex flex-col min-h-screen bg-neutral-50">
+      <div className="flex flex-col h-screen overflow-hidden bg-neutral-50">
         {/* Header - Full Width */}
         <Header />
 
         {/* Main Area: Sidebar + Content */}
-        <div className="flex flex-1 p-3 gap-3 overflow-hidden">
+        <div className="flex flex-1 p-3 gap-3 min-h-0">
           {/* Sidebar */}
           <Sidebar />
 
