@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import type { TaskDetail, TaskDetailModalProps } from "./types";
 import type { Assignee } from "../../types";
 import SubTaskList from "./SubTaskList";
@@ -117,7 +118,7 @@ export default function TaskDetailModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -261,6 +262,7 @@ export default function TaskDetailModal({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }

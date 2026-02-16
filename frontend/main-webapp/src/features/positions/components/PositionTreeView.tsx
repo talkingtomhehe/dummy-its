@@ -271,7 +271,7 @@ const TreeNode = ({
             )}
 
             {/* Children nodes */}
-            {children.map((child, index) => (
+            {children.map((child) => (
               <div key={child.id} className="flex flex-col items-center px-3">
                 {/* Vertical connector to child */}
                 <div className="w-px h-4 bg-neutral-200" />
