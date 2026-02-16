@@ -8,7 +8,17 @@ import {
   type Position,
   type Department,
   type Employee,
+  type UnassignedEmployee,
 } from "../components";
+
+// Mock unassigned employees (new hires waiting to be placed)
+const initialUnassignedEmployees: UnassignedEmployee[] = [
+  { id: "new-1", name: "Alex Rivera", role: "Software Engineer" },
+  { id: "new-2", name: "Priya Patel", role: "Product Designer" },
+  { id: "new-3", name: "Marcus Chang", role: "Data Analyst" },
+  { id: "new-4", name: "Elena Volkov", role: "Marketing Specialist" },
+  { id: "new-5", name: "Jamal Thompson", role: "DevOps Engineer" },
+];
 
 // Richer mock data for Tree View - realistic org chart
 const initialPositionTree: Position = {
@@ -204,6 +214,7 @@ export default function PositionTreePage() {
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [positionTree, setPositionTree] = useState<Position>(initialPositionTree);
+  const [unassignedEmployees, setUnassignedEmployees] = useState<UnassignedEmployee[]>(initialUnassignedEmployees);
 
   const handleFilter = () => {
     console.log("Filter clicked");
@@ -241,6 +252,26 @@ export default function PositionTreePage() {
       return insertNode(treeWithout, targetId, removed);
     });
   }, []);
+
+  // Assign an unassigned employee to a position
+  const handleEmployeeAssign = useCallback((employeeId: string, targetPositionId: string) => {
+    const employee = unassignedEmployees.find((e) => e.id === employeeId);
+    if (!employee) return;
+
+    // Update position tree: fill the target with the employee's name
+    const fillPosition = (tree: Position): Position => {
+      if (tree.id === targetPositionId) {
+        return { ...tree, name: employee.name, isVacant: false, status: "on_track" };
+      }
+      return {
+        ...tree,
+        children: tree.children?.map(fillPosition),
+      };
+    };
+
+    setPositionTree((prev) => fillPosition(prev));
+    setUnassignedEmployees((prev) => prev.filter((e) => e.id !== employeeId));
+  }, [unassignedEmployees]);
 
   const { total: totalPositions, vacant: vacantPositions } = countPositions(positionTree);
 
@@ -289,6 +320,8 @@ export default function PositionTreePage() {
             positions={positionTree}
             onPositionClick={handlePositionClick}
             onPositionMove={handlePositionMove}
+            unassignedEmployees={unassignedEmployees}
+            onEmployeeAssign={handleEmployeeAssign}
           />
         </div>
       ) : (
