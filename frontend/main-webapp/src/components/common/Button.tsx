@@ -50,7 +50,7 @@ export default function Button({
       className={`
         inline-flex items-center justify-center gap-2.5
         font-medium leading-[22px] rounded-[20px]
-        transition-colors duration-200
+        btn-hover
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variantStyles[variant]}
         ${sizeStyles[size]}

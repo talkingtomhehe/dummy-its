@@ -26,7 +26,7 @@ export default function StageRow({
   onAddTask,
 }: StageRowProps) {
   return (
-    <div className="flex items-center gap-2 px-3 py-2 w-full">
+    <div className="flex items-center gap-2 px-3 py-2 w-full rounded-lg row-hover">
       {/* Checkbox */}
       <button
         onClick={onToggleSelect}

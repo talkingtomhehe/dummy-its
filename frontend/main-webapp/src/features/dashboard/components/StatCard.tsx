@@ -27,7 +27,7 @@ export default function StatCard({
   badge,
 }: StatCardProps) {
   return (
-    <div className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-2 flex flex-col gap-1 aspect-[10/6]">
+    <div className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-2 flex flex-col gap-1 aspect-[10/6] card-hover">
       {/* Header: Icon + Badge */}
       <div className="flex items-start justify-between">
         {/* Icon Container */}

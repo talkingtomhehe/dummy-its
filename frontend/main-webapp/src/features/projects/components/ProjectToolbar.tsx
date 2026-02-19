@@ -88,7 +88,7 @@ export default function ProjectToolbar({
       {/* New Project Button */}
       <button
         onClick={onNewProject}
-        className="bg-secondary border border-primary flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-primary font-medium text-xs leading-4 hover:bg-secondary/80 transition-colors"
+        className="bg-secondary border border-primary flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-primary font-medium text-xs leading-4 hover:bg-secondary/80 btn-hover"
       >
         <AddIcon />
         <span>New Project</span>
@@ -116,7 +116,7 @@ export default function ProjectToolbar({
       {/* Filter Button */}
       <button
         onClick={onFilter}
-        className="bg-neutral-50 border border-neutral-200 flex items-center gap-1.5 px-2 py-1 rounded-[6px] text-neutral-400 font-medium text-xs leading-4 hover:bg-neutral-100 transition-colors"
+        className="bg-neutral-50 border border-neutral-200 flex items-center gap-1.5 px-2 py-1 rounded-[6px] text-neutral-400 font-medium text-xs leading-4 hover:bg-neutral-100 btn-hover"
       >
         <FilterIcon />
         <span>Filter</span>

@@ -63,7 +63,7 @@ interface TaskCardProps {
 export default function TaskCard({ task, onClick }: TaskCardProps) {
   return (
     <div
-      className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 cursor-pointer hover:shadow-md transition-shadow overflow-hidden min-w-0"
+      className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 cursor-pointer overflow-hidden min-w-0 card-hover"
       onClick={onClick}
     >
       {/* Header: Title + Priority Flag */}

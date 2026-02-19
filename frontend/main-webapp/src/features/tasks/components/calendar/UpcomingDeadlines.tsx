@@ -13,7 +13,7 @@ export default function UpcomingDeadlines({ deadlines, onViewAll, onDeadlineClic
   };
 
   return (
-    <div className="bg-white rounded-lg p-3 shadow-sm border border-neutral-100">
+    <div className="bg-white rounded-lg p-3 shadow-sm border border-neutral-100 card-hover">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-neutral-900">Upcoming Deadlines</h3>
