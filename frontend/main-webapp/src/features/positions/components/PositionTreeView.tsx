@@ -58,11 +58,6 @@ const ZoomOutIcon = () => (
   </svg>
 );
 
-const FitIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15 3H21V9M9 21H3V15M21 3L14 10M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 const PanelToggleIcon = ({ open }: { open: boolean }) => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -587,21 +582,81 @@ export default function PositionTreeView({
     return () => stopEdgeScrolling();
   }, [stopEdgeScrolling]);
 
-  // ---- Toggle handler with camera focus ----
+  // ---- Find sibling IDs of a node ----
+  const findSiblingIds = useCallback(
+    (nodeId: string, tree: Position): string[] => {
+      // BFS to find the parent that contains nodeId as a child
+      const queue: Position[] = [tree];
+      while (queue.length > 0) {
+        const current = queue.shift()!;
+        if (current.children) {
+          const childIds = current.children.map((c) => c.id);
+          if (childIds.includes(nodeId)) {
+            return childIds.filter((id) => id !== nodeId);
+          }
+          queue.push(...current.children);
+        }
+      }
+      return [];
+    },
+    []
+  );
+
+  // Collect all descendant IDs (for collapsing entire subtrees)
+  const collectAllDescendantIds = useCallback((tree: Position, nodeId: string): string[] => {
+    const ids: string[] = [];
+    const findAndCollect = (node: Position): boolean => {
+      if (node.id === nodeId) {
+        const gather = (n: Position) => {
+          if (n.children) {
+            for (const child of n.children) {
+              ids.push(child.id);
+              gather(child);
+            }
+          }
+        };
+        gather(node);
+        return true;
+      }
+      if (node.children) {
+        for (const child of node.children) {
+          if (findAndCollect(child)) return true;
+        }
+      }
+      return false;
+    };
+    findAndCollect(tree);
+    return ids;
+  }, []);
+
+  // ---- Accordion toggle: expanding one branch collapses siblings ----
   const handleToggle = useCallback(
     (id: string) => {
       setCollapsedNodes((prev) => {
         const next = new Set(prev);
-        if (next.has(id)) {
+        const isCurrentlyCollapsed = next.has(id);
+
+        if (isCurrentlyCollapsed) {
+          // Expanding this node → collapse all siblings and their subtrees
           next.delete(id);
+          const siblingIds = findSiblingIds(id, positions);
+          for (const sibId of siblingIds) {
+            next.add(sibId);
+            // Also collapse all descendants of the sibling
+            const descendantIds = collectAllDescendantIds(positions, sibId);
+            for (const descId of descendantIds) {
+              next.add(descId);
+            }
+          }
         } else {
+          // Collapsing this node
           next.add(id);
         }
         return next;
       });
       focusOnNode(id);
     },
-    [focusOnNode]
+    [focusOnNode, findSiblingIds, collectAllDescendantIds, positions]
   );
 
   // ---- Drag handlers ----
@@ -649,7 +704,6 @@ export default function PositionTreeView({
   // ---- Manual zoom controls ----
   const handleZoomIn = () => setManualZoomOffset((v) => Math.min(v + 1, 5));
   const handleZoomOut = () => setManualZoomOffset((v) => Math.max(v - 1, -5));
-  const handleZoomFit = () => setManualZoomOffset(0);
 
   const hasUnassigned = unassignedEmployees.length > 0;
 
@@ -676,14 +730,7 @@ export default function PositionTreeView({
           >
             <ZoomInIcon />
           </button>
-          <div className="w-px h-4 bg-neutral-200 mx-0.5" />
-          <button
-            onClick={handleZoomFit}
-            className="p-1.5 hover:bg-neutral-100 rounded transition-colors text-neutral-500"
-            title="Fit to view"
-          >
-            <FitIcon />
-          </button>
+
           {hasUnassigned && (
             <>
               <div className="w-px h-4 bg-neutral-200 mx-0.5" />
