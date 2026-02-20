@@ -2,12 +2,14 @@ import { useState, useCallback, useRef, useEffect, useMemo, type DragEvent } fro
 import type { Position } from "./PositionCard";
 
 // ===================== TYPES =====================
+type DropMode = "replace" | "subordinate";
+
 interface PositionTreeViewProps {
   positions: Position;
   onPositionMove?: (draggedId: string, targetId: string) => void;
   onPositionClick?: (position: Position) => void;
   unassignedEmployees?: UnassignedEmployee[];
-  onEmployeeAssign?: (employeeId: string, targetPositionId: string) => void;
+  onEmployeeAssign?: (employeeId: string, targetPositionId: string, mode: DropMode) => void;
 }
 
 export interface UnassignedEmployee {
@@ -59,6 +61,15 @@ const ZoomOutIcon = () => (
 const FitIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M15 3H21V9M9 21H3V15M21 3L14 10M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const PanelToggleIcon = ({ open }: { open: boolean }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+    <path d="M15 3V21" stroke="currentColor" strokeWidth="2" />
+    {open && <path d="M18 8L20 10L18 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />}
+    {!open && <path d="M20 8L18 10L20 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />}
   </svg>
 );
 
@@ -136,7 +147,7 @@ const StatusDot = ({ status }: { status: string }) => {
 
 /** Count all visible (non-collapsed) nodes in the tree */
 function countVisibleNodes(tree: Position, collapsedNodes: Set<string>): number {
-  let count = 1; // count self
+  let count = 1;
   if (!collapsedNodes.has(tree.id) && tree.children) {
     for (const child of tree.children) {
       count += countVisibleNodes(child, collapsedNodes);
@@ -167,7 +178,7 @@ interface TreeNodeProps {
   dragType: "position" | "employee" | null;
   onDragStart: (id: string, type: "position" | "employee") => void;
   onDragEnd: () => void;
-  onDrop: (targetId: string) => void;
+  onDrop: (targetId: string, mode: DropMode) => void;
   onPositionClick?: (position: Position) => void;
   level: number;
   nodeRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
@@ -187,7 +198,7 @@ const TreeNode = ({
   level,
   nodeRefs,
 }: TreeNodeProps) => {
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [dropZone, setDropZone] = useState<DropMode | null>(null);
   const children = position.children || [];
   const isCollapsed = collapsedNodes.has(position.id);
   const hasChildren = children.length > 0;
@@ -218,31 +229,43 @@ const TreeNode = ({
     onDragStart(position.id, "position");
   };
 
+  // Detect which half of the card the cursor is over
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     if (draggedId && draggedId !== position.id) {
-      setIsDragOver(true);
+      const rect = e.currentTarget.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      setDropZone(e.clientY < midY ? "replace" : "subordinate");
     }
   };
 
-  const handleDragLeave = () => setIsDragOver(false);
+  const handleDragLeave = () => setDropZone(null);
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragOver(false);
+    const mode = dropZone || "subordinate";
+    setDropZone(null);
     if (draggedId && draggedId !== position.id) {
-      onDrop(position.id);
+      onDrop(position.id, mode);
     }
   };
 
   const handleDragEnd = () => {
-    setIsDragOver(false);
+    setDropZone(null);
     onDragEnd();
   };
 
   const childCount = children.length;
+
+  // Visual feedback for drop zones
+  const dropRingClass =
+    dropZone === "replace"
+      ? "ring-2 ring-amber-400 ring-offset-2"
+      : dropZone === "subordinate"
+        ? "ring-2 ring-emerald-400 ring-offset-2"
+        : "";
 
   return (
     <div className="flex flex-col items-center">
@@ -260,7 +283,7 @@ const TreeNode = ({
           relative group cursor-pointer select-none
           transition-all duration-200 ease-out
           ${isDragging ? "opacity-40 scale-95" : "opacity-100"}
-          ${isDragOver ? "ring-2 ring-primary ring-offset-2 scale-[1.02]" : ""}
+          ${dropRingClass}
         `}
       >
         <div
@@ -303,6 +326,19 @@ const TreeNode = ({
           )}
         </div>
 
+        {/* Drop zone indicator label */}
+        {dropZone && (
+          <div
+            className={`absolute left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[9px] font-bold whitespace-nowrap z-20 pointer-events-none
+              ${dropZone === "replace"
+                ? "-top-6 bg-amber-400 text-white"
+                : "-bottom-6 bg-emerald-500 text-white"
+              }`}
+          >
+            {dropZone === "replace" ? "⇄ Replace position" : "↓ Assign as subordinate"}
+          </div>
+        )}
+
         {/* Expand/collapse toggle */}
         {hasChildren && (
           <button
@@ -326,36 +362,44 @@ const TreeNode = ({
         <div
           className="overflow-hidden transition-all duration-400 ease-in-out"
           style={{
-            maxHeight: isCollapsed ? "0px" : "3000px",
+            maxHeight: isCollapsed ? "0px" : "5000px",
             opacity: isCollapsed ? 0 : 1,
             marginTop: isCollapsed ? "0px" : "16px",
           }}
         >
           <div className="flex flex-col items-center">
-            {/* Vertical stem from parent card down to horizontal bar */}
+            {/* Vertical stem from parent down */}
             <div className="w-0.5 h-5 bg-neutral-300" />
 
-            {/* Children row with horizontal connector */}
-            <div className="relative">
-              {/* Horizontal connector bar — spans from center of first child to center of last child */}
-              {children.length > 1 && (
-                <div
-                  className="absolute top-0 h-0.5 bg-neutral-300"
-                  style={{
-                    left: `calc(50% / ${children.length})`,
-                    right: `calc(50% / ${children.length})`,
-                  }}
-                />
-              )}
+            {/* Children with consistent padding for equal gaps */}
+            <div className="flex items-start">
+              {children.map((child, idx) => {
+                const isFirst = idx === 0;
+                const isLast = idx === children.length - 1;
+                const isOnly = children.length === 1;
 
-              {/* Children nodes in a flex row with equal gap */}
-              <div className="flex gap-6 items-start">
-                {children.map((child) => (
-                  <div key={child.id} className="flex flex-col items-center">
-                    {/* Vertical stem from horizontal bar down to child card */}
+                return (
+                  <div
+                    key={child.id}
+                    className="flex flex-col items-center px-4"
+                  >
+                    {/* Horizontal connector using border-top */}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: 0,
+                        borderTop: isOnly ? "none" : "2px solid #cbd5e1",
+                        ...(isFirst && !isOnly
+                          ? { marginLeft: "50%", width: "50%" }
+                          : {}),
+                        ...(isLast && !isOnly
+                          ? { marginRight: "50%", width: "50%" }
+                          : {}),
+                      }}
+                    />
+                    {/* Vertical drop to child card */}
                     <div className="w-0.5 h-4 bg-neutral-300" />
-
-                    {/* Recursive child */}
+                    {/* Child card */}
                     <TreeNode
                       position={child}
                       collapsedNodes={collapsedNodes}
@@ -370,8 +414,8 @@ const TreeNode = ({
                       nodeRefs={nodeRefs}
                     />
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -444,7 +488,8 @@ export default function PositionTreeView({
 
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragType, setDragType] = useState<"position" | "employee" | null>(null);
-  const [manualZoomOffset, setManualZoomOffset] = useState(0); // manual zoom +/-
+  const [manualZoomOffset, setManualZoomOffset] = useState(0);
+  const [showPanel, setShowPanel] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const treeContentRef = useRef<HTMLDivElement>(null);
   const edgeScrollIntervalRef = useRef<number | null>(null);
@@ -477,7 +522,6 @@ export default function PositionTreeView({
 
   // ---- Focus camera on toggled node ----
   const focusOnNode = useCallback((nodeId: string) => {
-    // Wait for the expand/collapse transition to start
     setTimeout(() => {
       const el = nodeRefs.current.get(nodeId);
       if (el && scrollContainerRef.current) {
@@ -555,7 +599,6 @@ export default function PositionTreeView({
         }
         return next;
       });
-      // Camera follows the toggled node
       focusOnNode(id);
     },
     [focusOnNode]
@@ -578,13 +621,15 @@ export default function PositionTreeView({
   }, [stopEdgeScrolling]);
 
   const handleDrop = useCallback(
-    (targetId: string) => {
+    (targetId: string, mode: DropMode) => {
       if (!draggedId) return;
+
       if (dragType === "employee" && onEmployeeAssign) {
-        onEmployeeAssign(draggedId, targetId);
+        onEmployeeAssign(draggedId, targetId, mode);
       } else if (dragType === "position" && onPositionMove) {
         onPositionMove(draggedId, targetId);
       }
+
       setDraggedId(null);
       setDragType(null);
       stopEdgeScrolling();
@@ -606,11 +651,13 @@ export default function PositionTreeView({
   const handleZoomOut = () => setManualZoomOffset((v) => Math.max(v - 1, -5));
   const handleZoomFit = () => setManualZoomOffset(0);
 
+  const hasUnassigned = unassignedEmployees.length > 0;
+
   return (
     <div className="flex gap-3 w-full" style={{ height: "calc(100vh - 200px)" }}>
       {/* Tree area */}
       <div className="flex-1 flex flex-col rounded-xl border border-neutral-100 overflow-hidden bg-neutral-50/50 relative">
-        {/* Zoom controls */}
+        {/* Toolbar: Zoom controls + Panel toggle */}
         <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg border border-neutral-200 shadow-sm px-1 py-0.5">
           <button
             onClick={handleZoomOut}
@@ -637,6 +684,18 @@ export default function PositionTreeView({
           >
             <FitIcon />
           </button>
+          {hasUnassigned && (
+            <>
+              <div className="w-px h-4 bg-neutral-200 mx-0.5" />
+              <button
+                onClick={() => setShowPanel((v) => !v)}
+                className={`p-1.5 rounded transition-colors ${showPanel ? "bg-primary/10 text-primary" : "hover:bg-neutral-100 text-neutral-500"}`}
+                title={showPanel ? "Hide unassigned panel" : "Show unassigned panel"}
+              >
+                <PanelToggleIcon open={showPanel} />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Scrollable tree container */}
@@ -671,9 +730,9 @@ export default function PositionTreeView({
         </div>
       </div>
 
-      {/* Unassigned Employees Panel */}
-      {unassignedEmployees.length > 0 && (
-        <div className="w-[200px] shrink-0 bg-white rounded-xl border border-neutral-100 shadow-sm flex flex-col overflow-hidden">
+      {/* Unassigned Employees Panel — collapsible */}
+      {hasUnassigned && showPanel && (
+        <div className="w-[200px] shrink-0 bg-white rounded-xl border border-neutral-100 shadow-sm flex flex-col overflow-hidden transition-all duration-300">
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-100 bg-neutral-50/50">
             <UsersIcon />
             <span className="text-xs font-semibold text-neutral-700">Unassigned</span>
@@ -694,10 +753,17 @@ export default function PositionTreeView({
             ))}
           </div>
 
-          <div className="px-3 py-2 border-t border-neutral-100 bg-neutral-50/30">
-            <p className="text-[10px] text-neutral-400 text-center leading-tight">
-              Drag employees to assign them to positions
-            </p>
+          {/* Drop zone legend */}
+          <div className="px-3 py-2 border-t border-neutral-100 bg-neutral-50/30 space-y-1">
+            <p className="text-[10px] text-neutral-500 font-semibold">Drag to a card:</p>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+              <span className="text-[9px] text-neutral-400">Top half → Replace position</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-[9px] text-neutral-400">Bottom half → Add subordinate</span>
+            </div>
           </div>
         </div>
       )}
