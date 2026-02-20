@@ -163,10 +163,158 @@ function calculateZoomScale(visibleCount: number): number {
   return Math.max(0.4, 1 - visibleCount * 0.02);
 }
 
-// ===================== TREE NODE =====================
-interface TreeNodeProps {
+// ===================== TREE LAYOUT =====================
+const NODE_W = 200;
+const ROOT_W = 250;
+const H_GAP = 32;
+const LEVEL_H = 120;
+const STEM = 20;
+const CARD_H_REG = 72;
+const CARD_H_ROOT = 78;
+
+interface LayoutEntry {
   position: Position;
-  isRoot?: boolean;
+  x: number;
+  y: number;
+  isRoot: boolean;
+}
+
+interface ConnectorLine {
+  parentX: number;
+  stemTopY: number;
+  connectorY: number;
+  childTopY: number;
+  childXs: number[];
+}
+
+function computeLayout(root: Position, collapsedNodes: Set<string>) {
+  const entries: LayoutEntry[] = [];
+  const connectors: ConnectorLine[] = [];
+  const widthCache = new Map<string, number>();
+
+  function subtreeWidth(node: Position, level: number): number {
+    if (widthCache.has(node.id)) return widthCache.get(node.id)!;
+    const w = level === 0 ? ROOT_W : NODE_W;
+    const children = node.children || [];
+    if (children.length === 0 || collapsedNodes.has(node.id)) {
+      widthCache.set(node.id, w);
+      return w;
+    }
+    const childWidths = children.map((c) => subtreeWidth(c, level + 1));
+    const total =
+      childWidths.reduce((a, b) => a + b, 0) +
+      (children.length - 1) * H_GAP;
+    const result = Math.max(w, total);
+    widthCache.set(node.id, result);
+    return result;
+  }
+
+  function assign(
+    node: Position,
+    level: number,
+    leftX: number,
+    width: number,
+  ) {
+    const isRoot = level === 0;
+    const cx = leftX + width / 2;
+    const y = level * LEVEL_H;
+    entries.push({ position: node, x: cx, y, isRoot });
+
+    const children = node.children || [];
+    if (children.length === 0 || collapsedNodes.has(node.id)) return;
+
+    const childWidths = children.map((c) => subtreeWidth(c, level + 1));
+    const totalChildW =
+      childWidths.reduce((a, b) => a + b, 0) +
+      (children.length - 1) * H_GAP;
+    const cardH = isRoot ? CARD_H_ROOT : CARD_H_REG;
+    const stemTopY = y + cardH;
+    const connectorY = stemTopY + STEM;
+    const childTopY = (level + 1) * LEVEL_H;
+
+    const childXs: number[] = [];
+    let curX = cx - totalChildW / 2;
+    children.forEach((child, i) => {
+      const cw = childWidths[i];
+      childXs.push(curX + cw / 2);
+      assign(child, level + 1, curX, cw);
+      curX += cw + H_GAP;
+    });
+
+    connectors.push({
+      parentX: cx,
+      stemTopY,
+      connectorY,
+      childTopY,
+      childXs,
+    });
+  }
+
+  const totalWidth = subtreeWidth(root, 0);
+  assign(root, 0, 0, totalWidth);
+
+  const maxY =
+    entries.length > 0 ? Math.max(...entries.map((e) => e.y)) : 0;
+  const bottomCardH = entries.find((e) => e.y === maxY)?.isRoot
+    ? CARD_H_ROOT
+    : CARD_H_REG;
+  const totalHeight = maxY + bottomCardH + 40;
+
+  return { entries, connectors, totalWidth, totalHeight };
+}
+
+// ===================== TREE CONNECTORS (SVG) =====================
+function TreeConnectors({
+  connectors,
+}: {
+  connectors: ConnectorLine[];
+}) {
+  return (
+    <svg
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        overflow: "visible",
+      }}
+    >
+      {connectors.map((c, i) => {
+        const segs: string[] = [];
+        // Vertical stem from parent card bottom
+        segs.push(`M${c.parentX} ${c.stemTopY}L${c.parentX} ${c.connectorY}`);
+        if (c.childXs.length === 1) {
+          // Single child — straight vertical line
+          segs.push(
+            `M${c.childXs[0]} ${c.connectorY}L${c.childXs[0]} ${c.childTopY}`,
+          );
+        } else {
+          // Horizontal bar between first and last child
+          const minX = Math.min(...c.childXs);
+          const maxX = Math.max(...c.childXs);
+          segs.push(`M${minX} ${c.connectorY}L${maxX} ${c.connectorY}`);
+          // Vertical drops to each child
+          c.childXs.forEach((cx) =>
+            segs.push(`M${cx} ${c.connectorY}L${cx} ${c.childTopY}`),
+          );
+        }
+        return (
+          <path
+            key={i}
+            d={segs.join(" ")}
+            stroke="#cbd5e1"
+            strokeWidth="2"
+            fill="none"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+// ===================== NODE CARD =====================
+interface NodeCardProps {
+  position: Position;
+  isRoot: boolean;
   collapsedNodes: Set<string>;
   onToggle: (id: string) => void;
   draggedId: string | null;
@@ -175,13 +323,13 @@ interface TreeNodeProps {
   onDragEnd: () => void;
   onDrop: (targetId: string, mode: DropMode) => void;
   onPositionClick?: (position: Position) => void;
-  level: number;
   nodeRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
+  style?: React.CSSProperties;
 }
 
-const TreeNode = ({
+const NodeCard = ({
   position,
-  isRoot = false,
+  isRoot,
   collapsedNodes,
   onToggle,
   draggedId,
@@ -190,13 +338,14 @@ const TreeNode = ({
   onDragEnd,
   onDrop,
   onPositionClick,
-  level,
   nodeRefs,
-}: TreeNodeProps) => {
+  style,
+}: NodeCardProps) => {
   const [dropZone, setDropZone] = useState<DropMode | null>(null);
   const children = position.children || [];
-  const isCollapsed = collapsedNodes.has(position.id);
   const hasChildren = children.length > 0;
+  const childCount = children.length;
+  const isCollapsed = collapsedNodes.has(position.id);
   const isDragging = draggedId === position.id && dragType === "position";
 
   const statusBorderColors: Record<string, string> = {
@@ -206,16 +355,12 @@ const TreeNode = ({
   };
   const status = position.status || "on_track";
 
-  // Register ref for this node
   const cardRef = useCallback(
     (el: HTMLDivElement | null) => {
-      if (el) {
-        nodeRefs.current.set(position.id, el);
-      } else {
-        nodeRefs.current.delete(position.id);
-      }
+      if (el) nodeRefs.current.set(position.id, el);
+      else nodeRefs.current.delete(position.id);
     },
-    [position.id, nodeRefs]
+    [position.id, nodeRefs],
   );
 
   const handleDragStart = (e: DragEvent) => {
@@ -224,7 +369,6 @@ const TreeNode = ({
     onDragStart(position.id, "position");
   };
 
-  // Detect which half of the card the cursor is over
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
@@ -252,9 +396,6 @@ const TreeNode = ({
     onDragEnd();
   };
 
-  const childCount = children.length;
-
-  // Visual feedback for drop zones
   const dropRingClass =
     dropZone === "replace"
       ? "ring-2 ring-amber-400 ring-offset-2"
@@ -263,8 +404,7 @@ const TreeNode = ({
         : "";
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Card */}
+    <div style={style}>
       <div
         ref={cardRef}
         draggable={!position.isVacant}
@@ -300,16 +440,22 @@ const TreeNode = ({
           />
 
           <div className="flex flex-col flex-1 min-w-0">
-            <p className={`font-semibold leading-tight truncate ${isRoot ? "text-sm" : "text-xs"} ${position.isVacant ? "text-neutral-400" : "text-neutral-900"}`}>
+            <p
+              className={`font-semibold leading-tight truncate ${isRoot ? "text-sm" : "text-xs"} ${position.isVacant ? "text-neutral-400" : "text-neutral-900"}`}
+            >
               {position.isVacant ? "Vacant" : position.name}
             </p>
-            <p className={`text-[11px] leading-4 truncate ${position.isVacant ? "text-neutral-400" : "text-neutral-500"}`}>
+            <p
+              className={`text-[11px] leading-4 truncate ${position.isVacant ? "text-neutral-400" : "text-neutral-500"}`}
+            >
               {position.title}
             </p>
             {!position.isVacant && (
               <div className="flex items-center gap-1 mt-0.5">
                 <StatusDot status={status} />
-                <span className="text-[10px] text-neutral-400 capitalize">{status.replace("_", " ")}</span>
+                <span className="text-[10px] text-neutral-400 capitalize">
+                  {status.replace("_", " ")}
+                </span>
               </div>
             )}
           </div>
@@ -330,7 +476,9 @@ const TreeNode = ({
                 : "-bottom-6 bg-emerald-500 text-white"
               }`}
           >
-            {dropZone === "replace" ? "⇄ Replace position" : "↓ Assign as subordinate"}
+            {dropZone === "replace"
+              ? "⇄ Replace position"
+              : "↓ Assign as subordinate"}
           </div>
         )}
 
@@ -351,70 +499,6 @@ const TreeNode = ({
           </button>
         )}
       </div>
-
-      {/* Children — smooth animated expand/collapse */}
-      {hasChildren && (
-        <div
-          className="overflow-hidden transition-all duration-400 ease-in-out"
-          style={{
-            maxHeight: isCollapsed ? "0px" : "5000px",
-            opacity: isCollapsed ? 0 : 1,
-            marginTop: isCollapsed ? "0px" : "16px",
-          }}
-        >
-          <div className="flex flex-col items-center">
-            {/* Vertical stem from parent down */}
-            <div className="w-0.5 h-5 bg-neutral-300" />
-
-            {/* Children with consistent padding for equal gaps */}
-            <div className="flex items-start">
-              {children.map((child, idx) => {
-                const isFirst = idx === 0;
-                const isLast = idx === children.length - 1;
-                const isOnly = children.length === 1;
-
-                return (
-                  <div
-                    key={child.id}
-                    className="flex flex-col items-center px-4"
-                  >
-                    {/* Horizontal connector using border-top */}
-                    <div
-                      style={{
-                        width: "100%",
-                        height: 0,
-                        borderTop: isOnly ? "none" : "2px solid #cbd5e1",
-                        ...(isFirst && !isOnly
-                          ? { marginLeft: "50%", width: "50%" }
-                          : {}),
-                        ...(isLast && !isOnly
-                          ? { marginRight: "50%", width: "50%" }
-                          : {}),
-                      }}
-                    />
-                    {/* Vertical drop to child card */}
-                    <div className="w-0.5 h-4 bg-neutral-300" />
-                    {/* Child card */}
-                    <TreeNode
-                      position={child}
-                      collapsedNodes={collapsedNodes}
-                      onToggle={onToggle}
-                      draggedId={draggedId}
-                      dragType={dragType}
-                      onDragStart={onDragStart}
-                      onDragEnd={onDragEnd}
-                      onDrop={onDrop}
-                      onPositionClick={onPositionClick}
-                      level={level + 1}
-                      nodeRefs={nodeRefs}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -499,6 +583,12 @@ export default function PositionTreeView({
   const autoScale = calculateZoomScale(visibleNodeCount);
   const zoomScale = Math.max(0.3, Math.min(1.5, autoScale + manualZoomOffset * 0.1));
   const zoomPercent = Math.round(zoomScale * 100);
+
+  // ---- Compute tree layout ----
+  const layout = useMemo(
+    () => computeLayout(positions, collapsedNodes),
+    [positions, collapsedNodes],
+  );
 
   // ---- Center on root on mount ----
   useEffect(() => {
@@ -759,20 +849,40 @@ export default function PositionTreeView({
               transformOrigin: "top center",
             }}
           >
-            <TreeNode
-              position={positions}
-              isRoot
-              collapsedNodes={collapsedNodes}
-              onToggle={handleToggle}
-              draggedId={draggedId}
-              dragType={dragType}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-              onDrop={handleDrop}
-              onPositionClick={onPositionClick}
-              level={0}
-              nodeRefs={nodeRefs}
-            />
+            <div
+              style={{
+                position: "relative",
+                width: layout.totalWidth,
+                height: layout.totalHeight,
+              }}
+            >
+              <TreeConnectors connectors={layout.connectors} />
+              {layout.entries.map((entry) => {
+                const cardW = entry.isRoot ? ROOT_W : NODE_W;
+                return (
+                  <NodeCard
+                    key={entry.position.id}
+                    position={entry.position}
+                    isRoot={entry.isRoot}
+                    collapsedNodes={collapsedNodes}
+                    onToggle={handleToggle}
+                    draggedId={draggedId}
+                    dragType={dragType}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                    onDrop={handleDrop}
+                    onPositionClick={onPositionClick}
+                    nodeRefs={nodeRefs}
+                    style={{
+                      position: "absolute",
+                      left: entry.x - cardW / 2,
+                      top: entry.y,
+                      transition: "left 0.3s ease, top 0.3s ease",
+                    }}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
