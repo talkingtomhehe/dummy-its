@@ -304,6 +304,7 @@ function TreeConnectors({
             stroke="#cbd5e1"
             strokeWidth="2"
             fill="none"
+            style={{ transition: "opacity 0.2s ease-in" }}
           />
         );
       })}
@@ -605,20 +606,6 @@ export default function PositionTreeView({
     return () => clearTimeout(timer);
   }, [positions.id]);
 
-  // ---- Focus camera on toggled node ----
-  const focusOnNode = useCallback((nodeId: string) => {
-    setTimeout(() => {
-      const el = nodeRefs.current.get(nodeId);
-      if (el && scrollContainerRef.current) {
-        el.scrollIntoView({
-          block: "center",
-          inline: "center",
-          behavior: "smooth",
-        });
-      }
-    }, 150);
-  }, []);
-
   // ---- Edge scrolling when dragging ----
   const EDGE_THRESHOLD = 60;
   const SCROLL_SPEED = 12;
@@ -744,9 +731,8 @@ export default function PositionTreeView({
         }
         return next;
       });
-      focusOnNode(id);
     },
-    [focusOnNode, findSiblingIds, collectAllDescendantIds, positions]
+    [findSiblingIds, collectAllDescendantIds, positions]
   );
 
   // ---- Drag handlers ----
@@ -854,6 +840,7 @@ export default function PositionTreeView({
                 position: "relative",
                 width: layout.totalWidth,
                 height: layout.totalHeight,
+                transition: "width 0.3s ease, height 0.3s ease",
               }}
             >
               <TreeConnectors connectors={layout.connectors} />
@@ -888,8 +875,8 @@ export default function PositionTreeView({
       </div>
 
       {/* Unassigned Employees Panel — collapsible */}
-      {hasUnassigned && showPanel && (
-        <div className="w-[200px] shrink-0 bg-white rounded-xl border border-neutral-100 shadow-sm flex flex-col overflow-hidden transition-all duration-300">
+      {hasUnassigned && (
+        <div className={`shrink-0 bg-white rounded-xl shadow-sm flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${showPanel ? "w-[200px] border border-neutral-100 opacity-100" : "w-0 border-0 opacity-0"}`}>
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-100 bg-neutral-50/50">
             <UsersIcon />
             <span className="text-xs font-semibold text-neutral-700">Unassigned</span>
