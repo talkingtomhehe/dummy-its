@@ -28,24 +28,62 @@ const mockAssignees: Assignee[] = [
   { id: "4", name: "Bob Wilson" },
 ];
 
-// Progress bar component matching existing TaskCard style
-const ProgressBar = ({ progress }: { progress: number }) => {
+// Interactive Progress bar with slider
+const ProgressBar = ({ progress, onChange }: { progress: number; onChange?: (value: number) => void }) => {
   const getProgressColor = (progress: number) => {
     if (progress >= 75) return "bg-status-done";
     if (progress >= 50) return "bg-status-on_track";
     return "bg-primary";
   };
 
+  const getThumbColor = (progress: number) => {
+    if (progress >= 75) return "#00A63E";
+    if (progress >= 50) return "#22C55E";
+    return "#0014A8";
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-neutral-500">Progress</span>
-        <span className="text-sm font-medium text-primary">{progress}%</span>
+        <div className="flex items-center gap-1">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={progress}
+            onChange={(e) => {
+              const val = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+              onChange?.(val);
+            }}
+            className="w-10 text-right text-sm font-medium text-primary bg-transparent outline-none border-b border-transparent focus:border-primary transition-colors"
+          />
+          <span className="text-sm font-medium text-primary">%</span>
+        </div>
       </div>
-      <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
+      <div className="relative">
+        <div className="h-2 bg-neutral-200 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-200 ${getProgressColor(progress)}`}
+            style={{ width: `${Math.max(progress, 1)}%` }}
+          />
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={progress}
+          onChange={(e) => onChange?.(Number(e.target.value))}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          style={{ cursor: 'pointer' }}
+        />
+        {/* Visible thumb indicator */}
         <div
-          className={`h-full rounded-full transition-all ${getProgressColor(progress)}`}
-          style={{ width: `${Math.max(progress, 1)}%` }}
+          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md transition-all duration-200 pointer-events-none"
+          style={{
+            left: `calc(${progress}% - 8px)`,
+            backgroundColor: getThumbColor(progress),
+          }}
         />
       </div>
     </div>
@@ -129,7 +167,7 @@ export default function TaskDetailModal({
       {/* Modal Container - Laptop First: max-width 1440px, responsive padding */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:p-6">
         <div
-          className="w-full max-w-[900px] xl:max-w-[1000px] max-h-[90vh] bg-white rounded-[20px] shadow-xl overflow-hidden flex flex-col animate-slideUp"
+          className="w-full max-w-[900px] xl:max-w-[1000px] max-h-[90vh] bg-white rounded-[20px] shadow-xl overflow-hidden flex flex-col animate-slideUp relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
@@ -180,6 +218,18 @@ export default function TaskDetailModal({
                 <ActivityLog
                   activities={task.activities}
                   comments={task.comments}
+                  onAddComment={(content) => {
+                    const newComment = {
+                      id: `cmt-${Date.now()}`,
+                      user: { id: "current", name: "You" },
+                      content,
+                      timestamp: "Just now",
+                    };
+                    setTask({
+                      ...task,
+                      comments: [...task.comments, newComment],
+                    });
+                  }}
                 />
               </div>
 
@@ -226,7 +276,10 @@ export default function TaskDetailModal({
                 />
 
                 {/* Progress */}
-                <ProgressBar progress={task.progress} />
+                <ProgressBar
+                  progress={task.progress}
+                  onChange={(value) => setTask({ ...task, progress: value })}
+                />
 
                 {/* Metadata */}
                 <div className="flex flex-col gap-3 pt-4 border-t border-neutral-200">

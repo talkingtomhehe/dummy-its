@@ -2,9 +2,18 @@ import { useState } from "react";
 import type { ActivityItem, Comment } from "./types";
 import { ActivityIcon } from "./ModalIcons";
 
+// Send icon for comment input
+const SendIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 interface ActivityLogProps {
   activities: ActivityItem[];
   comments: Comment[];
+  onAddComment?: (content: string) => void;
 }
 
 function ActivityEntry({ activity }: { activity: ActivityItem }) {
@@ -58,8 +67,23 @@ function CommentEntry({ comment }: { comment: Comment }) {
   );
 }
 
-export default function ActivityLog({ activities, comments }: ActivityLogProps) {
+export default function ActivityLog({ activities, comments, onAddComment }: ActivityLogProps) {
   const [activeTab, setActiveTab] = useState<"activity" | "comments">("activity");
+  const [commentText, setCommentText] = useState("");
+
+  const handleSubmitComment = () => {
+    const trimmed = commentText.trim();
+    if (!trimmed) return;
+    onAddComment?.(trimmed);
+    setCommentText("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitComment();
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -67,11 +91,10 @@ export default function ActivityLog({ activities, comments }: ActivityLogProps) 
       <div className="flex items-center gap-6 border-b border-neutral-200">
         <button
           onClick={() => setActiveTab("activity")}
-          className={`pb-2 text-sm font-medium transition-colors relative ${
-            activeTab === "activity"
+          className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "activity"
               ? "text-primary"
               : "text-neutral-400 hover:text-neutral-500"
-          }`}
+            }`}
         >
           Activity Log
           {activeTab === "activity" && (
@@ -80,11 +103,10 @@ export default function ActivityLog({ activities, comments }: ActivityLogProps) 
         </button>
         <button
           onClick={() => setActiveTab("comments")}
-          className={`pb-2 text-sm font-medium transition-colors relative ${
-            activeTab === "comments"
+          className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "comments"
               ? "text-primary"
               : "text-neutral-400 hover:text-neutral-500"
-          }`}
+            }`}
         >
           Comments ({comments.length})
           {activeTab === "comments" && (
@@ -115,6 +137,37 @@ export default function ActivityLog({ activities, comments }: ActivityLogProps) 
           </div>
         )}
       </div>
+
+      {/* Comment Input — always visible when on Comments tab */}
+      {activeTab === "comments" && (
+        <div className="mt-3 flex items-start gap-3 pt-3 border-t border-neutral-100 animate-fadeIn">
+          {/* Current user avatar placeholder */}
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+            Y
+          </div>
+          <div className="flex-1 relative">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Write a comment... (Enter to send, Shift+Enter for new line)"
+              className="w-full min-h-[60px] max-h-[120px] px-3 py-2 pr-10 text-sm text-neutral-900 placeholder:text-neutral-400 border border-neutral-200 rounded-xl resize-none outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              rows={2}
+            />
+            <button
+              onClick={handleSubmitComment}
+              disabled={!commentText.trim()}
+              className={`absolute right-2 bottom-2 p-1.5 rounded-lg transition-colors ${commentText.trim()
+                  ? "text-primary hover:bg-primary/10"
+                  : "text-neutral-300 cursor-not-allowed"
+                }`}
+              aria-label="Send comment"
+            >
+              <SendIcon />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
