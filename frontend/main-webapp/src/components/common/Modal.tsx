@@ -65,7 +65,7 @@ export default function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fadeIn"
         onClick={onClose}
       />
 
@@ -74,7 +74,7 @@ export default function Modal({
         className={`
           bg-white w-full ${maxWidthStyles[maxWidth]} rounded-xl shadow-2xl 
           flex flex-col max-h-[95vh] overflow-hidden 
-          border border-neutral-200 relative z-10
+          border border-neutral-200 relative z-10 animate-slideUp
         `}
       >
         {/* Header */}

@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Project, Tag, Priority } from "../types";
 
 // Priority flag icons
@@ -31,6 +33,32 @@ const CalendarIcon = () => (
     <line x1="13.33" y1="1.67" x2="13.33" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="6.67" y1="1.67" x2="6.67" y2="5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="2.5" y1="8.33" x2="17.5" y2="8.33" stroke="#90A1B9" strokeWidth="1.5" />
+  </svg>
+);
+
+// More options icon (3 dots horizontal)
+const MoreHorizIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="3" cy="8" r="1.5" fill="#62748E" />
+    <circle cx="8" cy="8" r="1.5" fill="#62748E" />
+    <circle cx="13" cy="8" r="1.5" fill="#62748E" />
+  </svg>
+);
+
+// Eye icon for View Details
+const EyeIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+  </svg>
+);
+
+// Kanban icon for View Tasks
+const TasksIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="1" width="4" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="6" y="1" width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="11" y="1" width="4" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 );
 
@@ -109,19 +137,76 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, onClick }: ProjectCardProps) {
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
   return (
     <div
       className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 overflow-hidden min-w-0 cursor-pointer card-hover"
       onClick={onClick}
     >
-      {/* Header: Tags + Priority */}
+      {/* Header: Tags + Priority + Menu */}
       <div className="flex items-start justify-between">
         <div className="flex flex-wrap gap-1">
           {project.tags.map((tag, index) => (
             <TagBadge key={index} tag={tag} />
           ))}
         </div>
-        <FlagIcon priority={project.priority} />
+        <div className="flex items-center gap-1">
+          <FlagIcon priority={project.priority} />
+          {/* Context Menu */}
+          <div ref={menuRef} className="relative">
+            <button
+              className="p-1 hover:bg-neutral-100 rounded transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              aria-label="More options"
+            >
+              <MoreHorizIcon />
+            </button>
+            {isMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-30 min-w-[160px] animate-dropdown">
+                <button
+                  className="w-full text-left px-3 py-2 text-xs text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(false);
+                    navigate(`/projects/${project.id}`);
+                  }}
+                >
+                  <EyeIcon />
+                  View Details
+                </button>
+                <button
+                  className="w-full text-left px-3 py-2 text-xs text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(false);
+                    navigate(`/projects/${project.id}/tasks`);
+                  }}
+                >
+                  <TasksIcon />
+                  View Tasks
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Title */}

@@ -115,3 +115,24 @@ export const ExpandArrowIcon = () => (
     <path d="M6 8L14 15L6 22" stroke="#0014A8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+
+export const MoreVertIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="5" r="1.5" fill="#62748E" />
+    <circle cx="12" cy="12" r="1.5" fill="#62748E" />
+    <circle cx="12" cy="19" r="1.5" fill="#62748E" />
+  </svg>
+);
+
+export const ChevronIcon = ({ collapsed }: { collapsed: boolean }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`transition-transform duration-200 ${collapsed ? "-rotate-90" : "rotate-0"}`}
+  >
+    <path d="M4 6L8 10L12 6" stroke="#62748E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
