@@ -139,8 +139,8 @@ const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
-      `group relative flex items-center rounded-lg transition-all duration-200 ease-out
-       ${isCollapsed ? "w-10 h-10 justify-center" : "w-full px-3 py-2 gap-3"}
+      `group relative flex flex-col items-center justify-center rounded-lg transition-all duration-200 ease-out
+       ${isCollapsed ? "w-10 h-10" : "w-full py-2 px-1"}
        ${isActive
         ? "bg-primary/8 text-primary shadow-sm"
         : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800"
@@ -160,17 +160,15 @@ const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
           <Icon active={isActive} />
         </div>
 
-        {/* Label - animated fade/slide */}
-        <span
-          className={`text-xs font-medium whitespace-nowrap transition-all duration-300 ease-out overflow-hidden
-            ${isCollapsed
-              ? "w-0 opacity-0 ml-0"
-              : "w-auto opacity-100"
-            }
-            ${isActive ? "text-primary font-semibold" : ""}`}
-        >
-          {label}
-        </span>
+        {/* Label below icon */}
+        {!isCollapsed && (
+          <span
+            className={`text-[10px] leading-tight font-medium text-center mt-1 transition-colors
+              ${isActive ? "text-primary font-semibold" : ""}`}
+          >
+            {label}
+          </span>
+        )}
 
         {/* Tooltip for collapsed state */}
         {isCollapsed && (
@@ -178,7 +176,6 @@ const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
                           opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200
                           whitespace-nowrap z-50 shadow-lg">
             {label}
-            {/* Tooltip arrow */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-neutral-800 rotate-45 rounded-sm" />
           </div>
         )}
@@ -202,7 +199,7 @@ export default function Sidebar() {
     <aside
       className={`bg-white flex flex-col items-center gap-1 py-3 rounded-xl shadow-sm border border-neutral-100 sticky top-0 self-start h-[calc(100vh-theme(spacing.16))]
                    transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden
-                   ${isCollapsed ? "w-[56px] px-2" : "w-[140px] px-2.5"}`}
+                   ${isCollapsed ? "w-[56px] px-2" : "w-[80px] px-1.5"}`}
     >
       {/* Collapse Toggle Button */}
       <button
