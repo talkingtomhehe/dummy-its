@@ -147,7 +147,7 @@ export default function ProjectsPage() {
   };
 
   const handleProjectClick = (project: Project) => {
-    navigate(`/projects/${project.id}`);
+    navigate(`/projects/${project.id}/tasks`);
   };
 
   return (
@@ -165,7 +165,7 @@ export default function ProjectsPage() {
       {/* Kanban Board */}
       <div className="flex-1 overflow-hidden px-3 pb-3">
         {viewMode === "kanban" && (
-          <KanbanBoard projectsByStatus={projectsByStatus} />
+          <KanbanBoard projectsByStatus={projectsByStatus} onProjectClick={handleProjectClick} />
         )}
         {viewMode === "list" && (
           <ProjectListView projects={filteredProjects} onProjectClick={handleProjectClick} />

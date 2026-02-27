@@ -1,8 +1,9 @@
 import KanbanColumn from "./KanbanColumn";
-import type { ProjectsByStatus } from "../types";
+import type { Project, ProjectsByStatus } from "../types";
 
 interface KanbanBoardProps {
   projectsByStatus: ProjectsByStatus;
+  onProjectClick?: (project: Project) => void;
 }
 
 const columns = [
@@ -12,7 +13,7 @@ const columns = [
   { key: "completed" as const, title: "COMPLETED" },
 ];
 
-export default function KanbanBoard({ projectsByStatus }: KanbanBoardProps) {
+export default function KanbanBoard({ projectsByStatus, onProjectClick }: KanbanBoardProps) {
   return (
     <div className="flex gap-3 h-full overflow-x-auto pb-2">
       {columns.map((column) => (
@@ -21,6 +22,7 @@ export default function KanbanBoard({ projectsByStatus }: KanbanBoardProps) {
           title={column.title}
           projects={projectsByStatus[column.key]}
           status={column.key}
+          onProjectClick={onProjectClick}
         />
       ))}
     </div>

@@ -105,11 +105,15 @@ const AvatarStack = ({ assignees }: { assignees: Project["assignees"] }) => {
 
 interface ProjectCardProps {
   project: Project;
+  onClick?: () => void;
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, onClick }: ProjectCardProps) {
   return (
-    <div className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 overflow-hidden min-w-0 cursor-pointer card-hover">
+    <div
+      className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 overflow-hidden min-w-0 cursor-pointer card-hover"
+      onClick={onClick}
+    >
       {/* Header: Tags + Priority */}
       <div className="flex items-start justify-between">
         <div className="flex flex-wrap gap-1">

@@ -14,9 +14,10 @@ interface KanbanColumnProps {
   title: string;
   projects: Project[];
   status: ProjectStatus;
+  onProjectClick?: (project: Project) => void;
 }
 
-export default function KanbanColumn({ title, projects }: KanbanColumnProps) {
+export default function KanbanColumn({ title, projects, onProjectClick }: KanbanColumnProps) {
   return (
     <div className="flex flex-col gap-3 min-w-[240px] lg:min-w-[280px] flex-shrink-0">
       {/* Column Header */}
@@ -43,7 +44,7 @@ export default function KanbanColumn({ title, projects }: KanbanColumnProps) {
       {/* Project Cards */}
       <div className="flex flex-col gap-3 overflow-y-auto flex-1 pr-1">
         {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard key={project.id} project={project} onClick={() => onProjectClick?.(project)} />
         ))}
       </div>
     </div>

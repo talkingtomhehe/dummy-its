@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 
 // Search Icon
@@ -69,6 +70,8 @@ interface TeamMember {
   avatar?: string;
 }
 
+type ProjectStatus = "planning" | "in_progress" | "on_hold" | "completed";
+
 interface ProjectDetail {
   id: string;
   title: string;
@@ -80,11 +83,87 @@ interface ProjectDetail {
   plannedStartDate: string;
   plannedEndDate: string;
   priority: "urgent" | "high" | "medium" | "low";
+  status: ProjectStatus;
   progress: number;
   daysRemaining: number;
   milestones: Milestone[];
   isStarred: boolean;
 }
+
+// Status Badge Component
+const StatusBadge = ({ status }: { status: ProjectStatus }) => {
+  const styles: Record<ProjectStatus, string> = {
+    planning: "bg-status-on_hold/15 text-status-on_hold",
+    in_progress: "bg-status-on_track/15 text-status-on_track",
+    on_hold: "bg-status-on_hold/15 text-status-on_hold",
+    completed: "bg-status-done/15 text-status-done",
+  };
+
+  const labels: Record<ProjectStatus, string> = {
+    planning: "Planning",
+    in_progress: "In Progress",
+    on_hold: "On Hold",
+    completed: "Completed",
+  };
+
+  return (
+    <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full font-medium text-xs leading-4 ${styles[status]}`}>
+      {labels[status]}
+    </span>
+  );
+};
+
+// Kanban Board Icon for Manage Tasks button
+const KanbanIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="1" width="4" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="6" y="1" width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
+    <rect x="11" y="1" width="4" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
+  </svg>
+);
+
+// Recent Task Item
+interface RecentTask {
+  id: string;
+  title: string;
+  priority: "urgent" | "high" | "medium" | "low";
+  progress: number;
+  assignee: string;
+  dueDate: string;
+}
+
+const RecentTaskItem = ({ task }: { task: RecentTask }) => {
+  const priorityColors: Record<string, string> = {
+    urgent: "bg-[#E7000B]",
+    high: "bg-[#FF6900]",
+    medium: "bg-[#FFD230]",
+    low: "bg-neutral-400",
+  };
+
+  return (
+    <div className="flex items-center gap-3 py-2 px-1 hover:bg-neutral-50 rounded-lg transition-colors">
+      <div className={`w-2 h-2 rounded-full shrink-0 ${priorityColors[task.priority]}`} />
+      <span className="font-medium text-sm text-neutral-900 flex-1 truncate">{task.title}</span>
+      <div className="flex items-center gap-2 shrink-0">
+        <div className="w-16 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+          <div className="h-full bg-status-on_track rounded-full" style={{ width: `${task.progress}%` }} />
+        </div>
+        <span className="text-xs text-neutral-400 w-8 text-right">{task.progress}%</span>
+      </div>
+      <div className="w-6 h-6 rounded-full bg-status-on_track flex items-center justify-center text-[10px] font-medium text-neutral-900 shrink-0">
+        {task.assignee.charAt(0).toUpperCase()}
+      </div>
+      <span className="text-xs text-neutral-400 shrink-0 hidden sm:inline">{task.dueDate}</span>
+    </div>
+  );
+};
+
+const mockRecentTasks: RecentTask[] = [
+  { id: "t1", title: "Design homepage wireframes", priority: "high", progress: 75, assignee: "Alice", dueDate: "Feb 28" },
+  { id: "t2", title: "Set up CI/CD pipeline", priority: "urgent", progress: 30, assignee: "Bob", dueDate: "Mar 1" },
+  { id: "t3", title: "Implement user authentication", priority: "medium", progress: 50, assignee: "Charlie", dueDate: "Mar 5" },
+  { id: "t4", title: "Database schema migration", priority: "low", progress: 0, assignee: "Diana", dueDate: "Mar 10" },
+];
 
 // Tag Badge Component (reusing pattern from ProjectCard)
 const TagBadge = ({ label, type }: { label: string; type: "department" | "scope" }) => {
@@ -220,6 +299,7 @@ const mockProject: ProjectDetail = {
   plannedStartDate: "01/01/2026",
   plannedEndDate: "01/02/2026",
   priority: "high",
+  status: "in_progress",
   progress: 75,
   daysRemaining: 3,
   milestones: [
@@ -233,11 +313,20 @@ const mockProject: ProjectDetail = {
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const [status, setStatus] = useState<ProjectStatus>(mockProject.status);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   // TODO: Fetch project data based on projectId from API
   // For now, using mock data
   console.log("Loading project:", projectId);
   const project = mockProject;
+
+  const statusOptions: { value: ProjectStatus; label: string }[] = [
+    { value: "planning", label: "Planning" },
+    { value: "in_progress", label: "In Progress" },
+    { value: "on_hold", label: "On Hold" },
+    { value: "completed", label: "Completed" },
+  ];
 
   return (
     <div className="flex flex-col gap-3 w-full max-w-full">
@@ -266,7 +355,7 @@ export default function ProjectDetailPage() {
       <div className="bg-white flex flex-col gap-4 p-3 rounded-[12px] shadow-sm border border-neutral-100">
         {/* Title Row with Progress */}
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-          {/* Title + Star */}
+          {/* Title + Star + Manage Tasks */}
           <div className="flex items-center gap-2 shrink-0">
             <h1 className="font-bold text-lg leading-6 text-neutral-900">
               {project.title}
@@ -274,6 +363,13 @@ export default function ProjectDetailPage() {
             <button type="button" className="shrink-0 hover:scale-110 transition-transform" aria-label="Toggle star">
               <StarIcon filled={project.isStarred} />
             </button>
+            <Link
+              to={`/projects/${projectId}/tasks`}
+              className="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              <KanbanIcon />
+              Manage Tasks
+            </Link>
           </div>
 
           {/* Progress Section */}
@@ -342,6 +438,40 @@ export default function ProjectDetailPage() {
             {/* Priority */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Priority</span>
             <PriorityBadge priority={project.priority} />
+
+            {/* Status */}
+            <span className="font-medium text-xs leading-4 text-neutral-900">Status</span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsStatusOpen(!isStatusOpen)}
+                className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
+              >
+                <StatusBadge status={status} />
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className={`transition-transform ${isStatusOpen ? 'rotate-180' : ''}`}>
+                  <path d="M3 4.5L6 7.5L9 4.5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {isStatusOpen && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-20 min-w-[140px]">
+                  {statusOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-50 transition-colors ${status === option.value ? 'font-bold' : ''
+                        }`}
+                      onClick={() => {
+                        setStatus(option.value);
+                        setIsStatusOpen(false);
+                        console.log('Status changed to:', option.value);
+                      }}
+                    >
+                      <StatusBadge status={option.value} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -365,6 +495,29 @@ export default function ProjectDetailPage() {
         <div className="flex flex-wrap justify-center lg:justify-between gap-4 lg:gap-6 px-2 lg:px-4 py-1 relative z-10">
           {project.milestones.map((milestone) => (
             <MilestoneItem key={milestone.id} milestone={milestone} />
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Tasks Card */}
+      <div className="bg-white flex flex-col gap-2 p-3 rounded-[12px] shadow-sm border border-neutral-100">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-sm leading-5 text-neutral-900">
+            Recent Tasks
+          </h2>
+          <Link
+            to={`/projects/${projectId}/tasks`}
+            className="font-bold text-xs leading-4 text-primary hover:underline inline-flex items-center gap-1"
+          >
+            View All Tasks
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.5 3L7.5 6L4.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+        <div className="flex flex-col divide-y divide-neutral-100">
+          {mockRecentTasks.map((task) => (
+            <RecentTaskItem key={task.id} task={task} />
           ))}
         </div>
       </div>
