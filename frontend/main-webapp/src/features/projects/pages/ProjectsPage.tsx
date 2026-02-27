@@ -141,10 +141,7 @@ export default function ProjectsPage() {
     setIsCreateModalOpen(true);
   };
 
-  const handleFilter = () => {
-    // TODO: Open filter modal
-    console.log("Filter clicked");
-  };
+
 
   const handleProjectClick = (project: Project) => {
     navigate(`/projects/${project.id}/tasks`);
@@ -157,7 +154,6 @@ export default function ProjectsPage() {
         onNewProject={handleNewProject}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onFilter={handleFilter}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />

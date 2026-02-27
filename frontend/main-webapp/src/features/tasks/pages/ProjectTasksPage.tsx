@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { TaskToolbar, TaskKanbanBoard, TaskListView, GanttView, TaskCalendarView, TaskDetailModal } from "../components";
 import type { TaskDetail } from "../components";
-import { ExpandArrowIcon } from "../components/Icons";
+
 import CreateTaskModal from "../../projects/components/CreateTaskModal";
 import type { Stage, ViewMode, Task } from "../types";
 
@@ -90,7 +90,7 @@ export default function ProjectTasksPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [stages, setStages] = useState<Stage[]>(mockStages);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   const [selectedTask, setSelectedTask] = useState<TaskDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
@@ -158,10 +158,7 @@ export default function ProjectTasksPage() {
     console.log("Task saved:", updatedTask);
   };
 
-  const handleFilter = () => {
-    // TODO: Implement filter modal
-    console.log("Open filter modal");
-  };
+
 
   const handleAddStage = () => {
     const newStage: Stage = {
@@ -191,9 +188,10 @@ export default function ProjectTasksPage() {
       {/* Toolbar */}
       <TaskToolbar
         projectName={projectName}
+        projectId={_projectId}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onFilter={handleFilter}
+        onNewTask={() => setIsCreateTaskModalOpen(true)}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />

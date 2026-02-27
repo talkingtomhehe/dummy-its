@@ -1,31 +1,78 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
 import type { ViewMode } from "../types";
 import {
   SearchIcon,
-  FilterIcon,
   KanbanIcon,
   ListIcon,
   TimelineIcon,
   CalendarViewIcon,
 } from "./Icons";
+import FilterDropdown, { type ActiveFilters, type FilterCategory } from "../../../components/common/FilterDropdown";
+
+// Add Icon
+const AddIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const FILTER_CATEGORIES: FilterCategory[] = [
+  {
+    key: "status",
+    label: "Status",
+    options: [
+      { value: "on_track", label: "On Track", color: "bg-status-on_track" },
+      { value: "off_track", label: "Off Track", color: "bg-status-off_track" },
+      { value: "done", label: "Done", color: "bg-status-done" },
+      { value: "on_hold", label: "On Hold", color: "bg-status-on_hold" },
+    ],
+  },
+  {
+    key: "priority",
+    label: "Priority",
+    options: [
+      { value: "high", label: "High", color: "bg-[#FF6900]" },
+      { value: "medium", label: "Medium", color: "bg-[#FFD230]" },
+      { value: "low", label: "Low", color: "bg-neutral-400" },
+    ],
+  },
+  {
+    key: "assignee",
+    label: "Assignee",
+    options: [
+      { value: "alice", label: "Alice" },
+      { value: "bob", label: "Bob" },
+      { value: "charlie", label: "Charlie" },
+      { value: "david", label: "David" },
+      { value: "eve", label: "Eve" },
+    ],
+  },
+];
 
 interface TaskToolbarProps {
   projectName: string;
+  projectId?: string;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onFilter: () => void;
+  onNewTask?: () => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
 }
 
 export default function TaskToolbar({
   projectName,
+  projectId,
   searchQuery,
   onSearchChange,
-  onFilter,
+  onNewTask,
   viewMode,
   onViewModeChange,
 }: TaskToolbarProps) {
+  const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
+
   const viewModes: { mode: ViewMode; icon: (active: boolean) => ReactElement }[] = [
     { mode: "kanban", icon: (active) => <KanbanIcon active={active} /> },
     { mode: "list", icon: (active) => <ListIcon active={active} /> },
@@ -34,17 +81,36 @@ export default function TaskToolbar({
   ];
 
   return (
-    <div className="bg-white flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-[12px] shadow-sm border border-neutral-100">
-      {/* Breadcrumb */}
-      <div className="flex items-center h-7">
-        <span className="font-normal text-xs leading-4 text-black">
-          Project /{" "}
-          <span className="text-primary">{projectName}</span>
-        </span>
+    <div className="bg-white grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-1.5 rounded-[12px] shadow-sm border border-neutral-100">
+      {/* Left: Breadcrumb + New Task */}
+      <div className="flex items-center gap-2">
+        <nav className="flex items-center h-7">
+          <span className="font-normal text-xs leading-4 text-black">
+            <Link to="/projects" className="hover:text-primary transition-colors">
+              Project
+            </Link>
+            {" / "}
+            <Link
+              to={projectId ? `/projects/${projectId}` : "/projects"}
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              {projectName}
+            </Link>
+          </span>
+        </nav>
+        {onNewTask && (
+          <button
+            onClick={onNewTask}
+            className="bg-secondary border border-primary flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-primary font-medium text-xs leading-4 hover:bg-secondary/80 btn-hover"
+          >
+            <AddIcon />
+            <span>New Task</span>
+          </button>
+        )}
       </div>
 
-      {/* Search Input */}
-      <div className="w-full sm:w-[160px] lg:w-[200px] order-last sm:order-none">
+      {/* Center: Search */}
+      <div className="justify-self-center w-[160px] lg:w-[200px]">
         <div className="bg-white border border-neutral-200 rounded-[8px] flex items-center gap-1.5 px-2 h-7">
           <SearchIcon />
           <input
@@ -57,30 +123,28 @@ export default function TaskToolbar({
         </div>
       </div>
 
-      {/* Filter Button */}
-      <button
-        onClick={onFilter}
-        className="bg-neutral-50 border border-neutral-200 flex items-center gap-1.5 px-2 py-1 rounded-[6px] text-neutral-500 font-medium text-xs leading-4 hover:bg-neutral-100 transition-colors"
-      >
-        <FilterIcon />
-        <span>Filter</span>
-      </button>
-
-      {/* View Mode Toggle */}
-      <div className="flex items-center rounded-[6px] overflow-hidden">
-        {viewModes.map(({ mode, icon }) => (
-          <button
-            key={mode}
-            onClick={() => onViewModeChange(mode)}
-            className={`p-1.5 transition-colors ${viewMode === mode
-              ? "bg-primary"
-              : "bg-neutral-200 hover:bg-neutral-300"
-              }`}
-            aria-label={`${mode} view`}
-          >
-            {icon(viewMode === mode)}
-          </button>
-        ))}
+      {/* Right: Filter + View Toggle */}
+      <div className="flex items-center gap-2">
+        <FilterDropdown
+          categories={FILTER_CATEGORIES}
+          activeFilters={activeFilters}
+          onFiltersChange={setActiveFilters}
+        />
+        <div className="flex items-center rounded-[6px] overflow-hidden">
+          {viewModes.map(({ mode, icon }) => (
+            <button
+              key={mode}
+              onClick={() => onViewModeChange(mode)}
+              className={`p-1.5 transition-colors ${viewMode === mode
+                ? "bg-primary"
+                : "bg-neutral-200 hover:bg-neutral-300"
+                }`}
+              aria-label={`${mode} view`}
+            >
+              {icon(viewMode === mode)}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

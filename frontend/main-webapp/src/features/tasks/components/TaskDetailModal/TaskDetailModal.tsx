@@ -170,21 +170,22 @@ export default function TaskDetailModal({
           className="w-full max-w-[900px] xl:max-w-[1000px] max-h-[90vh] bg-white rounded-[20px] shadow-xl overflow-hidden flex flex-col animate-slideUp relative"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 hover:bg-neutral-100 rounded-lg transition-colors z-10"
-            aria-label="Close modal"
-          >
-            <CloseIcon />
-          </button>
+          {/* Sticky Header */}
+          <div className="flex items-center justify-between px-6 lg:px-8 py-4 border-b border-neutral-200 bg-white shrink-0">
+            <h1 className="text-xl lg:text-2xl font-bold text-neutral-900 pr-4 truncate">
+              {task.title}
+            </h1>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-neutral-100 rounded-lg transition-colors shrink-0"
+              aria-label="Close modal"
+            >
+              <CloseIcon />
+            </button>
+          </div>
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto p-6 lg:p-8">
-            {/* Title */}
-            <h1 className="text-xl lg:text-2xl font-bold text-neutral-900 pr-10 mb-6">
-              {task.title}
-            </h1>
 
             {/* Two Column Layout */}
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
