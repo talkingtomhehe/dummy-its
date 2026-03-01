@@ -1,80 +1,29 @@
 // Icons specific to the Task List View
+import Icon from "../../../components/common/Icon";
 
 export const Checkbox = ({ checked }: { checked: boolean }) => (
   <div
-    className={`w-[25px] h-[25px] rounded-[6px] border border-neutral-200 bg-white ${
-      checked ? "bg-primary border-primary" : ""
-    }`}
+    className={`w-[25px] h-[25px] rounded-[6px] border border-neutral-200 bg-white ${checked ? "bg-primary border-primary" : ""
+      }`}
   />
 );
 
 export const CheckboxChecked = () => (
   <div className="w-[25px] h-[25px] rounded-[6px] bg-primary flex items-center justify-center">
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M20 6L9 17L4 12"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Icon name="check" size={20} color="white" />
   </div>
 );
 
 export const ArrowDropDownIcon = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 30 30"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M10 12L15 17L20 12" stroke="#62748E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+  <Icon name="arrow_drop_down" size={30} color="#62748E" />
 );
 
 export const ArrowRightIcon = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 30 30"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M12 10L17 15L12 20" stroke="#62748E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+  <Icon name="chevron_right" size={30} color="#62748E" />
 );
 
 export const ListAddIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M12 5V19"
-      stroke="#62748E"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M5 12H19"
-      stroke="#62748E"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+  <Icon name="add" size={24} color="#62748E" />
 );
 
 export const QuantityBadge = ({ count }: { count: number }) => (
@@ -114,27 +63,7 @@ export const FlagIconSmall = ({
     low: "#99A1AF",
   };
 
-  return (
-    <svg
-      width="30"
-      height="30"
-      viewBox="0 0 30 30"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 21.25V8.75C6 8.75 6.875 7.5 10.5 7.5C14.125 7.5 15.875 10 19.5 10C23.125 10 24 8.75 24 8.75V18.75C24 18.75 23.125 20 19.5 20C15.875 20 14.125 17.5 10.5 17.5C6.875 17.5 6 18.75 6 18.75"
-        fill={colors[priority]}
-      />
-      <path
-        d="M6 21.25V8.75C6 8.75 6.875 7.5 10.5 7.5C14.125 7.5 15.875 10 19.5 10C23.125 10 24 8.75 24 8.75V18.75C24 18.75 23.125 20 19.5 20C15.875 20 14.125 17.5 10.5 17.5C6.875 17.5 6 18.75 6 18.75"
-        stroke={colors[priority]}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Icon name="flag" size={30} color={colors[priority]} filled />;
 };
 
 export const ProgressBar = ({ progress }: { progress: number }) => {

@@ -1,4 +1,6 @@
 // Sort icons
+import Icon from "../../../../components/common/Icon";
+
 export const SortIcon = ({ direction }: { direction: "asc" | "desc" | null }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -28,54 +30,22 @@ export const CheckboxIcon = ({ checked }: { checked: boolean }) => (
 
 // Expand/Collapse icons
 export const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={`transition-transform ${expanded ? "rotate-90" : ""}`}
-  >
-    <path
-      d="M7.5 5L12.5 10L7.5 15"
-      stroke="#62748E"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+  <span className={`inline-flex transition-transform ${expanded ? "rotate-90" : ""}`}>
+    <Icon name="chevron_right" size={20} color="#62748E" />
+  </span>
 );
 
 // More actions icon
 export const MoreIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="10" cy="5" r="1.5" fill="#62748E" />
-    <circle cx="10" cy="10" r="1.5" fill="#62748E" />
-    <circle cx="10" cy="15" r="1.5" fill="#62748E" />
-  </svg>
+  <Icon name="more_vert" size={20} color="#62748E" />
 );
 
 // Calendar icon
 export const CalendarIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2.67" width="12" height="12" rx="2" stroke="#90A1B9" strokeWidth="1.5" />
-    <line x1="10.67" y1="1.33" x2="10.67" y2="4" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="5.33" y1="1.33" x2="5.33" y2="4" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="2" y1="6.67" x2="14" y2="6.67" stroke="#90A1B9" strokeWidth="1.5" />
-  </svg>
+  <Icon name="calendar_today" size={16} color="#90A1B9" />
 );
 
 // Flag icon for priority
 export const FlagIcon = ({ color }: { color: string }) => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M2.67 10C2.67 10 3.33 9.33 5.33 9.33C7.33 9.33 8.67 10.67 10.67 10.67C12.67 10.67 13.33 10 13.33 10V2C13.33 2 12.67 2.67 10.67 2.67C8.67 2.67 7.33 1.33 5.33 1.33C3.33 1.33 2.67 2 2.67 2V10Z"
-      fill={color}
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path d="M2.67 14.67V10" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
+  <Icon name="flag" size={16} color={color} filled />
 );

@@ -176,15 +176,6 @@ export default function ProjectTasksPage() {
 
   return (
     <div className="flex flex-col h-full w-full max-w-[1440px] mx-auto gap-3 relative">
-      {/* Sidebar Collapse Toggle - Left Edge */}
-      {/* <button
-        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className="absolute -left-10 top-4 z-10 bg-primary/20 hover:bg-primary/30 rounded-r-[20px] flex items-center justify-center w-10 h-[60px] transition-colors"
-        aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        <ExpandArrowIcon />
-      </button> */}
-
       {/* Toolbar */}
       <TaskToolbar
         projectName={projectName}

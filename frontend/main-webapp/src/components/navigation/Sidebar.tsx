@@ -1,141 +1,21 @@
 import { NavLink } from "react-router-dom";
-import type { ReactElement } from "react";
 import { useSidebar } from "../../contexts/SidebarContext";
-
-// Icon components as inline SVGs for pixel-perfect rendering
-const DashboardIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <rect x="3" y="3" width="7" height="7" rx="1" fill={active ? "#0014A8" : "#62748E"} />
-    <rect x="14" y="3" width="7" height="7" rx="1" fill={active ? "#0014A8" : "#62748E"} />
-    <rect x="3" y="14" width="7" height="7" rx="1" fill={active ? "#0014A8" : "#62748E"} />
-    <rect x="14" y="14" width="7" height="7" rx="1" fill={active ? "#0014A8" : "#62748E"} />
-  </svg>
-);
-
-const AnnouncementIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <path
-      d="M18 11C18 11 21 12 21 15V17H3V15C3 12 6 11 6 11"
-      stroke={active ? "#0014A8" : "#62748E"}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    />
-    <path
-      d="M12 11C12 11 8 10 8 7V4L12 2L16 4V7C16 10 12 11 12 11Z"
-      stroke={active ? "#0014A8" : "#62748E"}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    />
-    <path
-      d="M9 17V19C9 20.1046 9.89543 21 11 21H13C14.1046 21 15 20.1046 15 19V17"
-      stroke={active ? "#0014A8" : "#62748E"}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const DiscussIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <path
-      d="M4 4H20V16H6L4 18V4Z"
-      stroke={active ? "#0014A8" : "#62748E"}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    />
-    <line x1="8" y1="8" x2="16" y2="8" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
-    <line x1="8" y1="12" x2="14" y2="12" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const PositionIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <circle cx="12" cy="5" r="2" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <circle cx="6" cy="17" r="2" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <circle cx="18" cy="17" r="2" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <path d="M12 7V10M12 10L6 15M12 10L18 15" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-const ProjectIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <rect x="3" y="3" width="6" height="18" rx="1" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <rect x="11" y="3" width="6" height="12" rx="1" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <rect x="19" y="3" width="2" height="8" rx="1" fill={active ? "#0014A8" : "#62748E"} />
-  </svg>
-);
+import Icon from "../common/Icon";
 
 const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
-  >
-    <path d="M15 18L9 12L15 6" stroke="#62748E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M9 18L3 12L9 6" stroke="#62748E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const SettingsIcon = ({ active }: { active: boolean }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="transition-transform duration-200 group-hover:scale-110"
-  >
-    <circle cx="12" cy="12" r="3" stroke={active ? "#0014A8" : "#62748E"} strokeWidth="2" />
-    <path
-      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-      stroke={active ? "#0014A8" : "#62748E"}
-      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    />
-  </svg>
+  <span className={`inline-flex transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}>
+    <Icon name="keyboard_double_arrow_left" size={16} color="#62748E" />
+  </span>
 );
 
 interface NavItemProps {
   to: string;
-  icon: (props: { active: boolean }) => ReactElement;
+  icon: string;
   label: string;
   isCollapsed: boolean;
 }
 
-const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
+const NavItem = ({ to, icon, label, isCollapsed }: NavItemProps) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
@@ -156,9 +36,12 @@ const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
           `}
         />
 
-        <div className="flex-shrink-0">
-          <Icon active={isActive} />
-        </div>
+        <Icon
+          name={icon}
+          size={20}
+          color={isActive ? "#0014A8" : "#62748E"}
+          className="transition-transform duration-200 group-hover:scale-110"
+        />
 
         {/* Label below icon */}
         {!isCollapsed && (
@@ -188,11 +71,11 @@ export default function Sidebar() {
   const { isCollapsed, toggleSidebar } = useSidebar();
 
   const navItems: Omit<NavItemProps, "isCollapsed">[] = [
-    { to: "/dashboard", icon: DashboardIcon, label: "Dashboard" },
-    { to: "/announcements", icon: AnnouncementIcon, label: "Announce" },
-    { to: "/discuss", icon: DiscussIcon, label: "Discuss" },
-    { to: "/positions", icon: PositionIcon, label: "Position" },
-    { to: "/projects", icon: ProjectIcon, label: "Project" },
+    { to: "/dashboard", icon: "dashboard", label: "Dashboard" },
+    { to: "/announcements", icon: "campaign", label: "Announce" },
+    { to: "/discuss", icon: "forum", label: "Discuss" },
+    { to: "/positions", icon: "account_tree", label: "Position" },
+    { to: "/projects", icon: "view_kanban", label: "Project" },
   ];
 
   return (
@@ -232,7 +115,7 @@ export default function Sidebar() {
       {/* Settings Button */}
       <NavItem
         to="/settings"
-        icon={SettingsIcon}
+        icon="settings"
         label="Settings"
         isCollapsed={isCollapsed}
       />

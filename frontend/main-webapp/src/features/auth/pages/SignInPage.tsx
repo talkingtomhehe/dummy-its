@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
+import Icon from "../../../components/common/Icon";
 
-// Logo Icon SVG
+// Logo Icon SVG - keep as custom SVG (brand mark)
 const LogoIcon = () => (
   <svg
     width="78"
@@ -21,62 +22,19 @@ const LogoIcon = () => (
   </svg>
 );
 
-// Person Icon SVG
+// Person Icon
 const PersonIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
-      fill="#90A1B9"
-    />
-  </svg>
+  <Icon name="person" size={24} color="#90A1B9" filled />
 );
 
-// Lock/Encrypted Icon SVG
+// Lock Icon
 const LockIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15.1 8H8.9V6C8.9 4.29 10.29 2.9 12 2.9C13.71 2.9 15.1 4.29 15.1 6V8Z"
-      fill="#90A1B9"
-    />
-  </svg>
+  <Icon name="lock" size={24} color="#90A1B9" filled />
 );
 
-// Passkey Icon SVG
+// Passkey Icon
 const PasskeyIcon = () => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle cx="10" cy="8" r="4" stroke="#0014A8" strokeWidth="2" />
-    <path
-      d="M10 14C6 14 3 16 3 19V21H13"
-      stroke="#0014A8"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <circle cx="18" cy="15" r="3" stroke="#0014A8" strokeWidth="2" />
-    <path
-      d="M18 18V22M16 20H20"
-      stroke="#0014A8"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
+  <Icon name="passkey" size={24} color="#0014A8" />
 );
 
 export default function SignInPage() {

@@ -1,22 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import Icon from "./Icon";
 
 // Icons
 const FilterIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Icon name="filter_alt" size={14} color="currentColor" />
 );
 
 const ChevronDownIcon = () => (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Icon name="expand_more" size={12} color="currentColor" />
 );
 
 const CloseSmallIcon = () => (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7.5 2.5L2.5 7.5M2.5 2.5L7.5 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Icon name="close" size={10} color="currentColor" />
 );
 
 export interface FilterOption {
@@ -187,8 +182,8 @@ export default function FilterDropdown({
                                 {/* Category Options — smooth accordion */}
                                 <div
                                     className={`grid transition-[grid-template-rows] duration-200 ease-out ${expandedCategory === category.key
-                                            ? "grid-rows-[1fr]"
-                                            : "grid-rows-[0fr]"
+                                        ? "grid-rows-[1fr]"
+                                        : "grid-rows-[0fr]"
                                         }`}
                                 >
                                     <div className="overflow-hidden">
