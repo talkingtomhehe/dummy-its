@@ -448,3 +448,140 @@ export const FilterChevronDown = () => (
 export const ModalCloseIcon = () => (
     <Icon name="close" size={20} color="currentColor" />
 );
+
+// ============================================================================
+// CONTEXT MENU / FORM ICONS
+// ============================================================================
+
+export const ErrorIcon = () => (
+    <Icon name="error" size={20} color="currentColor" />
+);
+
+export const ExpandMoreIcon = () => (
+    <Icon name="expand_more" size={24} color="currentColor" />
+);
+
+export const InfoIcon = () => (
+    <Icon name="info" size={18} color="currentColor" />
+);
+
+export const DeleteIcon = ({ size = 20 }: { size?: number }) => (
+    <Icon name="delete" size={size} color="currentColor" />
+);
+
+export const AddCircleIcon = () => (
+    <Icon name="add_circle" size={20} color="currentColor" />
+);
+
+export const StarIcon = ({ filled = false }: { filled?: boolean }) => (
+    <Icon name="star" size={24} color="#FFD230" filled={filled} />
+);
+
+export const EyeIcon = () => (
+    <Icon name="visibility" size={14} color="currentColor" />
+);
+
+export const TasksViewIcon = () => (
+    <Icon name="view_kanban" size={14} color="currentColor" />
+);
+
+export const MoreHorizIcon = () => (
+    <Icon name="more_horiz" size={16} color="#62748E" />
+);
+
+export const SortColumnIcon = () => (
+    <Icon name="sort" size={14} color="currentColor" />
+);
+
+export const RenameIcon = () => (
+    <Icon name="edit" size={14} color="currentColor" />
+);
+
+export const ClearIcon = () => (
+    <Icon name="delete_sweep" size={14} color="currentColor" />
+);
+
+export const DeleteCircleIcon = ({ size = 14 }: { size?: number }) => (
+    <Icon name="cancel" size={size} color="currentColor" />
+);
+
+export const PersonAddIcon = () => (
+    <Icon name="person_add" size={14} color="currentColor" />
+);
+
+export const DescriptionIcon = () => (
+    <Icon name="description" size={18} color="currentColor" />
+);
+
+export const ChecklistIcon = () => (
+    <Icon name="checklist" size={20} color="currentColor" />
+);
+
+export const SendIcon = () => (
+    <Icon name="send" size={16} color="currentColor" />
+);
+
+export const ArrowForwardIcon = () => (
+    <Icon name="arrow_forward" size={24} color="#0F172B" />
+);
+
+/** Sidebar collapse/expand icon with rotation animation */
+export const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
+    <span className={`inline-flex transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}>
+        <Icon name="keyboard_double_arrow_left" size={16} color="#62748E" />
+    </span>
+);
+
+/** Flag icon for forms (outline style) */
+export const FlagOutlineIcon = () => (
+    <Icon name="flag" size={20} color="currentColor" />
+);
+
+// ============================================================================
+// DATE RANGE PICKER ICONS
+// ============================================================================
+
+export const CalendarTodayIcon = () => (
+    <Icon name="calendar_today" size={20} color="currentColor" />
+);
+
+export const EventIcon = () => (
+    <Icon name="event" size={20} color="currentColor" />
+);
+
+export const DateRangeIcon = () => (
+    <Icon name="date_range" size={20} color="currentColor" />
+);
+
+// ============================================================================
+// MILESTONE ICONS (custom SVG — large colored circles)
+// ============================================================================
+
+/** Completed milestone (green circle with check) */
+export const CompletedMilestoneIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="28" fill="#00A63E" />
+        <path d="M20 30L27 37L40 24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+/** Late milestone (red circle with exclamation) */
+export const LateMilestoneIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="28" fill="#E7000B" />
+        <path d="M30 20V32" stroke="white" strokeWidth="4" strokeLinecap="round" />
+        <circle cx="30" cy="40" r="2.5" fill="white" />
+    </svg>
+);
+
+/** Upcoming milestone (gray outlined circle with calendar) */
+export const UpcomingMilestoneIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="28" stroke="#90A1B9" strokeWidth="2" fill="white" />
+        <rect x="20" y="18" width="20" height="20" rx="2" stroke="#90A1B9" strokeWidth="2" fill="none" />
+        <line x1="24" y1="16" x2="24" y2="20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
+        <line x1="36" y1="16" x2="36" y2="20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
+        <line x1="20" y1="26" x2="40" y2="26" stroke="#90A1B9" strokeWidth="2" />
+    </svg>
+);
+

@@ -1,12 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useSidebar } from "../../contexts/SidebarContext";
 import Icon from "../common/Icon";
-
-const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
-  <span className={`inline-flex transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}>
-    <Icon name="keyboard_double_arrow_left" size={16} color="#62748E" />
-  </span>
-);
+import { CollapseIcon } from "../common/Icons";
 
 interface NavItemProps {
   to: string;

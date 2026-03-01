@@ -1,60 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-
-// Search Icon
-const SearchIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="11" cy="11" r="8" stroke="#90A1B9" strokeWidth="2" />
-    <path d="M21 21L16.65 16.65" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-// Star Icon
-const StarIcon = ({ filled = false }: { filled?: boolean }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-      fill={filled ? "#FFD230" : "none"}
-      stroke="#FFD230"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-// Arrow Right Icon
-const ArrowRightIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#0F172B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-// Milestone Icons
-const CompletedMilestoneIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30" cy="30" r="28" fill="#00A63E" />
-    <path d="M20 30L27 37L40 24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-const LateMilestoneIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30" cy="30" r="28" fill="#E7000B" />
-    <path d="M30 20V32" stroke="white" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="30" cy="40" r="2.5" fill="white" />
-  </svg>
-);
-
-const UpcomingMilestoneIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="30" cy="30" r="28" stroke="#90A1B9" strokeWidth="2" fill="white" />
-    <rect x="20" y="18" width="20" height="20" rx="2" stroke="#90A1B9" strokeWidth="2" fill="none" />
-    <line x1="24" y1="16" x2="24" y2="20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
-    <line x1="36" y1="16" x2="36" y2="20" stroke="#90A1B9" strokeWidth="2" strokeLinecap="round" />
-    <line x1="20" y1="26" x2="40" y2="26" stroke="#90A1B9" strokeWidth="2" />
-  </svg>
-);
+import { SearchIcon, StarIcon, ArrowForwardIcon as ArrowRightIcon, CompletedMilestoneIcon, LateMilestoneIcon, UpcomingMilestoneIcon, TasksViewIcon as KanbanIcon } from "../../../components/common/Icons";
 
 // Types
 interface Milestone {
@@ -113,14 +59,7 @@ const StatusBadge = ({ status }: { status: ProjectStatus }) => {
   );
 };
 
-// Kanban Board Icon for Manage Tasks button
-const KanbanIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="1" y="1" width="4" height="14" rx="1" stroke="currentColor" strokeWidth="1.5" />
-    <rect x="6" y="1" width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" />
-    <rect x="11" y="1" width="4" height="7" rx="1" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-);
+
 
 // Recent Task Item
 interface RecentTask {
@@ -141,19 +80,19 @@ const RecentTaskItem = ({ task }: { task: RecentTask }) => {
   };
 
   return (
-    <div className="flex items-center gap-3 py-2 px-1 hover:bg-neutral-50 rounded-lg transition-colors">
-      <div className={`w-2 h-2 rounded-full shrink-0 ${priorityColors[task.priority]}`} />
-      <span className="font-medium text-sm text-neutral-900 flex-1 truncate">{task.title}</span>
-      <div className="flex items-center gap-2 shrink-0">
+    <div className="grid grid-cols-[8px_1fr_100px_28px_60px] items-center gap-3 py-2 px-1 hover:bg-neutral-50 rounded-lg transition-colors">
+      <div className={`w-2 h-2 rounded-full ${priorityColors[task.priority]}`} />
+      <span className="font-medium text-sm text-neutral-900 truncate">{task.title}</span>
+      <div className="flex items-center gap-2">
         <div className="w-16 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
           <div className="h-full bg-status-on_track rounded-full" style={{ width: `${task.progress}%` }} />
         </div>
         <span className="text-xs text-neutral-400 w-8 text-right">{task.progress}%</span>
       </div>
-      <div className="w-6 h-6 rounded-full bg-status-on_track flex items-center justify-center text-[10px] font-medium text-neutral-900 shrink-0">
+      <div className="w-6 h-6 rounded-full bg-status-on_track flex items-center justify-center text-[10px] font-medium text-neutral-900">
         {task.assignee.charAt(0).toUpperCase()}
       </div>
-      <span className="text-xs text-neutral-400 shrink-0 hidden sm:inline">{task.dueDate}</span>
+      <span className="text-xs text-neutral-400 text-right">{task.dueDate}</span>
     </div>
   );
 };
@@ -394,7 +333,7 @@ export default function ProjectDetailPage() {
         {/* Metadata Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-16 gap-y-3 py-1">
           {/* Left Column */}
-          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3">
+          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3 items-center">
             {/* Project Manager */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Project Manager</span>
             <div className="flex items-center gap-2">
@@ -414,7 +353,7 @@ export default function ProjectDetailPage() {
 
             {/* Tags */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Tags</span>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1">
               {project.tags.map((tag, index) => (
                 <TagBadge key={index} label={tag.label} type={tag.type} />
               ))}
@@ -422,7 +361,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Right Column */}
-          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3">
+          <div className="grid grid-cols-[100px_1fr] lg:grid-cols-[120px_1fr] gap-x-4 lg:gap-x-8 gap-y-3 items-center">
             {/* Team Members */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Team Members</span>
             <AvatarStack members={project.teamMembers} maxDisplay={3} />
@@ -437,7 +376,7 @@ export default function ProjectDetailPage() {
 
             {/* Priority */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Priority</span>
-            <PriorityBadge priority={project.priority} />
+            <div><PriorityBadge priority={project.priority} /></div>
 
             {/* Status */}
             <span className="font-medium text-xs leading-4 text-neutral-900">Status</span>
@@ -448,39 +387,38 @@ export default function ProjectDetailPage() {
                 className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"
               >
                 <StatusBadge status={status} />
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className={`transition-transform ${isStatusOpen ? 'rotate-180' : ''}`}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className={`transition-transform duration-200 ${isStatusOpen ? 'rotate-180' : ''}`}>
                   <path d="M3 4.5L6 7.5L9 4.5" stroke="#90A1B9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-              {isStatusOpen && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 z-20 min-w-[140px]">
-                  {statusOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`w-full text-left px-3 py-1.5 text-xs hover:bg-neutral-50 transition-colors ${status === option.value ? 'font-bold' : ''
-                        }`}
-                      onClick={() => {
-                        setStatus(option.value);
-                        setIsStatusOpen(false);
-                        console.log('Status changed to:', option.value);
-                      }}
-                    >
-                      <StatusBadge status={option.value} />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div
+                className={`absolute top-full left-0 mt-1 inline-flex flex-col bg-white border border-neutral-200 rounded-lg shadow-lg py-0.5 z-20 transition-all duration-200 ease-out origin-top ${isStatusOpen
+                  ? 'opacity-100 scale-y-100 pointer-events-auto'
+                  : 'opacity-0 scale-y-75 pointer-events-none'
+                  }`}
+              >
+                {statusOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`text-left px-2 py-1 text-xs hover:bg-neutral-50 rounded transition-colors ${status === option.value ? 'font-bold' : ''
+                      }`}
+                    onClick={() => {
+                      setStatus(option.value);
+                      setIsStatusOpen(false);
+                    }}
+                  >
+                    <StatusBadge status={option.value} />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Milestones Card */}
-      <div className="bg-white flex flex-col gap-3 p-3 rounded-[12px] shadow-sm border border-neutral-100 relative overflow-hidden">
-        {/* Horizontal connecting line (visible on larger screens) */}
-        <div className="hidden lg:block absolute top-[90px] left-[40px] right-[40px] h-[2px] bg-neutral-200" />
-
+      <div className="bg-white flex flex-col gap-3 p-3 rounded-[12px] shadow-sm border border-neutral-100">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-sm leading-5 text-neutral-900">
@@ -491,11 +429,15 @@ export default function ProjectDetailPage() {
           </button>
         </div>
 
-        {/* Milestones Grid */}
-        <div className="flex flex-wrap justify-center lg:justify-between gap-4 lg:gap-6 px-2 lg:px-4 py-1 relative z-10">
-          {project.milestones.map((milestone) => (
-            <MilestoneItem key={milestone.id} milestone={milestone} />
-          ))}
+        {/* Milestones Grid with centered line */}
+        <div className="relative px-2 lg:px-4 py-1">
+          {/* Horizontal line through the center of the circles */}
+          <div className="hidden lg:block absolute left-[60px] right-[60px] top-[24px] h-[2px] bg-neutral-200" style={{ zIndex: 0 }} />
+          <div className="flex flex-wrap justify-center lg:justify-between gap-4 lg:gap-6 relative z-10">
+            {project.milestones.map((milestone) => (
+              <MilestoneItem key={milestone.id} milestone={milestone} />
+            ))}
+          </div>
         </div>
       </div>
 

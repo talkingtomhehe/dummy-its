@@ -1,22 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import ProjectCard from "./ProjectCard";
 import type { Project, ProjectStatus } from "../types";
-
-// More options icon (vertical dots)
-const MoreVertIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="5" r="1.5" fill="#62748E" />
-    <circle cx="12" cy="12" r="1.5" fill="#62748E" />
-    <circle cx="12" cy="19" r="1.5" fill="#62748E" />
-  </svg>
-);
-
-// Sort icon
-const SortIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 6H21M3 12H15M3 18H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
+import { MoreVertIcon, SortColumnIcon as SortIcon } from "../../../components/common/Icons";
 
 interface KanbanColumnProps {
   title: string;
