@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import Icon from "./Icon";
-
-// Close Icon using Material Symbols
-const CloseIcon = () => (
-  <Icon name="close" size={20} color="currentColor" />
-);
+import { ModalCloseIcon as CloseIcon } from "./Icons";
 
 interface ModalProps {
   isOpen: boolean;

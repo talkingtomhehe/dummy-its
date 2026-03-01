@@ -1,6 +1,6 @@
 import type { ProjectTimelineItem } from "./types";
 import { statusLabels, priorityColors } from "./types";
-import { FlagIcon } from "./TimelineIcons";
+import { FlagIconColored as FlagIcon } from "../../../../components/common/Icons";
 
 interface TimelineRowProps {
   project: ProjectTimelineItem;
@@ -49,12 +49,12 @@ export default function TimelineRow({ project, onClick }: TimelineRowProps) {
       <div className="w-20 min-w-[5rem]">
         <span
           className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${project.status === "completed"
-              ? "bg-status-done/15 text-status-done"
-              : project.status === "in_progress"
-                ? "bg-primary/15 text-primary"
-                : project.status === "on_hold"
-                  ? "bg-status-off_track/15 text-status-off_track"
-                  : "bg-status-on_hold/15 text-status-on_hold"
+            ? "bg-status-done/15 text-status-done"
+            : project.status === "in_progress"
+              ? "bg-primary/15 text-primary"
+              : project.status === "on_hold"
+                ? "bg-status-off_track/15 text-status-off_track"
+                : "bg-status-on_hold/15 text-status-on_hold"
             }`}
         >
           {statusLabels[project.status]}

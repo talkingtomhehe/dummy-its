@@ -6,7 +6,7 @@ import {
   ArrowRightIcon,
   ListAddIcon,
   QuantityBadge,
-} from "./ListViewIcons";
+} from "../../../components/common/Icons";
 
 interface StageRowProps {
   stage: Stage;

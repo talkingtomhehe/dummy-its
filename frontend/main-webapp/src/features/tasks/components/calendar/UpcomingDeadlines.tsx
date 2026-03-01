@@ -1,5 +1,5 @@
 import type { UpcomingDeadline } from "./types";
-import { ArrowRightIcon } from "./CalendarIcons";
+import { ArrowRightIcon } from "../../../../components/common/Icons";
 
 interface UpcomingDeadlinesProps {
   deadlines: UpcomingDeadline[];

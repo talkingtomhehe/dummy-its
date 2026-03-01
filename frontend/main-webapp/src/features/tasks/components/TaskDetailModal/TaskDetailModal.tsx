@@ -17,7 +17,7 @@ import {
   LinkIcon,
   ImageIcon,
   CalendarSmallIcon,
-} from "./ModalIcons";
+} from "../../../../components/common/Icons";
 import Button from "../../../../components/common/Button";
 
 // Mock assignee options - would come from API in real app

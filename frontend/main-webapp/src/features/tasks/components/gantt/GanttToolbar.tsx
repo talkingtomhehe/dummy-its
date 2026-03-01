@@ -5,7 +5,7 @@ import {
   GroupByIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-} from "./GanttIcons";
+} from "../../../../components/common/Icons";
 
 interface GanttToolbarProps {
   currentDate: Date;
@@ -146,8 +146,8 @@ export default function GanttToolbar({
             key={mode}
             onClick={() => onViewModeChange(mode)}
             className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${viewMode === mode
-                ? "bg-primary text-white shadow-sm"
-                : "text-neutral-500 hover:text-neutral-900"
+              ? "bg-primary text-white shadow-sm"
+              : "text-neutral-500 hover:text-neutral-900"
               }`}
           >
             {label}

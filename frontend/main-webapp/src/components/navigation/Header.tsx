@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Icon from "../common/Icon";
+import { MessageIcon, NotificationIcon } from "../common/Icons";
 
 // Logo Icon SVG - keep as custom SVG (not a standard Material icon)
 const LogoIcon = () => (
@@ -46,7 +46,7 @@ export default function Header({
           className="p-1.5 rounded-lg hover:bg-neutral-50 transition-colors"
           aria-label="Messages"
         >
-          <Icon name="chat" size={20} color="#62748E" />
+          <MessageIcon />
         </button>
 
         {/* Notification Button */}
@@ -55,7 +55,7 @@ export default function Header({
           className="p-1.5 rounded-lg hover:bg-neutral-50 transition-colors relative"
           aria-label="Notifications"
         >
-          <Icon name="notifications" size={20} color="#62748E" />
+          <NotificationIcon />
         </button>
 
         {/* User Avatar */}

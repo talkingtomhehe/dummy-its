@@ -1,4 +1,4 @@
-import { Checkbox } from "./ListViewIcons";
+import { Checkbox } from "../../../components/common/Icons";
 
 export default function TaskListHeader() {
   return (

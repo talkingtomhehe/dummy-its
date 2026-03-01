@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ActivityItem, Comment } from "./types";
-import { ActivityIcon } from "./ModalIcons";
+import { ActivityIcon } from "../../../../components/common/Icons";
 
 // Send icon for comment input
 const SendIcon = () => (
@@ -92,8 +92,8 @@ export default function ActivityLog({ activities, comments, onAddComment }: Acti
         <button
           onClick={() => setActiveTab("activity")}
           className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "activity"
-              ? "text-primary"
-              : "text-neutral-400 hover:text-neutral-500"
+            ? "text-primary"
+            : "text-neutral-400 hover:text-neutral-500"
             }`}
         >
           Activity Log
@@ -104,8 +104,8 @@ export default function ActivityLog({ activities, comments, onAddComment }: Acti
         <button
           onClick={() => setActiveTab("comments")}
           className={`pb-2 text-sm font-medium transition-colors relative ${activeTab === "comments"
-              ? "text-primary"
-              : "text-neutral-400 hover:text-neutral-500"
+            ? "text-primary"
+            : "text-neutral-400 hover:text-neutral-500"
             }`}
         >
           Comments ({comments.length})
@@ -158,8 +158,8 @@ export default function ActivityLog({ activities, comments, onAddComment }: Acti
               onClick={handleSubmitComment}
               disabled={!commentText.trim()}
               className={`absolute right-2 bottom-2 p-1.5 rounded-lg transition-colors ${commentText.trim()
-                  ? "text-primary hover:bg-primary/10"
-                  : "text-neutral-300 cursor-not-allowed"
+                ? "text-primary hover:bg-primary/10"
+                : "text-neutral-300 cursor-not-allowed"
                 }`}
               aria-label="Send comment"
             >

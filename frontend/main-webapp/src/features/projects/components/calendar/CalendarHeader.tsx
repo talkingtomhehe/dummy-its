@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "./CalendarIcons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../../../../components/common/Icons";
 import { getMonthYear } from "./calendarUtils";
 
 interface CalendarHeaderProps {

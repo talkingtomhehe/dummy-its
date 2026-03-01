@@ -17,6 +17,3 @@ export type {
 
 // Utilities
 export { getCalendarDays, formatMonthYear, getDayNames, getFullDayNames } from "./calendarUtils";
-
-// Icons
-export * from "./CalendarIcons";

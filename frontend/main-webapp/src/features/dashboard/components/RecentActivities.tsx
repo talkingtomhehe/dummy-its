@@ -10,12 +10,7 @@ interface RecentActivitiesProps {
   activities: Activity[];
 }
 
-import Icon from "../../../components/common/Icon";
-
-// History Icon
-const HistoryIcon = () => (
-  <Icon name="history" size={24} color="#62748E" />
-);
+import { HistoryIcon } from "../../../components/common/Icons";
 
 export default function RecentActivities({
   activities,

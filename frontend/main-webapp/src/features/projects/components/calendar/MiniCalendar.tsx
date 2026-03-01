@@ -1,5 +1,5 @@
 import type { CalendarDay } from "./types";
-import { ChevronLeftIcon, ChevronRightIcon } from "./CalendarIcons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../../../../components/common/Icons";
 import { getMonthYear } from "./calendarUtils";
 
 interface MiniCalendarProps {
@@ -71,12 +71,12 @@ export default function MiniCalendar({
             key={index}
             onClick={() => onSelectDate?.(day.date)}
             className={`w-7 h-7 flex items-center justify-center text-xs rounded-full transition-colors ${day.isToday
-                ? "bg-primary text-white"
-                : isSelected(day.date)
-                  ? "bg-primary/20 text-primary"
-                  : day.isCurrentMonth
-                    ? "text-neutral-900 hover:bg-neutral-100"
-                    : "text-neutral-300"
+              ? "bg-primary text-white"
+              : isSelected(day.date)
+                ? "bg-primary/20 text-primary"
+                : day.isCurrentMonth
+                  ? "text-neutral-900 hover:bg-neutral-100"
+                  : "text-neutral-300"
               } ${day.events.length > 0 && !day.isToday && !isSelected(day.date) ? "font-bold" : ""}`}
           >
             {day.date.getDate()}

@@ -4,4 +4,3 @@ export { default as PositionCard, type Position } from "./PositionCard";
 export { default as PositionTreeView, type UnassignedEmployee } from "./PositionTreeView";
 export { default as PositionListView, type Department, type Employee } from "./PositionListView";
 export { default as AddPositionModal } from "./AddPositionModal";
-export * from "./Icons";

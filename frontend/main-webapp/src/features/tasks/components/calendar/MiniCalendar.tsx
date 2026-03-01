@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeftIcon, ChevronRightIcon } from "./CalendarIcons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../../../../components/common/Icons";
 import { getDayNames, getCalendarDays } from "./calendarUtils";
 
 interface MiniCalendarProps {

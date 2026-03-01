@@ -4,12 +4,12 @@ import {
   PositionTreeView,
   PositionListView,
   AddPositionModal,
-  AddIcon,
   type Position,
   type Department,
   type Employee,
   type UnassignedEmployee,
 } from "../components";
+import { AddIcon } from "../../../components/common/Icons";
 
 // Mock unassigned employees (new hires waiting to be placed)
 const initialUnassignedEmployees: UnassignedEmployee[] = [

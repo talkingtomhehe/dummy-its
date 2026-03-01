@@ -5,7 +5,7 @@ import {
   StatusDot,
   FlagIconSmall,
   ProgressBar,
-} from "./ListViewIcons";
+} from "../../../components/common/Icons";
 import AssigneesGroup from "./AssigneesGroup";
 import TagBadge from "./TagBadge";
 

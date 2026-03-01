@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { SubTask } from "./types";
-import { CheckboxIcon, PlusIcon } from "./ModalIcons";
+import { CheckboxIconModal as CheckboxIcon, PlusIcon } from "../../../../components/common/Icons";
 
 interface SubTaskItemProps {
   subTask: SubTask;
@@ -28,7 +28,7 @@ function SubTaskItem({ subTask, onToggle, onUpdate }: SubTaskItemProps) {
       >
         <CheckboxIcon checked={subTask.completed} />
       </button>
-      
+
       {isEditing ? (
         <input
           type="text"
@@ -42,11 +42,10 @@ function SubTaskItem({ subTask, onToggle, onUpdate }: SubTaskItemProps) {
       ) : (
         <span
           onClick={() => setIsEditing(true)}
-          className={`flex-1 text-sm leading-5 cursor-text ${
-            subTask.completed
+          className={`flex-1 text-sm leading-5 cursor-text ${subTask.completed
               ? "text-neutral-400 line-through"
               : "text-neutral-900"
-          }`}
+            }`}
         >
           {subTask.title}
         </span>
@@ -87,7 +86,7 @@ export default function SubTaskList({ subTasks, onChange }: SubTaskListProps) {
   return (
     <div className="flex flex-col gap-1">
       <h3 className="font-medium text-base text-neutral-900 mb-2">Sub-tasks</h3>
-      
+
       <div className="flex flex-col">
         {subTasks.map((subTask) => (
           <SubTaskItem

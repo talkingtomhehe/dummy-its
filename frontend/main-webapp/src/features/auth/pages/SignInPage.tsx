@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Input from "../../../components/common/Input";
 import Button from "../../../components/common/Button";
-import Icon from "../../../components/common/Icon";
+import { PersonIcon, LockIcon, PasskeyIcon } from "../../../components/common/Icons";
 
 // Logo Icon SVG - keep as custom SVG (brand mark)
 const LogoIcon = () => (
@@ -20,21 +20,6 @@ const LogoIcon = () => (
       fill="#0014A8"
     />
   </svg>
-);
-
-// Person Icon
-const PersonIcon = () => (
-  <Icon name="person" size={24} color="#90A1B9" filled />
-);
-
-// Lock Icon
-const LockIcon = () => (
-  <Icon name="lock" size={24} color="#90A1B9" filled />
-);
-
-// Passkey Icon
-const PasskeyIcon = () => (
-  <Icon name="passkey" size={24} color="#0014A8" />
 );
 
 export default function SignInPage() {

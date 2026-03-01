@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ChevronRightIcon, FilterIcon, CalendarIcon, GroupByIcon, TodayIcon } from "./TimelineIcons";
+import { ChevronLeftIcon, ChevronRightIcon, FilterIcon, CalendarDateIcon as CalendarIcon, GridViewIcon as GroupByIcon, TodayIcon } from "../../../../components/common/Icons";
 import type { TimelineViewMode } from "./types";
 import { getMonthName } from "./timelineUtils";
 

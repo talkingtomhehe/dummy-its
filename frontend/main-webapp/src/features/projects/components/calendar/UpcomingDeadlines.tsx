@@ -1,7 +1,7 @@
 import type { UpcomingDeadline } from "./types";
 import { statusLabels } from "./types";
 import { getTimeUntilDeadline, formatDate } from "./calendarUtils";
-import { ClockIcon, FlagIcon } from "./CalendarIcons";
+import { ClockIcon, FlagIconColored as FlagIcon } from "../../../../components/common/Icons";
 
 interface UpcomingDeadlinesProps {
   deadlines: UpcomingDeadline[];

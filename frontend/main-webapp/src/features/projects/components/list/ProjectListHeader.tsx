@@ -1,4 +1,4 @@
-import { CheckboxIcon, SortIcon } from "./ListIcons";
+import { CheckboxIconList as CheckboxIcon, SortIcon } from "../../../../components/common/Icons";
 import type { ProjectListColumn, SortConfig } from "./types";
 
 interface ProjectListHeaderProps {

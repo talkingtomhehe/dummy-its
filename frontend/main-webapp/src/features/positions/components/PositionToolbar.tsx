@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { SearchIcon, TreeViewIcon, ListViewIcon } from "./Icons";
+import { SearchIcon, TreeViewIcon, ListViewIcon } from "../../../components/common/Icons";
 import FilterDropdown, { type ActiveFilters, type FilterCategory } from "../../../components/common/FilterDropdown";
 
 type ViewMode = "tree" | "list";

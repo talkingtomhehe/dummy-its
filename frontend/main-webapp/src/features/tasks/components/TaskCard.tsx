@@ -1,5 +1,5 @@
 import type { Task } from "../types";
-import { FlagIcon, CalendarIcon } from "./Icons";
+import { FlagIcon, CalendarIcon } from "../../../components/common/Icons";
 
 // Progress bar component
 const ProgressBar = ({ progress }: { progress: number }) => {

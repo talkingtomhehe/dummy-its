@@ -1,5 +1,5 @@
 import type { Project } from "../../types";
-import { CheckboxIcon, CalendarIcon, FlagIcon, MoreIcon } from "./ListIcons";
+import { CheckboxIconList as CheckboxIcon, CalendarIcon, FlagIconColored as FlagIcon, MoreIcon } from "../../../../components/common/Icons";
 import { statusLabels, statusColors } from "./types";
 
 interface ProjectListRowProps {
@@ -107,8 +107,8 @@ export default function ProjectListRow({
             <span
               key={index}
               className={`text-xs px-2 py-0.5 rounded-full ${tag.type === "department"
-                  ? "bg-tag-department/15 text-tag-department"
-                  : "bg-tag-scope/15 text-tag-scope"
+                ? "bg-tag-department/15 text-tag-department"
+                : "bg-tag-scope/15 text-tag-scope"
                 }`}
             >
               {tag.label}

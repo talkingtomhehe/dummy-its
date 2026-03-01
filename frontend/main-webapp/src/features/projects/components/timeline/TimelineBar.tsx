@@ -1,7 +1,7 @@
 import type { ProjectTimelineItem, TimelineConfig } from "./types";
 import { timelineStatusColors, priorityColors } from "./types";
 import { calculateBarPosition, formatDate } from "./timelineUtils";
-import { FlagIcon } from "./TimelineIcons";
+import { FlagIconColored as FlagIcon } from "../../../../components/common/Icons";
 
 interface TimelineBarProps {
   project: ProjectTimelineItem;

@@ -10,4 +10,3 @@ export { default as GanttTaskDetailPanel } from "./GanttTaskDetailPanel";
 // Types and utilities
 export * from "./types";
 export * from "./ganttUtils";
-export * from "./GanttIcons";

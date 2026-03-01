@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { Assignee } from "../../types";
-import { ChevronDownIcon } from "./ModalIcons";
+import { ChevronDownIcon } from "../../../../components/common/Icons";
 
 interface AssigneeSelectorProps {
   value: Assignee | null;
@@ -68,9 +68,8 @@ export default function AssigneeSelector({ value, options, onChange }: AssigneeS
                   onChange(assignee);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-50 transition-colors ${
-                  value?.id === assignee.id ? "bg-neutral-50" : ""
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-neutral-50 transition-colors ${value?.id === assignee.id ? "bg-neutral-50" : ""
+                  }`}
               >
                 <div className="w-8 h-8 rounded-full bg-chart-3 flex items-center justify-center text-white text-sm font-medium overflow-hidden">
                   {assignee.avatar ? (

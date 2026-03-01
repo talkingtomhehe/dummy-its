@@ -1,5 +1,5 @@
 import type { StatusCount } from "./types";
-import { CheckIcon, ProgressIcon, PauseIcon, PlanningIcon } from "./CalendarIcons";
+import { CheckCircleIcon as CheckIcon, ProgressIcon, PauseIcon, PlanningIcon } from "../../../../components/common/Icons";
 
 interface StatusOverviewProps {
   counts: StatusCount;

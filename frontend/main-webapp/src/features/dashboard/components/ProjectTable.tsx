@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Icon from "../../../components/common/Icon";
+import { ChevronLeftIcon, ChevronRightIcon } from "../../../components/common/Icons";
 
 type ProjectStatus = "completed" | "in_progress" | "on_hold" | "planning";
 
@@ -45,15 +45,6 @@ const statusConfig: Record<
     progressClass: "bg-neutral-500",
   },
 };
-
-// Chevron icons for pagination
-const ChevronLeftIcon = () => (
-  <Icon name="chevron_left" size={16} color="currentColor" />
-);
-
-const ChevronRightIcon = () => (
-  <Icon name="chevron_right" size={16} color="currentColor" />
-);
 
 export default function ProjectTable({ projects, itemsPerPage = 10 }: ProjectTableProps) {
   const [currentPage, setCurrentPage] = useState(1);

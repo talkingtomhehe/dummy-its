@@ -8,8 +8,6 @@ export { default as StageRow } from "./StageRow";
 export { default as TaskRow } from "./TaskRow";
 export { default as AssigneesGroup } from "./AssigneesGroup";
 export { default as TagBadge } from "./TagBadge";
-export * from "./Icons";
-export * from "./ListViewIcons";
 
 // Task Detail Modal Components
 export { TaskDetailModal } from "./TaskDetailModal";

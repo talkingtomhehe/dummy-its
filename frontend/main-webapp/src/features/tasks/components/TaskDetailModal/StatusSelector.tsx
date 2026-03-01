@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { TaskStatus } from "../../types";
-import { ChevronDownIcon } from "./ModalIcons";
+import { ChevronDownIcon } from "../../../../components/common/Icons";
 
 interface StatusSelectorProps {
   value: TaskStatus;
@@ -59,9 +59,8 @@ export default function StatusSelector({ value, onChange }: StatusSelectorProps)
                   onChange(status.value);
                   setIsOpen(false);
                 }}
-                className={`w-full flex items-center gap-2 px-4 py-2.5 hover:bg-neutral-50 transition-colors ${
-                  value === status.value ? "bg-neutral-50" : ""
-                }`}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 hover:bg-neutral-50 transition-colors ${value === status.value ? "bg-neutral-50" : ""
+                  }`}
               >
                 <div className={`w-2.5 h-2.5 rounded-full ${status.color}`} />
                 <span className="text-sm text-neutral-900">{status.label}</span>

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import type { Stage, Task } from "../types";
 import TaskCard from "./TaskCard";
-import { MoreVertIcon, ChevronIcon, AddIcon } from "./Icons";
+import { MoreVertIcon, ChevronIcon, AddIcon } from "../../../components/common/Icons";
 
 // Rename icon
 const RenameIcon = () => (

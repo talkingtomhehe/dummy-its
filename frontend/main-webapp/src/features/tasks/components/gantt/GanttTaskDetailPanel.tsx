@@ -1,7 +1,7 @@
 import type { GanttTask } from "./types";
 import { statusColors, statusLabels } from "./types";
 import { formatDate } from "./ganttUtils";
-import { CloseIcon, CheckIcon, FlagIcon, PlusIcon } from "./GanttIcons";
+import { CloseIcon, CheckIcon, FlagIconGantt as FlagIcon, PlusIcon } from "../../../../components/common/Icons";
 
 interface GanttTaskDetailPanelProps {
   task: GanttTask | null;
@@ -180,16 +180,16 @@ export default function GanttTaskDetailPanel({
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-5 h-5 rounded flex items-center justify-center ${subTask.completed
-                        ? "bg-primary text-white"
-                        : "border-2 border-neutral-300"
+                      ? "bg-primary text-white"
+                      : "border-2 border-neutral-300"
                       }`}
                   >
                     {subTask.completed && <CheckIcon />}
                   </div>
                   <span
                     className={`text-sm ${subTask.completed
-                        ? "text-neutral-400 line-through"
-                        : "text-neutral-900"
+                      ? "text-neutral-400 line-through"
+                      : "text-neutral-900"
                       }`}
                   >
                     {subTask.title}

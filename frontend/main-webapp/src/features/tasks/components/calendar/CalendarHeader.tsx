@@ -9,7 +9,7 @@ import {
   ChevronRightIcon,
   FilterLinesIcon,
   SettingsGearIcon,
-} from "./CalendarIcons";
+} from "../../../../components/common/Icons";
 
 interface CalendarHeaderProps {
   currentMonth: number;

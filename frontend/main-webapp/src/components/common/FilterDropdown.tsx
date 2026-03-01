@@ -1,18 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import Icon from "./Icon";
-
-// Icons
-const FilterIcon = () => (
-    <Icon name="filter_alt" size={14} color="currentColor" />
-);
-
-const ChevronDownIcon = () => (
-    <Icon name="expand_more" size={12} color="currentColor" />
-);
-
-const CloseSmallIcon = () => (
-    <Icon name="close" size={10} color="currentColor" />
-);
+import { FilterDropdownIcon as FilterIcon, FilterChevronDown as ChevronDownIcon, CloseSmallIcon } from "./Icons";
 
 export interface FilterOption {
     value: string;

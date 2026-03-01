@@ -1,20 +1,7 @@
 import StatCard from "../components/StatCard";
 import ProjectTable from "../components/ProjectTable";
 import RecentActivities from "../components/RecentActivities";
-import Icon from "../../../components/common/Icon";
-
-// Icons for stat cards
-const FolderIcon = () => (
-  <Icon name="folder_open" size={30} color="#0014A8" />
-);
-
-const TaskIcon = () => (
-  <Icon name="task_alt" size={30} color="#0014A8" />
-);
-
-const CalendarIcon = () => (
-  <Icon name="calendar_clock" size={30} color="#0014A8" />
-);
+import { FolderIcon, TaskIcon, CalendarClockIcon as CalendarIcon } from "../../../components/common/Icons";
 
 // Mock data - replace with real data from API
 const mockProjects = [

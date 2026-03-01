@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { CloseIcon, SearchIcon } from "./Icons";
+import { CloseIcon, SearchIcon } from "../../../components/common/Icons";
 
 // Types
 interface AddPositionFormData {
