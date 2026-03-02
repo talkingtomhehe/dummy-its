@@ -1,6 +1,6 @@
 export type TaskPriority = "urgent" | "high" | "medium" | "low";
 
-export type TaskStatus = "to_do" | "on_track" | "off_track" | "on_hold" | "done";
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "BLOCKED" | "IN_REVIEW" | "DONE";
 
 export type TagType = "department" | "scope";
 
@@ -21,10 +21,15 @@ export interface Task {
   title: string;
   description: string;
   priority: TaskPriority;
+  status: TaskStatus;
   progress: number;
   dueDate: string;
   assignees: Assignee[];
   tags?: Tag[];
+  reporterId?: string;
+  estimatedEffort?: number;
+  actualEffort?: number;
+  blockedBy?: string[];
 }
 
 export interface Stage {

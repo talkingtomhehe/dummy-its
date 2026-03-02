@@ -22,7 +22,9 @@ export interface TaskFormData {
   startDate: Date | null;
   endDate: Date | null;
   assigneeId: string;
-  priority: "low" | "medium" | "high";
+  reporterId: string;
+  priority: "low" | "medium" | "high" | "urgent";
+  estimatedEffort: number;
   projectId: string;
   description: string;
   subtasks: SubTask[];
@@ -50,6 +52,7 @@ const PRIORITIES = [
   { value: "low" as const, label: "Low Priority", color: "bg-green-500" },
   { value: "medium" as const, label: "Medium Priority", color: "bg-yellow-500" },
   { value: "high" as const, label: "High Priority", color: "bg-orange-500" },
+  { value: "urgent" as const, label: "Urgent", color: "bg-red-500" },
 ];
 
 export default function CreateTaskModal({
@@ -62,11 +65,15 @@ export default function CreateTaskModal({
     startDate: null,
     endDate: null,
     assigneeId: "",
+    reporterId: "",
     priority: "medium",
+    estimatedEffort: 0,
     projectId: "",
     description: "",
     subtasks: [{ id: "1", name: "", completed: false }],
   });
+  const [showReporterDropdown, setShowReporterDropdown] = useState(false);
+  const selectedReporter = ASSIGNEES.find((a) => a.id === formData.reporterId);
   const [errors, setErrors] = useState<{ name?: string }>({});
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
@@ -128,7 +135,9 @@ export default function CreateTaskModal({
       startDate: null,
       endDate: null,
       assigneeId: "",
+      reporterId: "",
       priority: "medium",
+      estimatedEffort: 0,
       projectId: "",
       description: "",
       subtasks: [{ id: "1", name: "", completed: false }],
@@ -351,6 +360,77 @@ export default function CreateTaskModal({
                 <ExpandMoreIcon />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Reporter & Estimated Effort */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Reporter / Reviewer */}
+          <div>
+            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+              Reporter / Reviewer
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowReporterDropdown(!showReporterDropdown)}
+                className="w-full pl-3 pr-10 py-3 rounded-lg border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-neutral-50 text-left text-sm flex items-center gap-2"
+              >
+                {selectedReporter ? (
+                  <>
+                    <div className="size-6 rounded-full bg-amber-400 text-[10px] flex items-center justify-center text-white font-bold">
+                      {selectedReporter.initials}
+                    </div>
+                    <span className="text-neutral-900 truncate">
+                      {selectedReporter.name}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-neutral-400">Select reviewer...</span>
+                )}
+              </button>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none flex">
+                <ExpandMoreIcon />
+              </div>
+              {showReporterDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-lg shadow-lg z-20">
+                  {ASSIGNEES.map((assignee) => (
+                    <button
+                      key={assignee.id}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, reporterId: assignee.id }));
+                        setShowReporterDropdown(false);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-neutral-100"
+                    >
+                      <div className="size-6 rounded-full bg-amber-400 text-[10px] flex items-center justify-center text-white font-bold">
+                        {assignee.initials}
+                      </div>
+                      <span>{assignee.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Estimated Effort */}
+          <div>
+            <label className="block text-sm font-semibold text-neutral-900 mb-2">
+              Estimated Effort (hours)
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={formData.estimatedEffort || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, estimatedEffort: Number(e.target.value) || 0 }))
+              }
+              placeholder="e.g. 8"
+              className="w-full px-4 py-3 rounded-lg border border-neutral-200 focus:border-primary focus:ring-1 focus:ring-primary bg-neutral-50 text-neutral-900 text-sm transition-colors"
+            />
           </div>
         </div>
 

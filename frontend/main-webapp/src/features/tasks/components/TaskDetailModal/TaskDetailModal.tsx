@@ -19,6 +19,8 @@ import {
   CalendarSmallIcon,
 } from "../../../../components/common/Icons";
 import Button from "../../../../components/common/Button";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useToast } from "../../../../contexts/ToastContext";
 
 // Mock assignee options - would come from API in real app
 const mockAssignees: Assignee[] = [
@@ -29,21 +31,21 @@ const mockAssignees: Assignee[] = [
 ];
 
 // Interactive Progress bar with slider
-const ProgressBar = ({ progress, onChange }: { progress: number; onChange?: (value: number) => void }) => {
+const ProgressBar = ({ progress, onChange, disabled }: { progress: number; onChange?: (value: number) => void; disabled?: boolean }) => {
   const getProgressColor = (progress: number) => {
-    if (progress >= 75) return "bg-status-done";
-    if (progress >= 50) return "bg-status-on_track";
+    if (progress >= 75) return "bg-green-500";
+    if (progress >= 50) return "bg-blue-500";
     return "bg-primary";
   };
 
   const getThumbColor = (progress: number) => {
     if (progress >= 75) return "#00A63E";
-    if (progress >= 50) return "#22C55E";
+    if (progress >= 50) return "#3B82F6";
     return "#0014A8";
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col gap-2 ${disabled ? "opacity-60" : ""}`}>
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-neutral-500">Progress</span>
         <div className="flex items-center gap-1">
@@ -52,11 +54,12 @@ const ProgressBar = ({ progress, onChange }: { progress: number; onChange?: (val
             min="0"
             max="100"
             value={progress}
+            disabled={disabled}
             onChange={(e) => {
               const val = Math.max(0, Math.min(100, Number(e.target.value) || 0));
               onChange?.(val);
             }}
-            className="w-10 text-right text-sm font-medium text-primary bg-transparent outline-none border-b border-transparent focus:border-primary transition-colors"
+            className="w-10 text-right text-sm font-medium text-primary bg-transparent outline-none border-b border-transparent focus:border-primary transition-colors disabled:cursor-not-allowed"
           />
           <span className="text-sm font-medium text-primary">%</span>
         </div>
@@ -68,31 +71,35 @@ const ProgressBar = ({ progress, onChange }: { progress: number; onChange?: (val
             style={{ width: `${Math.max(progress, 1)}%` }}
           />
         </div>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={progress}
-          onChange={(e) => onChange?.(Number(e.target.value))}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          style={{ cursor: 'pointer' }}
-        />
-        {/* Visible thumb indicator */}
-        <div
-          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md transition-all duration-200 pointer-events-none"
-          style={{
-            left: `calc(${progress}% - 8px)`,
-            backgroundColor: getThumbColor(progress),
-          }}
-        />
+        {!disabled && (
+          <>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={progress}
+              onChange={(e) => onChange?.(Number(e.target.value))}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              style={{ cursor: 'pointer' }}
+            />
+            {/* Visible thumb indicator */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md transition-all duration-200 pointer-events-none"
+              style={{
+                left: `calc(${progress}% - 8px)`,
+                backgroundColor: getThumbColor(progress),
+              }}
+            />
+          </>
+        )}
       </div>
     </div>
   );
 };
 
 // Description editor toolbar
-const EditorToolbar = () => (
-  <div className="flex items-center gap-1 py-2 px-3 border-b border-neutral-200">
+const EditorToolbar = ({ disabled }: { disabled?: boolean }) => (
+  <div className={`flex items-center gap-1 py-2 px-3 border-b border-neutral-200 ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
     <button className="p-1.5 hover:bg-neutral-100 rounded transition-colors">
       <BoldIcon />
     </button>
@@ -119,6 +126,111 @@ const EditorToolbar = () => (
   </div>
 );
 
+// Effort tracking fields
+const EffortFields = ({
+  estimatedEffort,
+  actualEffort,
+  onEstimatedChange,
+  onActualChange,
+  disabled,
+}: {
+  estimatedEffort?: number;
+  actualEffort?: number;
+  onEstimatedChange: (v: number) => void;
+  onActualChange: (v: number) => void;
+  disabled?: boolean;
+}) => {
+  const est = estimatedEffort ?? 0;
+  const act = actualEffort ?? 0;
+  const isOverBudget = act > est && est > 0;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium text-neutral-500">Effort (hours)</label>
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <span className="text-xs text-neutral-400 mb-1 block">Estimated</span>
+          <input
+            type="number"
+            min="0"
+            step="0.5"
+            value={est || ""}
+            disabled={disabled}
+            onChange={(e) => onEstimatedChange(Number(e.target.value) || 0)}
+            placeholder="0"
+            className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm text-neutral-900 outline-none focus:border-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          />
+        </div>
+        <div className="flex-1">
+          <span className="text-xs text-neutral-400 mb-1 block">Actual</span>
+          <input
+            type="number"
+            min="0"
+            step="0.5"
+            value={act || ""}
+            disabled={disabled}
+            onChange={(e) => onActualChange(Number(e.target.value) || 0)}
+            placeholder="0"
+            className={`w-full px-3 py-2 bg-neutral-50 border rounded-lg text-sm outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isOverBudget
+                ? "border-red-300 text-red-600 focus:border-red-500"
+                : "border-neutral-200 text-neutral-900 focus:border-primary"
+              }`}
+          />
+        </div>
+      </div>
+      {isOverBudget && (
+        <div className="flex items-center gap-1.5 text-xs text-red-500 font-medium">
+          <span>⚠</span>
+          <span>Actual effort exceeds estimate by {(act - est).toFixed(1)}h</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Rejection reason prompt
+const RejectionPrompt = ({
+  isOpen,
+  onReject,
+  onCancel,
+}: {
+  isOpen: boolean;
+  onReject: (reason: string) => void;
+  onCancel: () => void;
+}) => {
+  const [reason, setReason] = useState("");
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="border border-amber-200 bg-amber-50 rounded-xl p-4 flex flex-col gap-3">
+      <p className="text-sm font-medium text-amber-800">
+        Please provide a reason for rejecting this task:
+      </p>
+      <textarea
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Explain what needs to be revised..."
+        className="w-full min-h-[80px] p-3 text-sm text-neutral-900 border border-amber-200 rounded-lg resize-none outline-none focus:border-amber-400 bg-white"
+      />
+      <div className="flex items-center gap-2 justify-end">
+        <Button variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          onClick={() => {
+            if (reason.trim()) onReject(reason.trim());
+          }}
+          disabled={!reason.trim()}
+        >
+          Submit Rejection
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export default function TaskDetailModal({
   task: initialTask,
   isOpen,
@@ -126,10 +238,20 @@ export default function TaskDetailModal({
   onSave,
 }: TaskDetailModalProps) {
   const [task, setTask] = useState<TaskDetail>(initialTask);
+  const [showRejectionPrompt, setShowRejectionPrompt] = useState(false);
+  const { currentUser } = useAuth();
+  const { showToast } = useToast();
+
+  // Determine role-based permissions
+  const isAssignee = task.assignees.some((a) => a.id === currentUser.id);
+  const isReporter = task.reporterId === currentUser.id;
+  const isInReview = task.status === "IN_REVIEW";
+  const isLockedForAssignee = isInReview && isAssignee && !isReporter;
 
   // Reset task when modal opens with new data
   useEffect(() => {
     setTask(initialTask);
+    setShowRejectionPrompt(false);
   }, [initialTask]);
 
   // Handle escape key to close modal
@@ -154,6 +276,40 @@ export default function TaskDetailModal({
     onClose();
   }, [task, onSave, onClose]);
 
+  const handleApprove = useCallback(() => {
+    const updated = { ...task, status: "DONE" as const };
+    onSave(updated);
+    showToast("Task approved and marked as DONE.", "success");
+    onClose();
+  }, [task, onSave, onClose, showToast]);
+
+  const handleReject = useCallback(
+    (reason: string) => {
+      const updated = {
+        ...task,
+        status: "TODO" as const,
+        comments: [
+          ...task.comments,
+          {
+            id: `cmt-${Date.now()}`,
+            user: { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
+            content: `[REJECTION] ${reason}`,
+            timestamp: "Just now",
+          },
+        ],
+      };
+      onSave(updated);
+      showToast("Task rejected and returned to TODO.", "warning");
+      onClose();
+    },
+    [task, currentUser, onSave, onClose, showToast]
+  );
+
+  // Resolve reporter name from mock assignees
+  const reporterAssignee = task.reporterId
+    ? mockAssignees.find((a) => a.id === task.reporterId) || { id: task.reporterId, name: `User ${task.reporterId}` }
+    : null;
+
   if (!isOpen) return null;
 
   return createPortal(
@@ -164,7 +320,7 @@ export default function TaskDetailModal({
         onClick={onClose}
       />
 
-      {/* Modal Container - Laptop First: max-width 1440px, responsive padding */}
+      {/* Modal Container */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:p-6">
         <div
           className="w-full max-w-[900px] xl:max-w-[1000px] max-h-[90vh] bg-white rounded-[20px] shadow-xl overflow-hidden flex flex-col animate-slideUp relative"
@@ -184,6 +340,16 @@ export default function TaskDetailModal({
             </button>
           </div>
 
+          {/* Review Lock-Out Banner */}
+          {isLockedForAssignee && (
+            <div className="px-6 lg:px-8 py-3 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
+              <span className="text-amber-600 text-sm">🔒</span>
+              <p className="text-sm font-medium text-amber-800">
+                This task is under review. Editing is locked until the reviewer takes action.
+              </p>
+            </div>
+          )}
+
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto p-6 lg:p-8">
 
@@ -196,14 +362,15 @@ export default function TaskDetailModal({
                   <label className="text-sm font-medium text-neutral-900">
                     Description
                   </label>
-                  <div className="border border-neutral-200 rounded-xl overflow-hidden">
-                    <EditorToolbar />
+                  <div className={`border border-neutral-200 rounded-xl overflow-hidden ${isLockedForAssignee ? "opacity-60" : ""}`}>
+                    <EditorToolbar disabled={isLockedForAssignee} />
                     <textarea
                       value={task.description}
+                      disabled={isLockedForAssignee}
                       onChange={(e) =>
                         setTask({ ...task, description: e.target.value })
                       }
-                      className="w-full min-h-[100px] p-4 text-sm text-neutral-900 placeholder:text-neutral-400 resize-none outline-none"
+                      className="w-full min-h-[100px] p-4 text-sm text-neutral-900 placeholder:text-neutral-400 resize-none outline-none disabled:cursor-not-allowed disabled:bg-neutral-50"
                       placeholder="Add a description..."
                     />
                   </div>
@@ -215,6 +382,30 @@ export default function TaskDetailModal({
                   onChange={(subTasks) => setTask({ ...task, subTasks })}
                 />
 
+                {/* Reviewer Approve/Reject Controls */}
+                {isInReview && isReporter && (
+                  <div className="flex flex-col gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                    <p className="text-sm font-medium text-blue-800">
+                      This task is awaiting your review.
+                    </p>
+                    {!showRejectionPrompt && (
+                      <div className="flex items-center gap-3">
+                        <Button variant="primary" onClick={handleApprove}>
+                          ✓ Approve → DONE
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowRejectionPrompt(true)}>
+                          ✕ Reject → TODO
+                        </Button>
+                      </div>
+                    )}
+                    <RejectionPrompt
+                      isOpen={showRejectionPrompt}
+                      onReject={handleReject}
+                      onCancel={() => setShowRejectionPrompt(false)}
+                    />
+                  </div>
+                )}
+
                 {/* Activity & Comments */}
                 <ActivityLog
                   activities={task.activities}
@@ -222,7 +413,7 @@ export default function TaskDetailModal({
                   onAddComment={(content) => {
                     const newComment = {
                       id: `cmt-${Date.now()}`,
-                      user: { id: "current", name: "You" },
+                      user: { id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar },
                       content,
                       timestamp: "Just now",
                     };
@@ -245,10 +436,33 @@ export default function TaskDetailModal({
                   }
                 />
 
+                {/* Reporter (read-only display) */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-neutral-500">Reporter / Reviewer</label>
+                  {reporterAssignee ? (
+                    <div className="flex items-center gap-3 px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl">
+                      <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center text-white text-sm font-medium overflow-hidden">
+                        {reporterAssignee.avatar ? (
+                          <img src={reporterAssignee.avatar} alt={reporterAssignee.name} className="w-full h-full object-cover" />
+                        ) : (
+                          reporterAssignee.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <span className="text-sm font-medium text-neutral-900">{reporterAssignee.name}</span>
+                    </div>
+                  ) : (
+                    <div className="px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-400">
+                      No reviewer assigned
+                    </div>
+                  )}
+                </div>
+
                 {/* Status */}
                 <StatusSelector
                   value={task.status}
+                  task={task}
                   onChange={(status) => setTask({ ...task, status })}
+                  disabled={isLockedForAssignee}
                 />
 
                 {/* Due Date */}
@@ -261,10 +475,11 @@ export default function TaskDetailModal({
                     <input
                       type="text"
                       value={task.dueDate}
+                      disabled={isLockedForAssignee}
                       onChange={(e) =>
                         setTask({ ...task, dueDate: e.target.value })
                       }
-                      className="flex-1 bg-transparent text-sm text-neutral-900 outline-none"
+                      className="flex-1 bg-transparent text-sm text-neutral-900 outline-none disabled:cursor-not-allowed"
                       placeholder="Select date"
                     />
                   </div>
@@ -276,10 +491,20 @@ export default function TaskDetailModal({
                   onChange={(priority) => setTask({ ...task, priority })}
                 />
 
+                {/* Effort Tracking */}
+                <EffortFields
+                  estimatedEffort={task.estimatedEffort}
+                  actualEffort={task.actualEffort}
+                  onEstimatedChange={(v) => setTask({ ...task, estimatedEffort: v })}
+                  onActualChange={(v) => setTask({ ...task, actualEffort: v })}
+                  disabled={isLockedForAssignee}
+                />
+
                 {/* Progress */}
                 <ProgressBar
                   progress={task.progress}
                   onChange={(value) => setTask({ ...task, progress: value })}
+                  disabled={isLockedForAssignee}
                 />
 
                 {/* Metadata */}
@@ -310,9 +535,11 @@ export default function TaskDetailModal({
             <Button variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSave}>
-              Save Task
-            </Button>
+            {!isLockedForAssignee && (
+              <Button variant="primary" onClick={handleSave}>
+                Save Task
+              </Button>
+            )}
           </div>
         </div>
       </div>

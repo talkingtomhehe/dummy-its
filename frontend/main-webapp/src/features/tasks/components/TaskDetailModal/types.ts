@@ -1,4 +1,4 @@
-import type { Task, TaskStatus, Assignee } from "../../types";
+import type { Task, Assignee } from "../../types";
 
 export interface SubTask {
   id: string;
@@ -22,7 +22,6 @@ export interface Comment {
 }
 
 export interface TaskDetail extends Task {
-  status: TaskStatus;
   subTasks: SubTask[];
   activities: ActivityItem[];
   comments: Comment[];

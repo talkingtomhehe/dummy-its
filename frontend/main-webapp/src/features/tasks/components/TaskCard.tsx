@@ -1,14 +1,35 @@
 import type { Task } from "../types";
 import { FlagIcon, CalendarIcon } from "../../../components/common/Icons";
+import { STATUS_CONFIG } from "../workflowUtils";
+
+// Effort badge component
+const EffortBadge = ({ estimated, actual }: { estimated?: number; actual?: number }) => {
+  if (estimated == null && actual == null) return null;
+
+  const est = estimated ?? 0;
+  const act = actual ?? 0;
+  const isOverBudget = act > est && est > 0;
+
+  return (
+    <div
+      className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${isOverBudget
+          ? "bg-red-50 text-red-600 border border-red-200"
+          : "bg-neutral-100 text-neutral-500"
+        }`}
+      title={isOverBudget ? `Over budget: ${act}h logged vs ${est}h estimated` : `Effort: ${act}h / ${est}h`}
+    >
+      {isOverBudget && <span className="text-red-500">⚠</span>}
+      <span>{act}h / {est}h</span>
+    </div>
+  );
+};
 
 // Progress bar component
 const ProgressBar = ({ progress }: { progress: number }) => {
-  // Determine color based on progress
   const getProgressColor = (progress: number) => {
-    if (progress >= 75) return "bg-status-done";
-    if (progress >= 50) return "bg-status-on_track";
-    if (progress >= 25) return "bg-status-on_track";
-    return "bg-status-on_track";
+    if (progress >= 75) return "bg-green-500";
+    if (progress >= 50) return "bg-blue-500";
+    return "bg-blue-400";
   };
 
   return (
@@ -36,7 +57,7 @@ const AvatarStack = ({ assignees }: { assignees: Task["assignees"] }) => {
       {displayAssignees.map((assignee, index) => (
         <div
           key={assignee.id}
-          className="w-6 h-6 rounded-full bg-status-on_track border-2 border-white flex items-center justify-center text-xs font-medium text-neutral-900"
+          className="w-6 h-6 rounded-full bg-blue-400 border-2 border-white flex items-center justify-center text-xs font-medium text-white"
           style={{ zIndex: displayCount - index }}
           title={assignee.name}
         >
@@ -55,12 +76,27 @@ const AvatarStack = ({ assignees }: { assignees: Task["assignees"] }) => {
   );
 };
 
+// Blocked indicator
+const BlockedIndicator = ({ blockedBy }: { blockedBy?: string[] }) => {
+  if (!blockedBy || blockedBy.length === 0) return null;
+  return (
+    <div
+      className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200"
+      title={`Blocked by: ${blockedBy.join(", ")}`}
+    >
+      🔒 Blocked
+    </div>
+  );
+};
+
 interface TaskCardProps {
   task: Task;
   onClick?: () => void;
 }
 
 export default function TaskCard({ task, onClick }: TaskCardProps) {
+  const statusConfig = STATUS_CONFIG[task.status];
+
   return (
     <div
       className="bg-white rounded-[12px] shadow-sm border border-neutral-100 px-3 py-3 flex flex-col gap-3 cursor-pointer overflow-hidden min-w-0 card-hover"
@@ -79,6 +115,12 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
         {task.description}
       </p>
 
+      {/* Effort & Blocked badges row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <EffortBadge estimated={task.estimatedEffort} actual={task.actualEffort} />
+        <BlockedIndicator blockedBy={task.blockedBy} />
+      </div>
+
       {/* Progress */}
       <ProgressBar progress={task.progress} />
 
@@ -96,8 +138,11 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
           </span>
         </div>
 
-        {/* Status dot */}
-        <div className="w-5 h-5 rounded-full bg-status-on_track" />
+        {/* Status dot with label */}
+        <div className="flex items-center gap-1.5" title={statusConfig.label}>
+          <div className={`w-2.5 h-2.5 rounded-full ${statusConfig.color}`} />
+          <span className="text-xs font-medium text-neutral-500">{statusConfig.label}</span>
+        </div>
       </div>
     </div>
   );
