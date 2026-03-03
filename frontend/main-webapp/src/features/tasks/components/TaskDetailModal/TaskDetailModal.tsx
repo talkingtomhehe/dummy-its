@@ -172,8 +172,8 @@ const EffortFields = ({
             onChange={(e) => onActualChange(Number(e.target.value) || 0)}
             placeholder="0"
             className={`w-full px-3 py-2 bg-neutral-50 border rounded-lg text-sm outline-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${isOverBudget
-                ? "border-red-300 text-red-600 focus:border-red-500"
-                : "border-neutral-200 text-neutral-900 focus:border-primary"
+              ? "border-red-300 text-red-600 focus:border-red-500"
+              : "border-neutral-200 text-neutral-900 focus:border-primary"
               }`}
           />
         </div>

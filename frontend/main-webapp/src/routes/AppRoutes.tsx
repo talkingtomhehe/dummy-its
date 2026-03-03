@@ -24,7 +24,7 @@ export const router = createBrowserRouter(
     <>
       {/* Public Landing Page */}
       <Route path="/" element={<LandingPageLayout />}>
-        <Route index element={<LandingPage />}/>
+        <Route index element={<LandingPage />} />
       </Route>
 
       {/* Auth Routes (no sidebar/header) */}
